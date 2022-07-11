@@ -1,0 +1,36 @@
+{
+  "name": "servite",
+  "version": "0.1.0",
+  "description": "",
+  "keywords": [],
+  "author": "Codpoe <codpoe.me@gmail.com>",
+  "license": "MIT",
+  "files": [
+    "bin",
+    "dist",
+    "http-dev-server.d.ts",
+    "vite-dev-server.d.ts"
+  ],
+  "main": "dist/index.js",
+  "scripts": {
+    "prepare": "husky install",
+    "dev": "tsc -w",
+    "build": "rimraf dist && tsc",
+    "lint": "eslint --ext .js,.jsx,.ts,.tsx src",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": "eslint --fix"
+  },
+  "devDependencies": {
+    "@codpoe/eslint-config": "^0.1.3",
+    "@types/node": "^18.0.3",
+    "eslint": "^8.19.0",
+    "husky": "^8.0.1",
+    "lint-staged": "^13.0.3",
+    "prettier": "^2.7.1",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.7.4",
+    "vite": "^2.9.14"
+  }
+}
