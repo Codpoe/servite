@@ -16,7 +16,7 @@ export interface ServiteConfig {
 }
 
 export function servite({
-  entry: serverEntry = 'server',
+  entry: serverEntry = '/server',
 }: ServiteConfig = {}): Plugin {
   let viteConfig: ResolvedConfig;
   let viteDevServer: ViteDevServer;
@@ -42,6 +42,8 @@ export function servite({
 
   return {
     name: 'servite',
+
+    enforce: 'post',
 
     configResolved(config) {
       viteConfig = config;
