@@ -1,5 +1,3 @@
-/// <reference types="vite/client" />
-
 import Koa, { Middleware } from 'koa';
 import Router from '@koa/router';
 import httpDevServer from 'servite/http-dev-server';
@@ -25,18 +23,8 @@ function lazy(importer: () => Promise<{ default: Middleware }>): Middleware {
 }
 
 router.get(
-  '/',
-  lazy(() => import('./routes/home'))
-);
-
-router.get(
-  '/foo',
-  lazy(() => import('./routes/foo'))
-);
-
-router.get(
-  '/bar',
-  lazy(() => import('./routes/bar'))
+  '/user',
+  lazy(() => import('./routes/user'))
 );
 
 app.use(router.routes());
@@ -44,6 +32,7 @@ app.use(router.routes());
 if (httpDevServer) {
   httpDevServer.on('request', app.callback());
 } else {
+  // eslint-disable-next-line no-console
   console.log('Starting prod server');
   app.listen(3000);
 }
