@@ -24,7 +24,7 @@ importers:
       upath: ^2.0.1
       vite: ^3.0.2
       vite-plugin-conventional-entries: ^0.1.10-beta.8
-      vite-plugin-conventional-routes: ^0.1.12-beta.9
+      vite-plugin-conventional-routes: ^0.1.12-beta.11
     dependencies:
       fs-extra: 10.1.0
       react-helmet-async: 1.3.0
@@ -47,7 +47,7 @@ importers:
       typescript: 4.7.4
       vite: 3.0.2
       vite-plugin-conventional-entries: 0.1.10-beta.8
-      vite-plugin-conventional-routes: 0.1.12-beta.9
+      vite-plugin-conventional-routes: 0.1.12-beta.11
 
   examples/express:
     specifiers:
@@ -5803,8 +5803,8 @@ packages:
       upath: 2.0.1
     dev: true
 
-  /vite-plugin-conventional-routes/0.1.12-beta.9:
-    resolution: {integrity: sha512-4v8b518BwXHwLLtjBBGST71mIdmP7j5sFuDhhxOXTx0uT8pV1G01JdoaiMJ3E5LoG+eT1Fpttw5hE+t4b257mg==}
+  /vite-plugin-conventional-routes/0.1.12-beta.11:
+    resolution: {integrity: sha512-FcMklE8SgxDfes3D9aJ2Z5IQ29NP/IGHCpfUPKDcGToip0uikRzQT1uJCLJDmPtQt5ToFseQeNYEV6RGN3mAOQ==}
     dependencies:
       chokidar: 3.5.3
       fast-glob: 3.2.11
