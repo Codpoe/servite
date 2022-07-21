@@ -1,9 +1,8 @@
 import path from 'upath';
 import fs from 'fs-extra';
 import { DEFAULT_SERVER_ENTRY } from './constants';
-import { ServiteConfig, ResolvedServiteConfig } from './types';
 
-function resolveServerEntry(root: string, userServerEntry?: string) {
+export function resolveServerEntry(root: string, userServerEntry?: string) {
   if (userServerEntry) {
     return path.join(
       '/',
@@ -16,13 +15,4 @@ function resolveServerEntry(root: string, userServerEntry?: string) {
       return path.join('/', entry);
     }
   }
-}
-
-export function resolveServiteConfig(
-  root: string,
-  config: ServiteConfig
-): ResolvedServiteConfig {
-  return {
-    serverEntry: resolveServerEntry(root, config.serverEntry),
-  };
 }

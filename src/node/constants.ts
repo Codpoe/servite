@@ -8,3 +8,7 @@ export const DEFAULT_SERVER_ENTRY = [
   'server/index.js',
   'server/index.ts',
 ];
+
+export const DEFAULT_PAGES_DIR = 'src/pages';
+
+export const PAGES_PATTERN = ['**/page{.js,.jsx,.ts,.tsx}', '**/*{.md,.mdx}'];

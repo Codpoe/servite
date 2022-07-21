@@ -4,9 +4,11 @@ export interface ServiteConfig {
    */
   serverEntry?: string;
   /**
+   * Pages directory to find pages
+   */
+  pagesDir?: string;
+  /**
    * Client root layout file path
    */
-  rootLayout?: string;
+  rootLayoutFile?: string;
 }
-
-export interface ResolvedServiteConfig extends ServiteConfig {}

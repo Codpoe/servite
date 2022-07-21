@@ -1,48 +1,43 @@
-import crypto from 'crypto';
 import { Connect, Plugin, ResolvedConfig, ViteDevServer } from 'vite';
 import { conventionalEntries } from 'vite-plugin-conventional-entries';
 import { conventionalRoutes } from 'vite-plugin-conventional-routes';
-import { resolveServiteConfig } from './config';
-import { APP_DIR } from './constants';
-import { ResolvedServiteConfig } from './types';
+import { resolveServerEntry } from './config';
+import { randomString } from './utils';
+import { APP_DIR, DEFAULT_PAGES_DIR, PAGES_PATTERN } from './constants';
+import { ServiteConfig } from './types';
 
 const GLOBAL: any = global;
 
 const HTTP_DEV_SERVER_MODULE_ID = 'servite/http-dev-server';
 const VITE_DEV_SERVER_MODULE_ID = 'servite/vite-dev-server';
 
-const randomString = () => {
-  crypto.randomBytes(20).toString('hex');
-};
-
-export interface ServiteConfig {
-  serverEntry?: string;
-  appFile?: string;
-}
-
 export function servite(serviteConfig: ServiteConfig = {}): Plugin[] {
-  let resolvedServiteConfig: ResolvedServiteConfig;
+  const { serverEntry, pagesDir = DEFAULT_PAGES_DIR } = serviteConfig;
+
   let viteConfig: ResolvedConfig;
   let viteDevServer: ViteDevServer;
   let httpDevServerGlobalKey: string;
   let viteDevServerGlobalKey: string;
 
   const loadServerEntry = async () => {
-    const { serverEntry } = resolvedServiteConfig;
+    const serverEntryRequestPath = resolveServerEntry(
+      viteConfig.root,
+      serverEntry
+    );
 
-    if (!serverEntry) {
+    if (!serverEntryRequestPath) {
       return;
     }
 
     const resolvedId = await viteDevServer.pluginContainer.resolveId(
-      serverEntry,
+      serverEntryRequestPath,
       undefined,
       { ssr: true }
     );
 
     if (!resolvedId) {
       viteConfig.logger.error(
-        `[servite] server entry '${serverEntry}' can not be resolved`
+        `[servite] server entry '${serverEntryRequestPath}' can not be resolved`
       );
       return;
     }
@@ -53,23 +48,16 @@ export function servite(serviteConfig: ServiteConfig = {}): Plugin[] {
   const plugins: Plugin[] = [
     {
       name: 'servite',
-
       enforce: 'post',
-
       configResolved(config) {
-        resolvedServiteConfig = resolveServiteConfig(
-          config.root,
-          serviteConfig
-        );
         viteConfig = config;
       },
-
       configureServer(server) {
         viteDevServer = server;
 
         let requestListener: Connect.NextHandleFunction | undefined;
 
-        viteDevServer.httpServer?.on('listening', () => {
+        server.httpServer?.on('listening', () => {
           // proxy httpServer to get request listener
           GLOBAL[httpDevServerGlobalKey] = new Proxy(server.httpServer!, {
             get(target, prop) {
@@ -137,19 +125,16 @@ export function servite(serviteConfig: ServiteConfig = {}): Plugin[] {
           });
         };
       },
-
       buildStart() {
         httpDevServerGlobalKey = '__SERVITE_HTTP_DEV_SERVER__' + randomString();
         viteDevServerGlobalKey = '__SERVITE_VITE_DEV_SERVER__' + randomString();
 
         GLOBAL[viteDevServerGlobalKey] = viteDevServer;
       },
-
       closeBundle() {
         delete GLOBAL[httpDevServerGlobalKey];
         delete GLOBAL[viteDevServerGlobalKey];
       },
-
       resolveId(source) {
         if (
           source === HTTP_DEV_SERVER_MODULE_ID ||
@@ -158,7 +143,6 @@ export function servite(serviteConfig: ServiteConfig = {}): Plugin[] {
           return source;
         }
       },
-
       load(id) {
         if (
           id === HTTP_DEV_SERVER_MODULE_ID &&
@@ -174,7 +158,6 @@ export function servite(serviteConfig: ServiteConfig = {}): Plugin[] {
           return `export default global.${viteDevServerGlobalKey}`;
         }
       },
-
       handleHotUpdate(ctx) {
         // eslint-disable-next-line no-console
         console.log(ctx.modules.map(m => m.id));
@@ -185,8 +168,8 @@ export function servite(serviteConfig: ServiteConfig = {}): Plugin[] {
     }),
     conventionalRoutes({
       pages: {
-        dir: 'src/pages',
-        pattern: ['**/page{.js,.jsx,.ts,.tsx}', '**/*{.md,.mdx}'],
+        dir: pagesDir,
+        pattern: PAGES_PATTERN,
       },
     }),
   ];

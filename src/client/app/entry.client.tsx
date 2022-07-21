@@ -1,8 +1,9 @@
 import { createRoot, hydrateRoot } from 'react-dom/client';
 import { BrowserRouter, HashRouter } from 'react-router-dom';
-import { HelmetProvider } from 'react-helmet-async';
-import { App, waitForPageReady } from './main';
-import { createAppState, ssrData } from './state';
+import { createApp } from './main';
+
+// `build` will inject global variable: `__SSR_DATA__`
+const ssrData = typeof window !== 'undefined' ? window.__SSR_DATA__ : undefined;
 
 const Router = __HASH_ROUTER__ ? HashRouter : BrowserRouter;
 const basename = import.meta.env.BASE_URL?.replace(/\/$/, '');
@@ -11,31 +12,24 @@ async function bootstrap() {
   const container = document.getElementById('root');
 
   if (!container) {
-    if (import.meta.env.DEV) {
-      // eslint-disable-next-line no-console
-      console.error('[pressify]', 'Cannot find an element with id "root"');
-    }
-    return;
+    throw new Error('[servite] Cannot find an element with id "root"');
   }
 
-  const { appState, AppStateProvider } = createAppState();
+  const App = await createApp({ pagePath: ssrData?.pagePath });
 
   const element = (
     <Router basename={basename}>
-      <HelmetProvider>
-        <AppStateProvider>
-          <App />
-        </AppStateProvider>
-      </HelmetProvider>
+      <App />
     </Router>
   );
 
   if (!ssrData) {
+    // csr
     createRoot(container).render(element);
     return;
   }
 
-  await waitForPageReady(appState, ssrData.pagePath);
+  // ssr hydrate
   hydrateRoot(container, element);
 }
 

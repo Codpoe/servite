@@ -11,18 +11,10 @@ declare module '/@pressify/theme*' {
   export default theme;
 }
 
-declare module '/@pressify/theme-config*' {
-  const themeConfig: any;
-
-  export default themeConfig;
-}
-
 declare const __HASH_ROUTER__: boolean;
 
 interface Window {
-  __PRESSIFY_SSR_DATA__?: {
+  __SSR_DATA__?: {
     pagePath: string;
-    assetPath: string;
-    pageModule?: any;
   };
 }

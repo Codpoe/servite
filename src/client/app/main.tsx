@@ -1,29 +1,35 @@
-import { useContext, useEffect, useLayoutEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation, matchRoutes } from 'react-router-dom';
-import { ref } from 'valtio';
-import { MDXProvider } from '@mdx-js/react';
-import { Route } from 'virtual:conventional-routes';
-import { appContext } from './hooks';
-import { AppState } from './types';
+import { HelmetProvider } from 'react-helmet-async';
+import routes, { Route } from 'virtual:conventional-routes';
+import pagesData from 'virtual:conventional-pages-data';
+import { appContext } from './context';
+import { AppState, PageError } from './types';
 
-const _useLayoutEffect =
-  typeof window !== 'undefined' ? useLayoutEffect : useEffect;
-
-export async function waitForPageReady(appState: AppState, pagePath: string) {
+async function waitForPageReady(
+  appState: AppState,
+  pagePath: string
+): Promise<AppState | undefined> {
   if (appState.pagePath === pagePath) {
     return;
   }
 
+  const newAppState = { ...appState };
   const matches = matchRoutes(appState.routes, pagePath);
 
   if (!matches?.length) {
-    return;
+    newAppState.pageError = new PageError('Page not found', {
+      isNotFound: true,
+    });
+    return newAppState;
   }
 
   try {
     const modules = await Promise.all(
       matches.map(async m => (m.route as Route).component.preload?.())
     );
+
+    // TODO: run preload
 
     const pageModule = modules.reduce(
       (all, current) => ({
@@ -33,40 +39,73 @@ export async function waitForPageReady(appState: AppState, pagePath: string) {
       {}
     );
 
-    // update app state
-    appState.pagePath = pagePath;
-    appState.pageData = appState.pagesData[pagePath];
-    appState.pageModule = ref(pageModule);
-    appState.pageError = null;
+    Object.assign(newAppState, {
+      pagePath,
+      pageData: appState.pagesData[pagePath],
+      pageModule,
+      pageError: null,
+    });
   } catch (err) {
     if (err instanceof Error) {
-      appState.pageError = err;
+      newAppState.pageError = err;
     }
   } finally {
-    appState.pageLoading = false;
+    newAppState.pageLoading = false;
   }
+
+  return newAppState;
 }
 
-export function App() {
-  const appState = useContext(appContext);
-  const { pathname } = useLocation();
+export interface CreateAppConfig {
+  pagePath?: string;
+  helmetContext?: Record<string, unknown>;
+}
 
-  _useLayoutEffect(() => {
-    async function load() {
-      const timer = setTimeout(() => {
-        appState.pageLoading = true;
-      }, 100);
+export async function createApp({
+  pagePath,
+  helmetContext,
+}: CreateAppConfig = {}) {
+  let initialAppState: AppState = {
+    routes,
+    pagesData,
+    pageLoading: false,
+    pageError: null,
+  };
 
-      await waitForPageReady(appState, pathname);
-      clearTimeout(timer);
-    }
+  if (pagePath) {
+    initialAppState =
+      (await waitForPageReady(initialAppState, pagePath)) || initialAppState;
+  }
 
-    load();
-  }, [pathname, appState]);
+  return function App() {
+    const [appState, setAppState] = useState(initialAppState);
+    const { pathname } = useLocation();
 
-  return (
-    <MDXProvider components={appState.theme.mdxComponents}>
-      <appState.theme.Layout />
-    </MDXProvider>
-  );
+    useEffect(() => {
+      (async () => {
+        const timer = setTimeout(() => {
+          appState.pageLoading = true;
+        }, 100);
+
+        const newAppState = await waitForPageReady(appState, pathname);
+
+        if (newAppState) {
+          setAppState(newAppState);
+        }
+
+        clearTimeout(timer);
+      })();
+    }, [pathname, appState]);
+
+    useEffect(() => {
+      // eslint-disable-next-line no-console
+      console.log('[servite] appState', appState);
+    }, [appState]);
+
+    return (
+      <HelmetProvider context={helmetContext}>
+        <appContext.Provider value={appState}>123</appContext.Provider>
+      </HelmetProvider>
+    );
+  };
 }

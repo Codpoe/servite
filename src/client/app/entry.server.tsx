@@ -1,9 +1,7 @@
 import { renderToString } from 'react-dom/server';
 import { StaticRouter } from 'react-router-dom/server';
-import { HelmetProvider } from 'react-helmet-async';
 import path from 'upath';
-import { App, waitForPageReady } from './main';
-import { createAppState } from './state';
+import { createApp } from './main';
 
 const basename = import.meta.env.BASE_URL?.replace(/\/$/, '');
 
@@ -11,19 +9,14 @@ export async function render(
   pagePath: string,
   helmetContext: Record<string, unknown>
 ) {
-  const { appState, AppStateProvider } = createAppState();
-  await waitForPageReady(appState, pagePath);
+  const App = await createApp({ pagePath, helmetContext });
 
   return renderToString(
     <StaticRouter
       basename={basename}
       location={path.join(basename || '', pagePath)}
     >
-      <HelmetProvider context={helmetContext}>
-        <AppStateProvider>
-          <App />
-        </AppStateProvider>
-      </HelmetProvider>
+      <App />
     </StaticRouter>
   );
 }
