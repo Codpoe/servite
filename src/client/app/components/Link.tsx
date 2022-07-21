@@ -8,7 +8,7 @@ import {
   useLocation,
 } from 'react-router-dom';
 import nprogress from 'nprogress';
-import { useAppState } from '../hooks';
+import { useAppState } from '../context';
 
 export interface LinkProps
   extends Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'href'> {
