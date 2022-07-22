@@ -1,6 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "module": "ESNext",
     "jsx": "react-jsx",
     "types": ["vite/client", "vite-plugin-conventional-routes/shim"],
     "outDir": "../../dist/client"

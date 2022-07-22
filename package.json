@@ -16,6 +16,8 @@
   "types": "dist/node/index.d.ts",
   "exports": {
     ".": "./dist/node/index.js",
+    "./http-dev-server": "./dist/node/http-dev-server.js",
+    "./vite-dev-server": "./dist/node/vite-dev-server.js",
     "./client": "./dist/client/index.js"
   },
   "scripts": {
