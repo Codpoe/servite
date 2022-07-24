@@ -1,14 +1,17 @@
 export interface ServiteConfig {
   /**
-   * Server entry file path
-   */
-  serverEntry?: string;
-  /**
    * Pages directory to find pages
+   * @default 'src/pages'
    */
   pagesDir?: string;
   /**
-   * Client root layout file path
+   * SSR
+   * @default true
    */
-  rootLayoutFile?: string;
+  ssr?: boolean;
+  /**
+   * Use HashRouter instead of BrowserRouter
+   * @default false
+   */
+  hashRouter?: boolean;
 }

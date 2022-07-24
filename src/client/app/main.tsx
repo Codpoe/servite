@@ -1,10 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation, matchRoutes } from 'react-router-dom';
-import { HelmetProvider } from 'react-helmet-async';
+import { HelmetProvider, Helmet } from 'react-helmet-async';
 import routes, { Route } from 'virtual:conventional-routes';
 import pagesData from 'virtual:conventional-pages-data';
 import { appContext } from './context';
 import { AppState, PageError } from './types';
+import { Page } from './components/Page';
+
+const isSSR = import.meta.env.SSR;
+const isDev = import.meta.env.DEV;
 
 async function waitForPageReady(
   appState: AppState,
@@ -51,6 +55,15 @@ async function waitForPageReady(
     }
   } finally {
     newAppState.pageLoading = false;
+
+    if (
+      typeof document !== 'undefined' &&
+      document.documentElement.hasAttribute('hidden')
+    ) {
+      setTimeout(() => {
+        document.documentElement.removeAttribute('hidden');
+      }, 0);
+    }
   }
 
   return newAppState;
@@ -79,15 +92,24 @@ export async function createApp({
 
   return function App() {
     const [appState, setAppState] = useState(initialAppState);
+    const appStateRef = useRef(appState);
+    appStateRef.current = appState;
+
     const { pathname } = useLocation();
 
     useEffect(() => {
       (async () => {
         const timer = setTimeout(() => {
-          appState.pageLoading = true;
+          setAppState(prev => ({
+            ...prev,
+            pageLoading: true,
+          }));
         }, 100);
 
-        const newAppState = await waitForPageReady(appState, pathname);
+        const newAppState = await waitForPageReady(
+          appStateRef.current,
+          pathname
+        );
 
         if (newAppState) {
           setAppState(newAppState);
@@ -95,7 +117,7 @@ export async function createApp({
 
         clearTimeout(timer);
       })();
-    }, [pathname, appState]);
+    }, [pathname]);
 
     useEffect(() => {
       // eslint-disable-next-line no-console
@@ -104,7 +126,10 @@ export async function createApp({
 
     return (
       <HelmetProvider context={helmetContext}>
-        <appContext.Provider value={appState}>123</appContext.Provider>
+        <Helmet defaultTitle="Servite App"></Helmet>
+        <appContext.Provider value={appState}>
+          <Page />
+        </appContext.Provider>
       </HelmetProvider>
     );
   };

@@ -1,6 +1,10 @@
+import { fileURLToPath } from 'url';
 import path from 'upath';
 
-export const APP_DIR = path.resolve(__dirname, '../client/app');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+export const DIST_DIR = path.resolve(__dirname, '..');
+export const APP_DIR = path.resolve(DIST_DIR, 'client/app');
 
 export const DEFAULT_SERVER_ENTRY = [
   'server.js',

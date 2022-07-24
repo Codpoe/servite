@@ -1,7 +1,10 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "module": "CommonJS",
+    "types": [
+      "vite-plugin-conventional-entries/shim",
+      "vite-plugin-conventional-routes/shim"
+    ],
     "outDir": "../../dist/node"
   }
 }

@@ -21,6 +21,7 @@
     "koa": "^2.13.4",
     "servite": "workspace:*",
     "typescript": "^4.6.3",
-    "vite": "^3.0.2"
+    "vite": "^3.0.2",
+    "vite-plugin-inspect": "^0.6.0"
   }
 }

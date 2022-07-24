@@ -1,6 +1,6 @@
 import path from 'upath';
 import fs from 'fs-extra';
-import { DEFAULT_SERVER_ENTRY } from './constants';
+import { DEFAULT_SERVER_ENTRY } from './constants.js';
 
 export function resolveServerEntry(root: string, userServerEntry?: string) {
   if (userServerEntry) {

@@ -3,7 +3,11 @@
   "compilerOptions": {
     "module": "ESNext",
     "jsx": "react-jsx",
-    "types": ["vite/client", "vite-plugin-conventional-routes/shim"],
+    "types": [
+      "vite/client",
+      "vite-plugin-conventional-entries/shim",
+      "vite-plugin-conventional-routes/shim"
+    ],
     "outDir": "../../dist/client"
   }
 }

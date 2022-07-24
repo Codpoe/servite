@@ -3,10 +3,12 @@ import { BrowserRouter, HashRouter } from 'react-router-dom';
 import { createApp } from './main';
 
 // `build` will inject global variable: `__SSR_DATA__`
-const ssrData = typeof window !== 'undefined' ? window.__SSR_DATA__ : undefined;
+const ssrData = window.__SSR_DATA__;
 
 const Router = __HASH_ROUTER__ ? HashRouter : BrowserRouter;
 const basename = import.meta.env.BASE_URL?.replace(/\/$/, '');
+const pathname = window.location.pathname;
+const pagePath = basename ? pathname.substring(basename.length) : pathname;
 
 async function bootstrap() {
   const container = document.getElementById('root');
@@ -15,7 +17,9 @@ async function bootstrap() {
     throw new Error('[servite] Cannot find an element with id "root"');
   }
 
-  const App = await createApp({ pagePath: ssrData?.pagePath });
+  const isSSR = container.innerHTML.trim() !== '';
+
+  const App = await createApp({ pagePath });
 
   const element = (
     <Router basename={basename}>
@@ -23,14 +27,14 @@ async function bootstrap() {
     </Router>
   );
 
-  if (!ssrData) {
-    // csr
-    createRoot(container).render(element);
+  if (isSSR) {
+    // ssr hydrate
+    hydrateRoot(container, element);
     return;
   }
 
-  // ssr hydrate
-  hydrateRoot(container, element);
+  // csr
+  createRoot(container).render(element);
 }
 
 bootstrap();
