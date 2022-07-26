@@ -3,20 +3,13 @@ import { Plugin, ResolvedConfig, ViteDevServer } from 'vite';
 import { conventionalEntries } from 'vite-plugin-conventional-entries';
 import { conventionalRoutes } from 'vite-plugin-conventional-routes';
 import { createServerApp } from './server/index.js';
-import {
-  APP_DIR,
-  DEFAULT_PAGES_DIR,
-  DIST_DIR,
-  PAGES_PATTERN,
-} from './constants.js';
-import { ServiteConfig } from './types.js';
+import { APP_DIR, DIST_DIR, PAGES_PATTERN } from './constants.js';
+import { UserServiteConfig } from './types.js';
+import { resolveServiteConfig } from './config.js';
 
-export function servite(serviteConfig: ServiteConfig = {}): Plugin[] {
-  const {
-    pagesDir = DEFAULT_PAGES_DIR,
-    ssr = true,
-    hashRouter = false,
-  } = serviteConfig;
+export function servite(userServiteConfig?: UserServiteConfig): Plugin[] {
+  const serviteConfig = resolveServiteConfig(userServiteConfig);
+  const { pagesDir, ssr, hashRouter } = serviteConfig;
 
   let viteConfig: ResolvedConfig;
   let viteDevServer: ViteDevServer;
@@ -77,6 +70,11 @@ export function servite(serviteConfig: ServiteConfig = {}): Plugin[] {
           });
         };
       },
+      api: {
+        getServiteConfig() {
+          return serviteConfig;
+        },
+      } as any,
     },
     ...conventionalEntries({
       entries: APP_DIR,

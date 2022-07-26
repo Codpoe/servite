@@ -3,6 +3,8 @@ import { ViteDevServer } from 'vite';
 import express, { Express } from 'express';
 import { ssr } from './ssr.js';
 
+export { ssr };
+
 export interface CreateServerAppConfig {
   resolve: (...paths: string[]) => string;
   viteDevServer?: ViteDevServer;

@@ -9,12 +9,14 @@
   "files": [
     "bin",
     "dist",
+    "server.d.ts",
     "client.d.ts"
   ],
   "main": "dist/node/index.js",
   "types": "dist/node/index.d.ts",
   "exports": {
     ".": "./dist/node/index.js",
+    "./server": "./dist/node/server/index.js",
     "./client": "./dist/client/index.js"
   },
   "bin": {

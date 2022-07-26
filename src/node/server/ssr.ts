@@ -33,7 +33,7 @@ export async function ssr(config: SSROptions): Promise<string | undefined> {
   }
 
   const serverEntry = isProd
-    ? resolve('server/entry.server.mjs')
+    ? resolve('server/entry.server.js')
     : resolve('client/app/entry.server.js');
 
   // server module should be fresh in every request

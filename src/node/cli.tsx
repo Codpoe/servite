@@ -90,7 +90,7 @@ cli
   .option('-w, --watch', `[boolean] rebuilds when modules have changed on disk`)
   .action(async (root: string, options: BuildOptions & GlobalCLIOptions) => {
     const { createLogger } = await import('vite');
-    const { build } = await import('./build/index.js');
+    const { build } = await import('./build/build.js');
     const buildOptions: BuildOptions = cleanOptions(options);
 
     try {
@@ -112,3 +112,5 @@ cli
       process.exit(1);
     }
   });
+
+cli.parse();
