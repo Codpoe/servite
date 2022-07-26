@@ -26,6 +26,7 @@ importers:
       react-router-dom: ^6.3.0
       release-it: ^15.1.2
       rimraf: ^3.0.2
+      rollup: ^2.77.0
       typescript: ^4.7.4
       upath: ^2.0.1
       vite: ^3.0.2
@@ -56,6 +57,7 @@ importers:
       prettier: 2.7.1
       release-it: 15.1.2
       rimraf: 3.0.2
+      rollup: 2.77.0
       typescript: 4.7.4
       vite: 3.0.2
       vite-plugin-conventional-entries: 1.0.0-beta.2
@@ -5257,8 +5259,8 @@ packages:
       glob: 7.2.3
     dev: true
 
-  /rollup/2.76.0:
-    resolution: {integrity: sha512-9jwRIEY1jOzKLj3nsY/yot41r19ITdQrhs+q3ggNWhr9TQgduHqANvPpS32RNpzGklJu3G1AJfvlZLi/6wFgWA==}
+  /rollup/2.77.0:
+    resolution: {integrity: sha512-vL8xjY4yOQEw79DvyXLijhnhh+R/O9zpF/LEgkCebZFtb6ELeN9H3/2T0r8+mp+fFTBHZ5qGpOpW2ela2zRt3g==}
     engines: {node: '>=10.0.0'}
     hasBin: true
     optionalDependencies:
@@ -6078,7 +6080,7 @@ packages:
       esbuild: 0.14.49
       postcss: 8.4.14
       resolve: 1.22.1
-      rollup: 2.76.0
+      rollup: 2.77.0
     optionalDependencies:
       fsevents: 2.3.2
     dev: true

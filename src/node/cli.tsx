@@ -89,8 +89,8 @@ cli
   )
   .option('-w, --watch', `[boolean] rebuilds when modules have changed on disk`)
   .action(async (root: string, options: BuildOptions & GlobalCLIOptions) => {
-    // TODO: use custom build
-    const { build, createLogger } = await import('vite');
+    const { createLogger } = await import('vite');
+    const { build } = await import('./build/index.js');
     const buildOptions: BuildOptions = cleanOptions(options);
 
     try {

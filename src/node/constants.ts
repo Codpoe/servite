@@ -5,6 +5,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export const DIST_DIR = path.resolve(__dirname, '..');
 export const APP_DIR = path.resolve(DIST_DIR, 'client/app');
+export const SSR_ENTRY_FILE = path.resolve(APP_DIR, 'entry.server.js');
 
 export const DEFAULT_SERVER_ENTRY = [
   'server.js',
