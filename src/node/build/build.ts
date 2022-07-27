@@ -4,6 +4,7 @@ import { build as viteBuild, InlineConfig } from 'vite';
 import { RollupOutput } from 'rollup';
 import { SSR_ENTRY_FILE } from '../constants.js';
 import { ServiteConfig } from '../types.js';
+import { ssg } from './ssg.js';
 
 async function generateBootstrap(outDir: string) {
   const code = `import * as path from 'path';
@@ -20,7 +21,7 @@ function bootstrap() {
   });
 
   const port = process.env.PORT || 3000;
-  
+
   app.listen(port, () => {
     console.log('start servite app on ' + port);
   });
@@ -36,6 +37,7 @@ bootstrap();
 
 export async function build(inlineConfig: InlineConfig) {
   let serviteConfig = {} as ServiteConfig;
+  let root = '';
   let outDir = 'dist';
 
   const resolveInlineConfig = (ssr: boolean): InlineConfig => {
@@ -55,14 +57,17 @@ export async function build(inlineConfig: InlineConfig) {
               throw new Error('The servite plugin is not found');
             }
 
+            // save servite config
             serviteConfig = servitePlugin.api.getServiteConfig();
 
-            // mutate outDir
+            // save some config for generate bootstrap code and ssg
+            ({ root } = config);
             ({ outDir } = config.build);
-            config.build.outDir = path.join(
-              outDir ? outDir + '/' : '',
-              ssr ? 'server' : 'client'
-            );
+
+            // redirect ssr outDir to {outDir}/server
+            config.build.outDir = ssr
+              ? path.join(outDir ? outDir + '/' : '', 'server')
+              : outDir;
           },
         },
       ],
@@ -81,6 +86,8 @@ export async function build(inlineConfig: InlineConfig) {
   if (serviteConfig.ssr) {
     await viteBuild(resolveInlineConfig(true));
     await generateBootstrap(outDir);
+
+    await ssg(root, outDir);
   }
 
   return {

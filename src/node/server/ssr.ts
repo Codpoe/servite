@@ -3,34 +3,25 @@ import fs from 'fs-extra';
 import type { ViteDevServer } from 'vite';
 import type { FilledContext } from 'react-helmet-async';
 import type { Entry } from 'virtual:conventional-entries';
-import type { PageData } from 'virtual:conventional-pages-data';
+import { ServerEntryExports, ServerEntryRender } from '../types.js';
 
 const isProd = process.env.NODE_ENV === 'production';
 
-type EntryRender = (
-  pathname: string,
-  helmetContext: Record<string, unknown>
-) => Promise<string>;
-
-interface ServerEntryExports {
-  render: EntryRender;
-  entries: Entry[];
-  pagesData: Record<string, PageData>;
-}
-
-export interface SSROptions {
+export interface SSRConfig {
   pathname: string;
   originalUrl?: string;
   viteDevServer?: ViteDevServer;
   resolve: (...paths: string[]) => string;
 }
 
-export async function ssr(config: SSROptions): Promise<string | undefined> {
+export async function ssr(config: SSRConfig): Promise<string | undefined> {
   const { resolve, viteDevServer, pathname } = config;
 
   if (!isProd && !viteDevServer) {
     throw new Error('[servite] must provide viteDevServer in development');
   }
+
+  // TODO: exist ssg html, return directly
 
   const serverEntry = isProd
     ? resolve('server/entry.server.js')
@@ -42,7 +33,7 @@ export async function ssr(config: SSROptions): Promise<string | undefined> {
     invalidateServerEntryModules(viteDevServer, serverEntry);
   }
 
-  const { render, entries } = (
+  const { render, entries, pagesData } = (
     isProd
       ? await import(serverEntry)
       : await viteDevServer!.ssrLoadModule(serverEntry, { fixStacktrace: true })
@@ -58,12 +49,14 @@ export async function ssr(config: SSROptions): Promise<string | undefined> {
     return;
   }
 
-  const [template, { appHtml, helmetContext }] = await Promise.all([
-    loadTemplate(config, entry),
-    renderAppHtml(config, render),
-  ]);
+  const [template, { appHtml, helmetContext }, preloadLinks] =
+    await Promise.all([
+      loadTemplate(config, entry),
+      renderAppHtml(config, render),
+      renderPreloadLinks(config, pagesData),
+    ]);
 
-  return renderFullHtml(template, appHtml, helmetContext);
+  return renderFullHtml(template, appHtml, helmetContext, preloadLinks);
 }
 
 function invalidateServerEntryModules(
@@ -85,17 +78,17 @@ function invalidateServerEntryModules(
   }
 }
 
-async function loadTemplate(config: SSROptions, entry: Entry) {
+async function loadTemplate(config: SSRConfig, entry: Entry) {
   const { resolve, viteDevServer, originalUrl } = config;
   let template = '';
 
   if (isProd) {
     // prod
     const htmlEndpoint = resolve(
-      'client',
       entry.htmlPath.replace(/.*\.conventional-entries\/(.*)/, '$1')
     );
 
+    // TODO: cache
     if (fs.existsSync(htmlEndpoint)) {
       template = await fs.readFile(htmlEndpoint, 'utf-8');
     }
@@ -120,7 +113,7 @@ async function loadTemplate(config: SSROptions, entry: Entry) {
   return template;
 }
 
-async function renderAppHtml(config: SSROptions, render: EntryRender) {
+async function renderAppHtml(config: SSRConfig, render: ServerEntryRender) {
   const { pathname } = config;
   const helmetContext: Partial<FilledContext> = {};
 
@@ -135,10 +128,38 @@ async function renderAppHtml(config: SSROptions, render: EntryRender) {
   };
 }
 
+async function renderPreloadLinks(
+  config: SSRConfig,
+  pagesData: ServerEntryExports['pagesData']
+): Promise<string> {
+  if (!isProd) {
+    return '';
+  }
+
+  const { pathname, resolve } = config;
+  // TODO: if has path params
+  const page = pagesData[pathname];
+
+  if (!page) {
+    return '';
+  }
+
+  // TODO: cache
+  const ssrManifest: Record<string, string[]> = JSON.parse(
+    await fs.readFile(resolve('ssr-manifest.json'), 'utf-8')
+  );
+
+  return (ssrManifest[page.filePath] || [])
+    .map(renderPreloadLink)
+    .filter(Boolean)
+    .join('\n    ');
+}
+
 function renderFullHtml(
   template: string,
   appHtml: string,
-  helmetContext: Partial<FilledContext>
+  helmetContext: Partial<FilledContext>,
+  preloadLinks: string
 ) {
   const {
     htmlAttributes,
@@ -167,12 +188,13 @@ function renderFullHtml(
     template = template.replace('<body', `<body ${bodyAttrs}`);
   }
 
-  const headTags = [title, priority, meta, link, script, style]
-    .map(x => x?.toString())
-    .filter(Boolean)
-    .join('\n    ');
-
-  // TODO: inject preload links
+  const headTags =
+    [title, priority, meta, link, script, style]
+      .map(x => x?.toString())
+      .filter(Boolean)
+      .join('\n    ') +
+    '\n    ' +
+    preloadLinks;
 
   if (headTags) {
     template = template.replace('</head>', `  ${headTags}\n  </head>`);
@@ -193,6 +215,28 @@ function renderFullHtml(
   );
 
   return template;
+}
+
+function renderPreloadLink(link: string): string {
+  switch (path.extname(link)) {
+    case '.js':
+      return `<link rel="modulepreload" crossorigin href="${link}">`;
+    case '.css':
+      return `<link rel="stylesheet" href="${link}">`;
+    case '.jpg':
+    case '.jpeg':
+      return ` <link rel="preload" href="${link}" as="image" type="image/jpeg">`;
+    case '.png':
+      return ` <link rel="preload" href="${link}" as="image" type="image/png">`;
+    case '.gif':
+      return ` <link rel="preload" href="${link}" as="image" type="image/gif">`;
+    case '.woff':
+      return ` <link rel="preload" href="${link}" as="font" type="font/woff" crossorigin>`;
+    case '.woff2':
+      return ` <link rel="preload" href="${link}" as="font" type="font/woff2" crossorigin>`;
+    default:
+      return '';
+  }
 }
 
 /**

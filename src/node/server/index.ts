@@ -9,10 +9,11 @@ export interface CreateServerAppConfig {
   resolve: (...paths: string[]) => string;
   viteDevServer?: ViteDevServer;
   ssr?: boolean;
+  base?: string;
 }
 
 export function createServerApp(config: CreateServerAppConfig): Express {
-  const { resolve, viteDevServer, ssr: useSSR = true } = config;
+  const { resolve, viteDevServer, ssr: useSSR = true, base } = config;
 
   const app = express();
 
@@ -36,8 +37,14 @@ export function createServerApp(config: CreateServerAppConfig): Express {
         return next();
       }
 
+      let pathname = parse(req.url).pathname!;
+
+      if (base && base !== '/') {
+        pathname = pathname.substring(base.length);
+      }
+
       const html = await ssr({
-        pathname: parse(req.url).pathname!,
+        pathname,
         originalUrl: req.originalUrl,
         resolve,
         viteDevServer,

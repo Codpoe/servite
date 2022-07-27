@@ -37,6 +37,7 @@ export function servite(userServiteConfig?: UserServiteConfig): Plugin[] {
           },
           viteDevServer,
           ssr,
+          base: viteConfig.base,
         });
 
         return () => {

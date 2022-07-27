@@ -113,4 +113,21 @@ cli
     }
   });
 
+// start
+cli
+  .command('start [appDist]', 'start production server')
+  .action(async (appDist: string | undefined, options: GlobalCLIOptions) => {
+    const { createLogger } = await import('vite');
+
+    try {
+      // TODO: start
+    } catch (e: any) {
+      createLogger(options.logLevel).error(
+        colors.red(`error when starting production server:\n${e.stack}`),
+        { error: e }
+      );
+      process.exit(1);
+    }
+  });
+
 cli.parse();
