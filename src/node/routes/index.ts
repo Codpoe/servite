@@ -142,15 +142,13 @@ function resolveRoutePath(pageFile: string, isMarkdown: boolean) {
 }
 
 function resolvePageExports(fileContent: string): string[] {
-  const exportConst = (
-    fileContent.match(/^\s*export\s+const\s+(.*?)=/m) || []
-  ).map(x => x[1]);
+  const exportConst = fileContent.matchAll(/^\s*export\s+const\s+(.*?)=/gm);
 
-  const exportFunction = (
-    fileContent.match(/^\s*export\s+function\s+(.*?)\s*\(/m) || []
-  ).map(x => x[1]);
+  const exportFunction = fileContent.matchAll(
+    /^\s*export\s+(?:async\s+)?function\s+(.*?)\s*\(/gm
+  );
 
-  return exportConst.concat(exportFunction);
+  return [...exportConst, ...exportFunction].map(x => x[1]);
 }
 
 function resolvePageMeta(

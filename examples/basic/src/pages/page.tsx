@@ -2,6 +2,10 @@ import { useState } from 'react';
 import reactLogo from '../assets/react.svg';
 import './page.css';
 
+export async function prefetch() {
+  return {};
+}
+
 function Page() {
   const [count, setCount] = useState(0);
 
