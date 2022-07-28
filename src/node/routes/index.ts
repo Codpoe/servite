@@ -241,7 +241,7 @@ function createRoutes(pages: Page[]): Route[] {
   for (const page of sortedPages) {
     const route: Route = {
       path: page.routePath,
-      component: page.filePath, // TODO: relative to vite root?
+      component: path.join('/', page.filePath),
       children: page.isLayout ? [] : undefined,
       meta: page.meta,
     };
