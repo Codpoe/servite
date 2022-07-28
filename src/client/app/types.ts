@@ -21,6 +21,7 @@ export class PageError extends Error {
 export interface AppState {
   routes: Route[];
   pages: PageData[];
+  pagePath?: string;
   pageData?: PageData;
   pageModule?: any;
   pageLoading: boolean;

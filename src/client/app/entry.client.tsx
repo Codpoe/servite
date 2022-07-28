@@ -8,7 +8,7 @@ const ssrData = window.__SSR_DATA__;
 const Router = __HASH_ROUTER__ ? HashRouter : BrowserRouter;
 const basename = import.meta.env.BASE_URL?.replace(/\/$/, '');
 const pathname = window.location.pathname;
-const routePath = basename ? pathname.substring(basename.length) : pathname;
+const pagePath = basename ? pathname.substring(basename.length) : pathname;
 
 async function bootstrap() {
   const container = document.getElementById('root');
@@ -19,7 +19,7 @@ async function bootstrap() {
 
   const isSSR = container.innerHTML.trim() !== '';
 
-  const App = await createApp({ routePath });
+  const App = await createApp({ pagePath });
 
   const element = (
     <Router basename={basename}>

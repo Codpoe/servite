@@ -8,8 +8,8 @@ export async function render(
   pathname: string,
   helmetContext: Record<string, unknown>
 ) {
-  const routePath = basename ? pathname.substring(basename.length) : pathname;
-  const App = await createApp({ routePath, helmetContext });
+  const pagePath = basename ? pathname.substring(basename.length) : pathname;
+  const App = await createApp({ pagePath, helmetContext });
 
   return renderToString(
     <StaticRouter basename={basename} location={pathname}>

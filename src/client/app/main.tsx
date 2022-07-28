@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useLocation, matchRoutes } from 'react-router-dom';
+import { useLocation, matchRoutes, matchPath } from 'react-router-dom';
 import { HelmetProvider, Helmet } from 'react-helmet-async';
 import { routes, Route } from 'virtual:servite/routes';
 import { pages } from 'virtual:servite/pages';
@@ -12,14 +12,14 @@ const isDev = import.meta.env.DEV;
 
 async function waitForPageReady(
   appState: AppState,
-  routePath: string
+  pagePath: string
 ): Promise<AppState | undefined> {
-  if (appState.pageData?.routePath === routePath) {
+  if (appState.pagePath === pagePath) {
     return;
   }
 
   const newAppState = { ...appState };
-  const matches = matchRoutes(appState.routes, routePath);
+  const matches = matchRoutes(appState.routes, pagePath);
 
   if (!matches?.length) {
     newAppState.pageError = new PageError('Page not found', {
@@ -44,8 +44,8 @@ async function waitForPageReady(
     );
 
     Object.assign(newAppState, {
-      // TODO: path params
-      pageData: appState.pages.find(p => p.routePath === routePath),
+      pagePath,
+      pageData: appState.pages.find(p => matchPath(p.routePath, pagePath)),
       pageModule,
       pageError: null,
     });
@@ -70,12 +70,12 @@ async function waitForPageReady(
 }
 
 export interface CreateAppConfig {
-  routePath?: string;
+  pagePath?: string;
   helmetContext?: Record<string, unknown>;
 }
 
 export async function createApp({
-  routePath,
+  pagePath,
   helmetContext,
 }: CreateAppConfig = {}) {
   let initialAppState: AppState = {
@@ -85,9 +85,9 @@ export async function createApp({
     pageError: null,
   };
 
-  if (routePath) {
+  if (pagePath) {
     initialAppState =
-      (await waitForPageReady(initialAppState, routePath)) || initialAppState;
+      (await waitForPageReady(initialAppState, pagePath)) || initialAppState;
   }
 
   return function App() {

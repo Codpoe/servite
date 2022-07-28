@@ -50,7 +50,11 @@ export function routes({ pagesDir = 'src/pages' }: RoutesConfig = {}): Plugin {
     },
     load(id, opts) {
       if (id === RESOLVED_PAGES_MODULE_ID) {
-        return `export const pages = ${JSON.stringify(pages, null, 2)};
+        return `export const pages = ${JSON.stringify(
+          sortPages(pages),
+          null,
+          2
+        )};
 export default pages
 `;
       }
@@ -228,12 +232,16 @@ function extractFrontMatter(fileContent: string) {
   return frontMatter;
 }
 
-function createRoutes(pages: Page[]): Route[] {
-  const sortedPages = pages.slice().sort((a, b) => {
+function sortPages(pages: Page[]): Page[] {
+  return pages.slice().sort((a, b) => {
     const compareRes = a.routePath.localeCompare(b.routePath);
     // layout first
     return compareRes === 0 && a.isLayout ? -1 : compareRes;
   });
+}
+
+function createRoutes(pages: Page[]): Route[] {
+  const sortedPages = sortPages(pages);
 
   const routes: Route[] = [];
   const layoutRouteStack: Route[] = [];

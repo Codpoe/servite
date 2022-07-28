@@ -2,6 +2,7 @@ import path from 'upath';
 import fs from 'fs-extra';
 import type { ViteDevServer } from 'vite';
 import type { FilledContext } from 'react-helmet-async';
+import { matchPath } from 'react-router-dom';
 import type { Entry } from 'virtual:conventional-entries';
 import { Page, ServerEntryExports, ServerEntryRender } from '../types.js';
 
@@ -137,8 +138,7 @@ async function renderPreloadLinks(
   }
 
   const { pathname, resolve } = config;
-  // TODO: if has path params
-  const page = pages.find(p => p.routePath === pathname);
+  const page = pages.find(p => matchPath(p.routePath, pathname));
 
   if (!page) {
     return '';
