@@ -3,8 +3,8 @@ import fs from 'fs-extra';
 import type { ViteDevServer } from 'vite';
 import type { FilledContext } from 'react-helmet-async';
 import { matchPath } from 'react-router-dom';
-import type { Entry } from 'virtual:conventional-entries';
 import { Page, ServerEntryExports, ServerEntryRender } from '../types.js';
+import { APP_HTML_FILE, FS_PREFIX_APP_HTML } from '../constants.js';
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -16,7 +16,7 @@ export interface SSRConfig {
 }
 
 export async function ssr(config: SSRConfig): Promise<string | undefined> {
-  const { resolve, viteDevServer, pathname } = config;
+  const { resolve, viteDevServer } = config;
 
   if (!isProd && !viteDevServer) {
     throw new Error('[servite] must provide viteDevServer in development');
@@ -34,25 +34,15 @@ export async function ssr(config: SSRConfig): Promise<string | undefined> {
     invalidateServerEntryModules(viteDevServer, serverEntry);
   }
 
-  const { render, entries, pages } = (
+  const { render, pages } = (
     isProd
       ? await import(serverEntry)
       : await viteDevServer!.ssrLoadModule(serverEntry, { fixStacktrace: true })
   ) as ServerEntryExports;
 
-  const sortedEntries = entries
-    .slice()
-    .sort((a, b) => b.routePath.length - a.routePath.length);
-
-  const entry = sortedEntries.find(x => pathname.startsWith(x.routePath));
-
-  if (!entry) {
-    return;
-  }
-
   const [template, { appHtml, helmetContext }, preloadLinks] =
     await Promise.all([
-      loadTemplate(config, entry),
+      loadTemplate(config),
       renderAppHtml(config, render),
       renderPreloadLinks(config, pages),
     ]);
@@ -79,32 +69,22 @@ function invalidateServerEntryModules(
   }
 }
 
-async function loadTemplate(config: SSRConfig, entry: Entry) {
+async function loadTemplate(config: SSRConfig) {
   const { resolve, viteDevServer, originalUrl } = config;
   let template = '';
 
   if (isProd) {
     // prod
-    const htmlEndpoint = resolve(
-      entry.htmlPath.replace(/.*\.conventional-entries\/(.*)/, '$1')
-    );
-
+    const htmlPath = resolve('index.html');
     // TODO: cache
-    if (fs.existsSync(htmlEndpoint)) {
-      template = await fs.readFile(htmlEndpoint, 'utf-8');
-    }
+    template = await fs.readFile(htmlPath, 'utf-8');
   } else {
     // dev
-    template = await fs.readFile(entry.htmlPath, 'utf-8');
+    template = await fs.readFile(APP_HTML_FILE, 'utf-8');
 
     if (viteDevServer) {
-      const htmlRequestUrl = path.join(
-        '/',
-        path.relative(viteDevServer.config.root, entry.htmlPath)
-      );
-
       template = await viteDevServer.transformIndexHtml(
-        htmlRequestUrl,
+        FS_PREFIX_APP_HTML,
         template,
         originalUrl
       );

@@ -1,7 +1,6 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "types": ["vite-plugin-conventional-entries/shim"],
     "outDir": "../../dist/node"
   }
 }

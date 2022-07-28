@@ -1,5 +1,3 @@
-import type { Entry } from 'virtual:conventional-entries';
-
 export interface UserServiteConfig {
   /**
    * Pages directory to find pages
@@ -48,6 +46,5 @@ export type ServerEntryRender = (
 
 export interface ServerEntryExports {
   render: ServerEntryRender;
-  entries: Entry[];
   pages: Page[];
 }

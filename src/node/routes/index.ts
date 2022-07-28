@@ -1,6 +1,6 @@
 import path from 'upath';
 import fs from 'fs-extra';
-import { Plugin, ResolvedConfig } from 'vite';
+import { Plugin, ResolvedConfig, transformWithEsbuild } from 'vite';
 import fg from 'fast-glob';
 import mm from 'micromatch';
 import matter from 'gray-matter';
@@ -59,7 +59,11 @@ export default pages
 `;
       }
       if (id === RESOLVED_ROUTES_MODULE_ID) {
-        return generateRoutesCode(viteConfig, pages, opts?.ssr);
+        return transformWithEsbuild(
+          generateRoutesCode(viteConfig, pages, opts?.ssr),
+          RESOLVED_ROUTES_MODULE_ID,
+          { loader: 'jsx' }
+        );
       }
     },
     handleHotUpdate(ctx) {
@@ -292,21 +296,22 @@ function generateRoutesCode(
   const routes = createRoutes(pages);
   const rootLayout = routes[0]?.children ? routes[0] : null;
 
+  let importsCode = '';
   let index = 0;
 
   let routesCode = JSON.stringify(routes, null, 2).replace(
     /( *)"component":\s"(.*?)"/g,
     (_str: string, space: string, component: string) => {
-      const localName = `__ConventionalRoute__${index++}`;
+      const localName = `__Route__${index++}`;
       const localNameStar = `${localName}__star`;
 
       if (ssr || (rootLayout && component === rootLayout.component)) {
-        routesCode += [
+        importsCode += [
           `import * as ${localNameStar} from '${component}';`,
           `const ${localName} = enhance(${localNameStar})\n`,
         ].join('\n');
       } else {
-        routesCode += `const ${localName} = enhance(() => import('${component}'));\n`;
+        importsCode += `const ${localName} = enhance(() => import('${component}'));\n`;
       }
 
       return `${space}"component": ${localName},\n${space}"element": <${localName}.component />`;
@@ -315,7 +320,7 @@ function generateRoutesCode(
 
   routesCode = `import React from 'react';
 ${generateEnhanceCode(viteConfig)}
-${routesCode}
+${importsCode}
 export const routes = ${routesCode};
 export default routes;
 `;

@@ -18,5 +18,4 @@ export async function render(
   );
 }
 
-export { default as entries } from 'virtual:conventional-entries';
 export { pages } from 'virtual:servite/pages';
