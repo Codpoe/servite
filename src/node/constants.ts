@@ -14,6 +14,14 @@ export const DEFAULT_SERVER_ENTRY = [
   'server/index.ts',
 ];
 
-export const DEFAULT_PAGES_DIR = 'src/pages';
+export const PAGES_MODULE_ID = 'virtual:servite/pages';
+export const RESOLVED_PAGES_MODULE_ID = '\0' + PAGES_MODULE_ID;
 
-export const PAGES_PATTERN = ['**/page{.js,.jsx,.ts,.tsx}', '**/*{.md,.mdx}'];
+export const ROUTES_MODULE_ID = 'virtual:servite/routes';
+export const RESOLVED_ROUTES_MODULE_ID = '\0' + ROUTES_MODULE_ID;
+
+export const PAGE_PATTERN = [
+  '**/{page,layout}.{js,jsx,ts,tsx}',
+  '**/*.{md,mdx}',
+];
+export const IGNORE_PATTERN = ['**/{tests,__tests__}/**'];

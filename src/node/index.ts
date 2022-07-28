@@ -1,11 +1,11 @@
 import path from 'upath';
 import { Plugin, ResolvedConfig, ViteDevServer } from 'vite';
 import { conventionalEntries } from 'vite-plugin-conventional-entries';
-import { conventionalRoutes } from 'vite-plugin-conventional-routes';
 import { createServerApp } from './server/index.js';
-import { APP_DIR, DIST_DIR, PAGES_PATTERN } from './constants.js';
+import { APP_DIR, DIST_DIR } from './constants.js';
 import { UserServiteConfig } from './types.js';
 import { resolveServiteConfig } from './config.js';
+import { routes } from './routes/index.js';
 
 export function servite(userServiteConfig?: UserServiteConfig): Plugin[] {
   const serviteConfig = resolveServiteConfig(userServiteConfig);
@@ -80,12 +80,7 @@ export function servite(userServiteConfig?: UserServiteConfig): Plugin[] {
     ...conventionalEntries({
       entries: APP_DIR,
     }),
-    conventionalRoutes({
-      pages: {
-        dir: pagesDir,
-        pattern: PAGES_PATTERN,
-      },
-    }),
+    routes({ pagesDir }),
   ];
 
   return plugins;

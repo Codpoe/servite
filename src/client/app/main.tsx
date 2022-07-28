@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, matchRoutes } from 'react-router-dom';
 import { HelmetProvider, Helmet } from 'react-helmet-async';
-import routes, { Route } from 'virtual:conventional-routes';
-import pagesData from 'virtual:conventional-pages-data';
+import { routes, Route } from 'virtual:servite/routes';
+import { pages } from 'virtual:servite/pages';
 import { appContext } from './context';
 import { AppState, PageError } from './types';
 import { Page } from './components/Page';
@@ -12,14 +12,14 @@ const isDev = import.meta.env.DEV;
 
 async function waitForPageReady(
   appState: AppState,
-  pagePath: string
+  routePath: string
 ): Promise<AppState | undefined> {
-  if (appState.pagePath === pagePath) {
+  if (appState.pageData?.routePath === routePath) {
     return;
   }
 
   const newAppState = { ...appState };
-  const matches = matchRoutes(appState.routes, pagePath);
+  const matches = matchRoutes(appState.routes, routePath);
 
   if (!matches?.length) {
     newAppState.pageError = new PageError('Page not found', {
@@ -44,8 +44,8 @@ async function waitForPageReady(
     );
 
     Object.assign(newAppState, {
-      pagePath,
-      pageData: appState.pagesData[pagePath],
+      // TODO: path params
+      pageData: appState.pages.find(p => p.routePath === routePath),
       pageModule,
       pageError: null,
     });
@@ -70,24 +70,24 @@ async function waitForPageReady(
 }
 
 export interface CreateAppConfig {
-  pagePath?: string;
+  routePath?: string;
   helmetContext?: Record<string, unknown>;
 }
 
 export async function createApp({
-  pagePath,
+  routePath,
   helmetContext,
 }: CreateAppConfig = {}) {
   let initialAppState: AppState = {
     routes,
-    pagesData,
+    pages,
     pageLoading: false,
     pageError: null,
   };
 
-  if (pagePath) {
+  if (routePath) {
     initialAppState =
-      (await waitForPageReady(initialAppState, pagePath)) || initialAppState;
+      (await waitForPageReady(initialAppState, routePath)) || initialAppState;
   }
 
   return function App() {

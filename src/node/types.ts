@@ -1,5 +1,4 @@
 import type { Entry } from 'virtual:conventional-entries';
-import type { PageData } from 'virtual:conventional-pages-data';
 
 export interface UserServiteConfig {
   /**
@@ -26,6 +25,22 @@ export interface UserServiteConfig {
 
 export interface ServiteConfig extends Required<UserServiteConfig> {}
 
+export interface Page {
+  routePath: string;
+  filePath: string;
+  isLayout: boolean;
+  is404: boolean;
+  exports: string[];
+  meta: Record<string, any>;
+}
+
+export interface Route {
+  path: string;
+  component: any;
+  children?: Route[];
+  meta?: Record<string, any>;
+}
+
 export type ServerEntryRender = (
   pathname: string,
   helmetContext: Record<string, unknown>
@@ -34,5 +49,5 @@ export type ServerEntryRender = (
 export interface ServerEntryExports {
   render: ServerEntryRender;
   entries: Entry[];
-  pagesData: Record<string, PageData>;
+  pages: Page[];
 }

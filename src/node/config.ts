@@ -1,6 +1,6 @@
 import path from 'upath';
 import fs from 'fs-extra';
-import { DEFAULT_PAGES_DIR, DEFAULT_SERVER_ENTRY } from './constants.js';
+import { DEFAULT_SERVER_ENTRY } from './constants.js';
 import { UserServiteConfig, ServiteConfig } from './types.js';
 
 export function resolveServerEntry(root: string, userServerEntry?: string) {
@@ -22,7 +22,7 @@ export function resolveServiteConfig(
   userServiteConfig: UserServiteConfig = {}
 ): ServiteConfig {
   const {
-    pagesDir = DEFAULT_PAGES_DIR,
+    pagesDir = 'src/pages',
     ssr = true,
     ssg = true,
     hashRouter = false,

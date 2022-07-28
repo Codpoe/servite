@@ -8,8 +8,8 @@ export async function render(
   pathname: string,
   helmetContext: Record<string, unknown>
 ) {
-  const pagePath = basename ? pathname.substring(basename.length) : pathname;
-  const App = await createApp({ pagePath, helmetContext });
+  const routePath = basename ? pathname.substring(basename.length) : pathname;
+  const App = await createApp({ routePath, helmetContext });
 
   return renderToString(
     <StaticRouter basename={basename} location={pathname}>
@@ -19,4 +19,4 @@ export async function render(
 }
 
 export { default as entries } from 'virtual:conventional-entries';
-export { default as pagesData } from 'virtual:conventional-pages-data';
+export { pages } from 'virtual:servite/pages';

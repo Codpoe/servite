@@ -1,5 +1,5 @@
-import type { Route } from 'virtual:conventional-routes';
-import type { PageData } from 'virtual:conventional-pages-data';
+import type { Route } from 'virtual:servite/routes';
+import type { Page as PageData } from 'virtual:servite/pages';
 
 export type { PageData };
 
@@ -20,8 +20,7 @@ export class PageError extends Error {
 
 export interface AppState {
   routes: Route[];
-  pagesData: Record<string, PageData>;
-  pagePath?: string;
+  pages: PageData[];
   pageData?: PageData;
   pageModule?: any;
   pageLoading: boolean;

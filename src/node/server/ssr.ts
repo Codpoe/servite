@@ -3,7 +3,7 @@ import fs from 'fs-extra';
 import type { ViteDevServer } from 'vite';
 import type { FilledContext } from 'react-helmet-async';
 import type { Entry } from 'virtual:conventional-entries';
-import { ServerEntryExports, ServerEntryRender } from '../types.js';
+import { Page, ServerEntryExports, ServerEntryRender } from '../types.js';
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -33,7 +33,7 @@ export async function ssr(config: SSRConfig): Promise<string | undefined> {
     invalidateServerEntryModules(viteDevServer, serverEntry);
   }
 
-  const { render, entries, pagesData } = (
+  const { render, entries, pages } = (
     isProd
       ? await import(serverEntry)
       : await viteDevServer!.ssrLoadModule(serverEntry, { fixStacktrace: true })
@@ -53,7 +53,7 @@ export async function ssr(config: SSRConfig): Promise<string | undefined> {
     await Promise.all([
       loadTemplate(config, entry),
       renderAppHtml(config, render),
-      renderPreloadLinks(config, pagesData),
+      renderPreloadLinks(config, pages),
     ]);
 
   return renderFullHtml(template, appHtml, helmetContext, preloadLinks);
@@ -130,7 +130,7 @@ async function renderAppHtml(config: SSRConfig, render: ServerEntryRender) {
 
 async function renderPreloadLinks(
   config: SSRConfig,
-  pagesData: ServerEntryExports['pagesData']
+  pages: Page[]
 ): Promise<string> {
   if (!isProd) {
     return '';
@@ -138,7 +138,7 @@ async function renderPreloadLinks(
 
   const { pathname, resolve } = config;
   // TODO: if has path params
-  const page = pagesData[pathname];
+  const page = pages.find(p => p.routePath === pathname);
 
   if (!page) {
     return '';
