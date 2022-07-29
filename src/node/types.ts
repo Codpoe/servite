@@ -1,3 +1,5 @@
+import { FilledContext } from 'react-helmet-async';
+
 export interface UserServiteConfig {
   /**
    * Pages directory to find pages
@@ -39,9 +41,14 @@ export interface Route {
   loader?: any;
 }
 
+export interface ServerEntryRenderContext {
+  helmetContext: Partial<FilledContext>;
+  loaderData?: any;
+}
+
 export type ServerEntryRender = (
   pathname: string,
-  helmetContext: Record<string, unknown>
+  context: ServerEntryRenderContext
 ) => Promise<string>;
 
 export interface ServerEntryExports {

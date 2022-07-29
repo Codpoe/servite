@@ -1,9 +1,13 @@
 import path from 'upath';
 import fs from 'fs-extra';
 import type { ViteDevServer } from 'vite';
-import type { FilledContext } from 'react-helmet-async';
 import { matchPath } from 'react-router-dom';
-import { Page, ServerEntryExports, ServerEntryRender } from '../types.js';
+import {
+  Page,
+  ServerEntryExports,
+  ServerEntryRender,
+  ServerEntryRenderContext,
+} from '../types.js';
 import { APP_HTML_FILE, FS_PREFIX_APP_HTML } from '../constants.js';
 
 const isProd = process.env.NODE_ENV === 'production';
@@ -40,14 +44,13 @@ export async function ssr(config: SSRConfig): Promise<string | undefined> {
       : await viteDevServer!.ssrLoadModule(serverEntry, { fixStacktrace: true })
   ) as ServerEntryExports;
 
-  const [template, { appHtml, helmetContext }, preloadLinks] =
-    await Promise.all([
-      loadTemplate(config),
-      renderAppHtml(config, render),
-      renderPreloadLinks(config, pages),
-    ]);
+  const [template, { appHtml, context }, preloadLinks] = await Promise.all([
+    loadTemplate(config),
+    renderAppHtml(config, render),
+    renderPreloadLinks(config, pages),
+  ]);
 
-  return renderFullHtml(template, appHtml, helmetContext, preloadLinks);
+  return renderFullHtml(template, appHtml, context, preloadLinks);
 }
 
 function invalidateServerEntryModules(
@@ -96,16 +99,18 @@ async function loadTemplate(config: SSRConfig) {
 
 async function renderAppHtml(config: SSRConfig, render: ServerEntryRender) {
   const { pathname } = config;
-  const helmetContext: Partial<FilledContext> = {};
+  const context: ServerEntryRenderContext = {
+    helmetContext: {},
+  };
 
   // disable console while rendering in production
   const recoverConsole = isProd ? trapConsole() : undefined;
-  const appHtml = await render(pathname, helmetContext);
+  const appHtml = await render(pathname, context);
   recoverConsole?.();
 
   return {
     appHtml,
-    helmetContext,
+    context,
   };
 }
 
@@ -138,7 +143,7 @@ async function renderPreloadLinks(
 function renderFullHtml(
   template: string,
   appHtml: string,
-  helmetContext: Partial<FilledContext>,
+  context: ServerEntryRenderContext,
   preloadLinks: string
 ) {
   const {
@@ -150,7 +155,7 @@ function renderFullHtml(
     link,
     script,
     style,
-  } = helmetContext.helmet || {};
+  } = context.helmetContext.helmet || {};
 
   let htmlAttrs = htmlAttributes?.toString() || '';
 
@@ -185,7 +190,7 @@ function renderFullHtml(
     context: {
       serverRendered,
     },
-    prefetchData: {},
+    loaderData: context.loaderData,
   };
 
   template = template.replace(

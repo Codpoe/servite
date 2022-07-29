@@ -2,9 +2,6 @@ import { createRoot, hydrateRoot } from 'react-dom/client';
 import { BrowserRouter, HashRouter } from 'react-router-dom';
 import { createApp } from './main';
 
-// `build` will inject global variable: `__SSR_DATA__`
-const ssrData = window.__SSR_DATA__;
-
 const Router = __HASH_ROUTER__ ? HashRouter : BrowserRouter;
 const basename = import.meta.env.BASE_URL?.replace(/\/$/, '');
 const pathname = window.location.pathname;

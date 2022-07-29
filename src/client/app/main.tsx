@@ -8,6 +8,9 @@ import { appContext } from './context';
 import { AppState, PageError } from './types';
 import { Page } from './components/Page';
 
+// ssr will inject global variable: `__SSR_DATA__`
+const ssrData = window.__SSR_DATA__;
+
 async function waitForPageReady(
   appState: AppState,
   pagePath: string
@@ -31,6 +34,7 @@ async function waitForPageReady(
       matches.map(async m => {
         const mod = await (m.route as Route).component.preload?.();
         // execute loader
+        // TODO: skip execute loader when has ssr loaderData
         // TODO: loader params ctx
         const data = await mod?.loader?.();
         return { mod, data };
@@ -77,24 +81,32 @@ async function waitForPageReady(
 }
 
 export interface CreateAppConfig {
-  pagePath?: string;
-  helmetContext?: Record<string, unknown>;
+  pagePath: string;
+  context?: {
+    helmetContext?: Record<string, unknown>;
+    loaderData?: any;
+  };
 }
 
-export async function createApp({
-  pagePath,
-  helmetContext,
-}: CreateAppConfig = {}) {
+export async function createApp({ pagePath, context }: CreateAppConfig) {
   let initialAppState: AppState = {
     routes,
     pages,
     pageLoading: false,
     pageError: null,
+    loaderData: ssrData?.loaderData,
   };
 
   if (pagePath) {
     initialAppState =
       (await waitForPageReady(initialAppState, pagePath)) || initialAppState;
+
+    // Set loaderData in context for ssr.
+    // The loaderData will be inject by __SSR_DATA__ in ssr,
+    // and the client side can use the loaderData to render.
+    if (context) {
+      context.loaderData = initialAppState.loaderData;
+    }
   }
 
   return function App() {
@@ -144,7 +156,7 @@ export async function createApp({
     }, [appState.pageLoading]);
 
     return (
-      <HelmetProvider context={helmetContext}>
+      <HelmetProvider context={context?.helmetContext}>
         <Helmet defaultTitle="Servite App"></Helmet>
         <appContext.Provider value={appState}>
           <Page />

@@ -41,6 +41,9 @@ declare const __HASH_ROUTER__: boolean;
 
 interface Window {
   __SSR_DATA__?: {
-    pagePath: string;
+    context: {
+      serverRendered: boolean;
+    };
+    loaderData?: any;
   };
 }
