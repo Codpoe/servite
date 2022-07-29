@@ -1,6 +1,12 @@
 import path from 'upath';
 import fs from 'fs-extra';
-import { Plugin, ResolvedConfig, transformWithEsbuild } from 'vite';
+import {
+  ModuleNode,
+  Plugin,
+  ResolvedConfig,
+  transformWithEsbuild,
+  ViteDevServer,
+} from 'vite';
 import fg from 'fast-glob';
 import mm from 'micromatch';
 import matter from 'gray-matter';
@@ -12,6 +18,7 @@ import {
   RESOLVED_ROUTES_MODULE_ID,
   ROUTES_MODULE_ID,
 } from '../constants.js';
+import { isMarkdown } from '../utils.js';
 import { Page, Route, ServiteConfig } from '../types.js';
 import { generateEnhanceCode } from './enhance.js';
 
@@ -19,26 +26,77 @@ interface RoutesConfig extends Partial<Pick<ServiteConfig, 'pagesDir'>> {}
 
 export function routes({ pagesDir = 'src/pages' }: RoutesConfig = {}): Plugin {
   let viteConfig: ResolvedConfig;
-  let findPagesPromise: Promise<Page[]> | null = null;
-  let pages: Page[] = [];
+  let viteDevServer: ViteDevServer;
+  let pagesPromise: Promise<Page[]> = Promise.resolve([]);
+
+  async function startFindPages() {
+    return (pagesPromise = findPages(viteConfig.root, pagesDir));
+  }
+
+  async function stopFindPages() {
+    pagesPromise = Promise.resolve([]);
+  }
+
+  async function getPages() {
+    return pagesPromise;
+  }
+
+  async function checkPageFile(filePath: string) {
+    filePath = path.relative(viteConfig.root, filePath);
+
+    const isPageFile =
+      filePath.startsWith(path.join(pagesDir, '/')) &&
+      mm.isMatch(filePath, PAGE_PATTERN, {
+        cwd: path.resolve(viteConfig.root, pagesDir),
+        ignore: IGNORE_PATTERN,
+      });
+
+    const isExisting =
+      isPageFile && (await getPages()).some(p => p.filePath === filePath);
+
+    return {
+      isPageFile,
+      isExisting,
+    };
+  }
+
+  function getRoutesAndPagesModules() {
+    return [
+      ...(viteDevServer.moduleGraph.getModulesByFile(
+        RESOLVED_ROUTES_MODULE_ID
+      ) || []),
+      ...(viteDevServer.moduleGraph.getModulesByFile(
+        RESOLVED_PAGES_MODULE_ID
+      ) || []),
+    ];
+  }
 
   return {
     name: 'servite:routes',
     // TODO: optimize deps for routes
     configResolved(config) {
       viteConfig = config;
+    },
+    configureServer(server) {
+      viteDevServer = server;
 
-      findPagesPromise ??= findPages(viteConfig.root, pagesDir);
+      server.watcher.on('unlink', async filePath => {
+        const { isPageFile, isExisting } = await checkPageFile(filePath);
+
+        if (isPageFile && isExisting) {
+          const seen = new Set<ModuleNode>();
+          getRoutesAndPagesModules().forEach(mod => {
+            viteDevServer.moduleGraph.invalidateModule(mod, seen);
+          });
+          startFindPages();
+        }
+      });
     },
     async buildStart() {
-      if (!findPagesPromise) {
-        findPagesPromise = findPages(viteConfig.root, pagesDir);
-      }
-      pages = await findPagesPromise;
+      startFindPages();
     },
     closeBundle() {
-      findPagesPromise = null;
-      pages = [];
+      stopFindPages();
     },
     resolveId(source) {
       if (source === PAGES_MODULE_ID) {
@@ -48,17 +106,22 @@ export function routes({ pagesDir = 'src/pages' }: RoutesConfig = {}): Plugin {
         return RESOLVED_ROUTES_MODULE_ID;
       }
     },
-    load(id, opts) {
+    async load(id, opts) {
       if (id === RESOLVED_PAGES_MODULE_ID) {
+        const pages = await getPages();
+
         return `export const pages = ${JSON.stringify(
           sortPages(pages),
           null,
           2
         )};
-export default pages
+export default pages;
 `;
       }
+
       if (id === RESOLVED_ROUTES_MODULE_ID) {
+        const pages = await getPages();
+
         return transformWithEsbuild(
           generateRoutesCode(viteConfig, pages, opts?.ssr),
           RESOLVED_ROUTES_MODULE_ID,
@@ -66,22 +129,21 @@ export default pages
         );
       }
     },
-    handleHotUpdate(ctx) {
-      const filePath = path.normalize(ctx.file);
+    async transform(code, id) {
+      // export will affect @vitejs/plugin-react's judgment of react refresh boundary,
+      // so we need to handle hmr for specific export.
+      // https://github.com/vitejs/vite/blob/9baa70b788ec0b0fc419db30d627567242c6af7d/packages/plugin-react/src/fast-refresh.ts#L87
+      if ((await checkPageFile(id)).isPageFile) {
+        return addHmrAccept(code, 'loader');
+      }
+    },
+    async handleHotUpdate(ctx) {
       const modules = [...ctx.modules];
+      const { isPageFile, isExisting } = await checkPageFile(ctx.file);
 
-      if (
-        filePath.startsWith(path.join(pagesDir, '/')) &&
-        mm.isMatch(filePath, PAGE_PATTERN, {
-          cwd: path.resolve(viteConfig.root, pagesDir),
-          ignore: IGNORE_PATTERN,
-        })
-      ) {
-        modules.push(
-          ...(ctx.server.moduleGraph.getModulesByFile(
-            RESOLVED_PAGES_MODULE_ID
-          ) || [])
-        );
+      if (isPageFile && !isExisting) {
+        modules.push(...getRoutesAndPagesModules());
+        startFindPages();
       }
 
       return modules;
@@ -105,32 +167,28 @@ async function findPages(root: string, pagesDir: string): Promise<Page[]> {
 
 function createPage(root: string, pagesDir: string, pageFile: string): Page {
   const basename = path.basename(path.trimExt(pageFile));
-  const extname = path.extname(pageFile);
-  const isMarkdown = extname === '.md' || extname === '.mdx';
-  const routePath = resolveRoutePath(pageFile, isMarkdown);
+  const routePath = resolveRoutePath(pageFile);
   const filePath = path.join(pagesDir, pageFile);
   const fileContent = fs.readFileSync(path.resolve(root, filePath), 'utf-8');
-  const exports = resolvePageExports(fileContent);
-  const meta = resolvePageMeta(fileContent, isMarkdown);
+  const meta = isMarkdown(pageFile) ? extractFrontMatter(fileContent) : {};
 
   return {
     routePath,
     filePath,
     isLayout: basename === 'layout',
     is404: basename === '404',
-    exports,
     meta,
   };
 }
 
-function resolveRoutePath(pageFile: string, isMarkdown: boolean) {
+function resolveRoutePath(pageFile: string) {
   let routePath = path
     .trimExt(path.join('/', pageFile))
     .replace(/\/404$/, '/*') // transform '/404' to '/*' so this route acts like a catch-all for URLs that we don't have explicit routes for
     .replace(/\/\[\.{3}.*?\]$/, '/*') // transform '/post/[...all]' to '/post/*'
     .replace(/\/\[(.*?)\]/g, '/:$1'); // transform 'user/[id]' to 'user/:id'
 
-  if (isMarkdown) {
+  if (isMarkdown(pageFile)) {
     routePath = routePath
       .replace(/^(\/index){1,2}$/, '') // remove '/index'
       .replace(/\/README$/i, ''); // remove '/README'
@@ -234,6 +292,33 @@ function extractFrontMatter(fileContent: string) {
   return frontMatter;
 }
 
+function addHmrAccept(code: string, field: string) {
+  if (
+    !code.includes('import.meta.hot.accept()') &&
+    (new RegExp(`export\\s+const\\s+${field}(\\s|=|:)`).test(code) ||
+      new RegExp(`export\\s+(async\\s+)?function\\s+${field}(\\s|\\()`).test(
+        code
+      ))
+  ) {
+    return `${code}\n
+if (import.meta.hot) {
+  const prevField = import.meta.hot.data.${field} = import.meta.hot.data.${field} || ${field};
+
+  import.meta.hot.accept(mod => {
+    if (mod) {
+      const field = mod.${field};
+      if (field?.toString() !== prevField?.toString() || JSON.stringify(field) !== JSON.stringify(prevField)) {
+        import.meta.hot.invalidate();
+      }
+    }
+  });
+}
+`;
+  }
+
+  return code;
+}
+
 function sortPages(pages: Page[]): Page[] {
   return pages.slice().sort((a, b) => {
     const compareRes = a.routePath.localeCompare(b.routePath);
@@ -295,12 +380,12 @@ function generateRoutesCode(
   const rootLayout = routes[0]?.children ? routes[0] : null;
 
   let importsCode = '';
-  let index = 0;
+  let componentIndex = 0;
 
   let routesCode = JSON.stringify(routes, null, 2).replace(
     /( *)"component":\s"(.*?)"/g,
     (_str: string, space: string, component: string) => {
-      const localName = `__Route__${index++}`;
+      const localName = `__Route__${componentIndex++}`;
       const localNameStar = `${localName}__star`;
 
       if (ssr || (rootLayout && component === rootLayout.component)) {

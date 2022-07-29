@@ -60,7 +60,7 @@ export {
 
 export { Helmet } from 'react-helmet-async';
 
-export { useAppState } from './app/context';
+export { useAppState, useLoaderData } from './app/context';
 export * from './app/types';
 export * from './app/components/Page';
 export * from './app/components/Link';

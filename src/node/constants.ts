@@ -29,3 +29,6 @@ export const PAGE_PATTERN = [
   '**/*.{md,mdx}',
 ];
 export const IGNORE_PATTERN = ['**/{tests,__tests__}/**'];
+
+export const SCRIPT_EXTS = ['.js', '.ts', '.jsx', '.tsx'];
+export const MARKDOWN_EXTS = ['.md', '.mdx'];

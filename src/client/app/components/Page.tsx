@@ -11,7 +11,7 @@ export interface PageProps {
  */
 export const Page: React.FC<PageProps> = ({ fallback }) => {
   const { routes, pagePath } = useAppState();
-  const routesElement = useRoutes(routes);
+  const routesElement = useRoutes(routes, pagePath);
 
   if (!pagePath) {
     return null;

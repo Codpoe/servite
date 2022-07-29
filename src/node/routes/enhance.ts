@@ -6,7 +6,7 @@ declare const assetsDir: string;
 declare const document: any;
 
 type PageFactory = (() => Promise<any>) & { _result?: Promise<any> };
-interface PageModules {
+interface PageModule {
   [key: string]: any;
   default: any;
 }
@@ -22,7 +22,7 @@ interface EnhanceResult {
  * Add preload function to `React.lazy`.
  * This function will be injected into routes code
  */
-function enhance(factoryOrModules: PageFactory | PageModules): EnhanceResult {
+function enhance(factoryOrModules: PageFactory | PageModule): EnhanceResult {
   const relativeBase = base === '' || base.startsWith('.');
 
   function enhanceFactory(factory: PageFactory): EnhanceResult {
@@ -111,17 +111,17 @@ function enhance(factoryOrModules: PageFactory | PageModules): EnhanceResult {
     };
   }
 
-  function enhanceModules(modules: PageModules): EnhanceResult {
+  function enhanceModules(mod: PageModule): EnhanceResult {
     return {
       preload() {
-        return modules;
+        return mod;
       },
-      component: modules.default,
+      component: mod.default,
     };
   }
 
   if ((factoryOrModules as any).default) {
-    return enhanceModules(factoryOrModules as PageModules);
+    return enhanceModules(factoryOrModules as PageModule);
   }
 
   return enhanceFactory(factoryOrModules as PageFactory);

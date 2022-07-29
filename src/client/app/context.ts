@@ -9,3 +9,10 @@ export const appContext = createContext<AppState>(null as any);
 export function useAppState() {
   return useContext(appContext);
 }
+
+/**
+ * get loader data
+ */
+export function useLoaderData() {
+  return useAppState().loaderData;
+}

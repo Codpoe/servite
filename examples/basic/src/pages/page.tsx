@@ -2,8 +2,8 @@ import { useState } from 'react';
 import reactLogo from '../assets/react.svg';
 import './page.css';
 
-export async function prefetch() {
-  return {};
+export async function loader() {
+  return [];
 }
 
 function Page() {

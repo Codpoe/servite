@@ -1,14 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, matchRoutes, matchPath } from 'react-router-dom';
 import { HelmetProvider, Helmet } from 'react-helmet-async';
+import nprogress from 'nprogress';
 import { routes, Route } from 'virtual:servite/routes';
 import { pages } from 'virtual:servite/pages';
 import { appContext } from './context';
 import { AppState, PageError } from './types';
 import { Page } from './components/Page';
-
-const isSSR = import.meta.env.SSR;
-const isDev = import.meta.env.DEV;
 
 async function waitForPageReady(
   appState: AppState,
@@ -29,25 +27,34 @@ async function waitForPageReady(
   }
 
   try {
-    const modules = await Promise.all(
-      matches.map(async m => (m.route as Route).component.preload?.())
+    const preloadResults = await Promise.all(
+      matches.map(async m => {
+        const mod = await (m.route as Route).component.preload?.();
+        // execute loader
+        // TODO: loader params ctx
+        const data = await mod?.loader?.();
+        return { mod, data };
+      })
     );
 
-    // TODO: run preload
+    const pageModule = {};
+    let loaderData: any = undefined;
 
-    const pageModule = modules.reduce(
-      (all, current) => ({
-        ...all,
-        ...current,
-      }),
-      {}
-    );
+    preloadResults.forEach(res => {
+      Object.assign(pageModule, res.mod);
 
-    Object.assign(newAppState, {
+      if (res.data) {
+        loaderData ??= {};
+        Object.assign(loaderData, res.data);
+      }
+    });
+
+    Object.assign<AppState, Partial<AppState>>(newAppState, {
       pagePath,
       pageData: appState.pages.find(p => matchPath(p.routePath, pagePath)),
       pageModule,
       pageError: null,
+      loaderData,
     });
   } catch (err) {
     if (err instanceof Error) {
@@ -120,9 +127,21 @@ export async function createApp({
     }, [pathname]);
 
     useEffect(() => {
-      // eslint-disable-next-line no-console
-      console.log('[servite] appState', appState);
+      if (import.meta.env.DEV) {
+        // eslint-disable-next-line no-console
+        console.log('[servite] appState', appState);
+      }
     }, [appState]);
+
+    useEffect(() => {
+      if (appState.pageLoading) {
+        nprogress.start();
+
+        return () => {
+          nprogress.done();
+        };
+      }
+    }, [appState.pageLoading]);
 
     return (
       <HelmetProvider context={helmetContext}>

@@ -28,7 +28,6 @@ export interface Page {
   filePath: string;
   isLayout: boolean;
   is404: boolean;
-  exports: string[];
   meta: Record<string, any>;
 }
 
@@ -37,6 +36,7 @@ export interface Route {
   component: any;
   children?: Route[];
   meta?: Record<string, any>;
+  loader?: any;
 }
 
 export type ServerEntryRender = (

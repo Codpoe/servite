@@ -26,4 +26,5 @@ export interface AppState {
   pageModule?: any;
   pageLoading: boolean;
   pageError: PageError | null;
+  loaderData?: any;
 }
