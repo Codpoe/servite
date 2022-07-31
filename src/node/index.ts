@@ -42,6 +42,9 @@ export function servite(userServiteConfig?: UserServiteConfig): Plugin[] {
               'nprogress',
             ],
           },
+          ssr: {
+            noExternal: ['servite'],
+          },
           build: {
             rollupOptions: {
               input: APP_HTML_FILE,
