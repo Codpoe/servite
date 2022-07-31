@@ -1,6 +1,6 @@
 import { renderToString } from 'react-dom/server';
 import { StaticRouter } from 'react-router-dom/server';
-import { createApp, CreateAppConfig } from './main';
+import { createApp, CreateAppConfig } from './main.js';
 
 const basename = import.meta.env.BASE_URL?.replace(/\/$/, '');
 

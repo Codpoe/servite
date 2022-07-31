@@ -44,6 +44,6 @@ interface Window {
     context: {
       serverRendered: boolean;
     };
-    loaderData?: any;
+    loaderData?: Record<string, any>;
   };
 }

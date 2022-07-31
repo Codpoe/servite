@@ -26,5 +26,11 @@ export interface AppState {
   pageModule?: any;
   pageLoading: boolean;
   pageError: PageError | null;
-  loaderData?: any;
+  loaderData?: LoaderResult;
 }
+
+export type LoaderResult = Record<string, any> | null | void;
+
+export type LoaderFunction<T extends LoaderResult = LoaderResult> = () =>
+  | T
+  | Promise<T>;

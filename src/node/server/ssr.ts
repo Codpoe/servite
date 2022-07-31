@@ -35,7 +35,8 @@ export async function ssr(config: SSRConfig): Promise<string | undefined> {
   // server module should be fresh in every request
   // to avoid rendering out-of-date content that fails to hydrate
   if (!isProd && viteDevServer) {
-    invalidateServerEntryModules(viteDevServer, serverEntry);
+    viteDevServer.moduleGraph.invalidateAll();
+    // invalidateServerEntryModules(viteDevServer, serverEntry);
   }
 
   const { render, pages } = (

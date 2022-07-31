@@ -34,12 +34,13 @@ export function servite(userServiteConfig?: UserServiteConfig): Plugin[] {
           },
           optimizeDeps: {
             entries: [path.relative(root, CLIENT_ENTRY_FILE)],
-            // include: [
-            //   'react',
-            //   'react/jsx-runtime',
-            //   'react/jsx-dev-runtime',
-            //   'react-dom/client',
-            // ],
+            include: [
+              'react',
+              'react/jsx-runtime',
+              'react/jsx-dev-runtime',
+              'react-dom/client',
+              'nprogress',
+            ],
           },
           build: {
             rollupOptions: {

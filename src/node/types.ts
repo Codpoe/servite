@@ -43,7 +43,7 @@ export interface Route {
 
 export interface ServerEntryRenderContext {
   helmetContext: Partial<FilledContext>;
-  loaderData?: any;
+  loaderData?: Record<string, any>;
 }
 
 export type ServerEntryRender = (

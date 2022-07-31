@@ -1,16 +1,27 @@
 import { useState } from 'react';
+import { useLoaderData } from 'servite/client';
 import reactLogo from '../assets/react.svg';
 import './page.css';
 
-export async function loader() {
-  return [];
+interface LoaderData {
+  list: number[];
+  total: number;
 }
+
+export const loader = () => {
+  return {
+    list: [0, 1, 2],
+    total: 8,
+  };
+};
 
 function Page() {
   const [count, setCount] = useState(0);
+  const loaderData = useLoaderData<LoaderData>();
 
   return (
     <div className="App">
+      <pre>loaderData: {JSON.stringify(loaderData)}</pre>
       <div>
         <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
           <img src="/vite.svg" className="logo" alt="Vite logo" />

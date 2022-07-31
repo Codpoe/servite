@@ -4,12 +4,12 @@ import { HelmetProvider, Helmet } from 'react-helmet-async';
 import nprogress from 'nprogress';
 import { routes, Route } from 'virtual:servite/routes';
 import { pages } from 'virtual:servite/pages';
-import { appContext } from './context';
-import { AppState, PageError } from './types';
-import { Page } from './components/Page';
+import { appContext } from './context.js';
+import { AppState, PageError, LoaderResult } from './types.js';
+import { Page } from './components/Page.js';
 
 // ssr will inject global variable: `__SSR_DATA__`
-const ssrData = window.__SSR_DATA__;
+const ssrData = typeof window !== 'undefined' ? window.__SSR_DATA__ : undefined;
 
 async function waitForPageReady(
   appState: AppState,
@@ -42,7 +42,7 @@ async function waitForPageReady(
     );
 
     const pageModule = {};
-    let loaderData: any = undefined;
+    let loaderData: Record<string, any> | undefined = undefined;
 
     preloadResults.forEach(res => {
       Object.assign(pageModule, res.mod);
@@ -84,7 +84,7 @@ export interface CreateAppConfig {
   pagePath: string;
   context?: {
     helmetContext?: Record<string, unknown>;
-    loaderData?: any;
+    loaderData?: LoaderResult;
   };
 }
 

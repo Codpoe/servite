@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import { AppState } from './types';
+import { AppState, LoaderResult } from './types.js';
 
 export const appContext = createContext<AppState>(null as any);
 
@@ -13,6 +13,6 @@ export function useAppState() {
 /**
  * get loader data
  */
-export function useLoaderData() {
-  return useAppState().loaderData;
+export function useLoaderData<T extends LoaderResult = LoaderResult>(): T {
+  return useAppState().loaderData as T;
 }
