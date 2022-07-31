@@ -34,6 +34,7 @@ importers:
       react-dom: ^18.2.0
       react-helmet-async: ^1.3.0
       react-router-dom: ^6.3.0
+      react-ssr-prepass: ^1.5.0
       release-it: ^15.1.2
       rimraf: ^3.0.2
       rollup: ^2.77.0
@@ -52,6 +53,7 @@ importers:
       picocolors: 1.0.0
       react-helmet-async: 1.3.0_biqbaboplfbrettd7655fr4n2y
       react-router-dom: 6.3.0_biqbaboplfbrettd7655fr4n2y
+      react-ssr-prepass: 1.5.0_react@18.2.0
       upath: 2.0.1
     devDependencies:
       '@codpoe/eslint-config': 0.1.3_flglbjzonblgt5aytwoht4iaou
@@ -5042,6 +5044,14 @@ packages:
       react: '>=16.8'
     dependencies:
       history: 5.3.0
+      react: 18.2.0
+    dev: false
+
+  /react-ssr-prepass/1.5.0_react@18.2.0:
+    resolution: {integrity: sha512-yFNHrlVEReVYKsLI5lF05tZoHveA5pGzjFbFJY/3pOqqjGOmMmqx83N4hIjN2n6E1AOa+eQEUxs3CgRnPmT0RQ==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    dependencies:
       react: 18.2.0
     dev: false
 

@@ -13,7 +13,8 @@ const ssrData = typeof window !== 'undefined' ? window.__SSR_DATA__ : undefined;
 
 async function waitForPageReady(
   appState: AppState,
-  pagePath: string
+  pagePath: string,
+  initial = true
 ): Promise<AppState | undefined> {
   if (appState.pagePath === pagePath) {
     return;
@@ -30,19 +31,28 @@ async function waitForPageReady(
   }
 
   try {
+    const hasInitialLoaderData = Boolean(initial && ssrData?.loaderData);
+
     const preloadResults = await Promise.all(
       matches.map(async m => {
         const mod = await (m.route as Route).component.preload?.();
         // execute loader
-        // TODO: skip execute loader when has ssr loaderData
-        // TODO: loader params ctx
-        const data = await mod?.loader?.();
+        let data: any;
+
+        if (!hasInitialLoaderData) {
+          const ctx = {
+            params: m.params,
+          };
+          // TODO: loader params ctx 的类型
+          data = await mod?.loader?.(ctx);
+        }
+
         return { mod, data };
       })
     );
 
     const pageModule = {};
-    let loaderData: Record<string, any> | undefined = undefined;
+    let loaderData = hasInitialLoaderData ? ssrData?.loaderData : undefined;
 
     preloadResults.forEach(res => {
       Object.assign(pageModule, res.mod);
@@ -94,7 +104,6 @@ export async function createApp({ pagePath, context }: CreateAppConfig) {
     pages,
     pageLoading: false,
     pageError: null,
-    loaderData: ssrData?.loaderData,
   };
 
   if (pagePath) {
@@ -127,7 +136,8 @@ export async function createApp({ pagePath, context }: CreateAppConfig) {
 
         const newAppState = await waitForPageReady(
           appStateRef.current,
-          pathname
+          pathname,
+          false
         );
 
         if (newAppState) {
@@ -139,13 +149,6 @@ export async function createApp({ pagePath, context }: CreateAppConfig) {
     }, [pathname]);
 
     useEffect(() => {
-      if (import.meta.env.DEV) {
-        // eslint-disable-next-line no-console
-        console.log('[servite] appState', appState);
-      }
-    }, [appState]);
-
-    useEffect(() => {
       if (appState.pageLoading) {
         nprogress.start();
 
@@ -154,6 +157,13 @@ export async function createApp({ pagePath, context }: CreateAppConfig) {
         };
       }
     }, [appState.pageLoading]);
+
+    useEffect(() => {
+      if (import.meta.env.DEV) {
+        // eslint-disable-next-line no-console
+        console.log('[servite] appState', appState);
+      }
+    }, [appState]);
 
     return (
       <HelmetProvider context={context?.helmetContext}>

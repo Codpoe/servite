@@ -14,8 +14,6 @@ async function bootstrap() {
     throw new Error('[servite] Cannot find an element with id "root"');
   }
 
-  const isSSR = container.innerHTML.trim() !== '';
-
   const App = await createApp({ pagePath });
 
   const element = (
@@ -24,7 +22,7 @@ async function bootstrap() {
     </Router>
   );
 
-  if (isSSR) {
+  if (container.dataset.serverRendered === 'true') {
     // ssr hydrate
     hydrateRoot(container, element);
     return;
