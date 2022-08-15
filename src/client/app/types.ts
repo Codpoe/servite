@@ -1,5 +1,5 @@
-import type { Route } from 'virtual:servite/routes';
 import type { Page as PageData } from 'virtual:servite/pages';
+import type { Route } from 'virtual:servite/pages-routes';
 
 export type { PageData };
 

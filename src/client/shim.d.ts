@@ -1,10 +1,9 @@
-declare module 'virtual:servite/pages' {
+declare module 'virtual:servite/pages*' {
   export interface Page {
     routePath: string;
     filePath: string;
     isLayout: boolean;
     is404: boolean;
-    exports: string[];
     meta: Record<string, any>;
   }
 
@@ -12,7 +11,7 @@ declare module 'virtual:servite/pages' {
   export default pages;
 }
 
-declare module 'virtual:servite/routes' {
+declare module 'virtual:servite/pages-routes*' {
   export interface Route {
     path: string;
     component: any;

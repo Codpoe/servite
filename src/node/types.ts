@@ -2,11 +2,6 @@ import { FilledContext } from 'react-helmet-async';
 
 export interface UserServiteConfig {
   /**
-   * Pages directory to find pages
-   * @default 'src/pages'
-   */
-  pagesDir?: string;
-  /**
    * Server side render
    * @default true
    */

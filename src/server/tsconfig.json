@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/server",
+    "baseUrl": ".",
+    "paths": {
+      "#internal/nitro": ["../../node_modules/nitropack/dist/runtime"],
+      "#servite/*": ["./virtual/*"]
+    }
+  }
+}

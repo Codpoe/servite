@@ -1,1 +1,1 @@
-export * from './dist/node/server/index';
+export * from './dist/server/index';

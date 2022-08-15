@@ -1,5 +1,5 @@
 import { renderToString } from 'react-dom/server';
-import { StaticRouter } from 'react-router-dom/server';
+import { StaticRouter } from 'react-router-dom/server.js';
 // import ssrPrepass from 'react-ssr-prepass';
 import { createApp, CreateAppConfig } from './main.js';
 

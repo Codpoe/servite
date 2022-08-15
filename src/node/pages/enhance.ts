@@ -1,4 +1,4 @@
-import { ResolvedConfig } from 'vite';
+import type { ResolvedConfig } from 'vite';
 
 declare const seen: Record<string, boolean>;
 declare const base: string;
