@@ -21,7 +21,6 @@ export async function initNitro({
   nitroConfig,
 }: CreateServiteNitroConfig) {
   const nitro = await createNitro({
-    ...nitroConfig,
     baseURL: viteConfig.base,
     rootDir: viteConfig.root,
     srcDir: 'src/server',
@@ -61,6 +60,8 @@ export const pages = [];
         return `export * from '${ssrEntryPath}';`;
       },
     },
+    // TODO: use defu
+    ...nitroConfig,
   });
 
   return nitro;

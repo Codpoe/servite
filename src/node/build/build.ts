@@ -9,12 +9,21 @@ import {
 } from 'nitropack';
 import { initNitro } from '../nitro/init.js';
 import { SSR_ENTRY_FILE } from '../constants.js';
-import { ServiteConfig } from '../types.js';
+import { Page, ServiteConfig } from '../types.js';
 
 export async function build(inlineConfig: InlineConfig) {
   let viteConfig = {} as ResolvedConfig;
   let serviteConfig = {} as ServiteConfig;
   let outDir = 'dist';
+  let pages: Page[] = [];
+
+  const getPlugin = (name: string) => {
+    const plugin = viteConfig.plugins.find(p => p.name === name);
+    if (!plugin) {
+      throw new Error(`vite plugin "${name}" not found`);
+    }
+    return plugin;
+  };
 
   const resolveInlineConfig = (ssr: boolean): InlineConfig => {
     return {
@@ -24,25 +33,20 @@ export async function build(inlineConfig: InlineConfig) {
         {
           name: 'servite:build',
           enforce: 'post',
-          configResolved(config) {
+          async configResolved(config) {
             viteConfig = config;
 
-            const servitePlugin: any = config.plugins.find(
-              p => p.name === 'servite'
-            );
-
-            if (!servitePlugin) {
-              throw new Error('servite plugin not found');
-            }
-
             // Save servite config
-            serviteConfig = servitePlugin.api.getServiteConfig();
+            serviteConfig = getPlugin('servite').api.getServiteConfig();
 
-            // save some config for generate bootstrap code and ssg
+            // Save some config for generate bootstrap code and ssg
             ({ outDir } = config.build);
 
             // Redirect ssr outDir to {outDir}/ssr.
             config.build.outDir = ssr ? path.join(outDir, 'ssr') : outDir;
+
+            // Save pages to prerender
+            pages = await getPlugin('servite:pages').api.getPages();
           },
         },
       ],
@@ -75,7 +79,12 @@ export async function build(inlineConfig: InlineConfig) {
         outDir,
       },
     },
-    nitroConfig: { dev: false },
+    nitroConfig: {
+      dev: false,
+      prerender: {
+        routes: pages.map(p => p.routePath),
+      },
+    },
   });
 
   await prepare(nitro);
