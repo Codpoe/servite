@@ -7,12 +7,9 @@ import {
 } from '../constants.js';
 import { PagesManager } from './manager.js';
 
-export interface ServitePagesConfig {
-  pagesManager: PagesManager;
-}
-
-export function servitePages({ pagesManager }: ServitePagesConfig): Plugin {
+export function servitePages(): Plugin {
   let viteDevServer: ViteDevServer;
+  let pagesManager: PagesManager;
 
   function getPagesAndRoutesModules() {
     return [
@@ -24,8 +21,11 @@ export function servitePages({ pagesManager }: ServitePagesConfig): Plugin {
 
   return {
     name: 'servite:pages',
+    enforce: 'pre',
     // TODO: optimize deps for routes
-    // configResolved(config) {},
+    configResolved(config) {
+      pagesManager = new PagesManager(config);
+    },
     configureServer(server) {
       viteDevServer = server;
 
@@ -38,7 +38,6 @@ export function servitePages({ pagesManager }: ServitePagesConfig): Plugin {
           getPagesAndRoutesModules().forEach(mod => {
             viteDevServer.moduleGraph.invalidateModule(mod, seen);
           });
-
           pagesManager.reload();
         }
       });
@@ -80,6 +79,9 @@ export function servitePages({ pagesManager }: ServitePagesConfig): Plugin {
 
         return modules;
       }
+    },
+    api: {
+      getPages: () => pagesManager.getPages(),
     },
   };
 }

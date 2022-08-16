@@ -1,9 +1,8 @@
 import path from 'upath';
-import { Plugin, ResolvedConfig, ViteDevServer } from 'vite';
-import { build, createDevServer, prepare } from 'nitropack';
-import { PagesManager } from './pages/manager.js';
+import fs from 'fs-extra';
+import { Plugin } from 'vite';
 import { servitePages } from './pages/plugin.js';
-import { initNitro } from './nitro.js';
+import { serviteNitro } from './nitro/plugin.js';
 import { resolveServiteConfig } from './config.js';
 import {
   APP_HTML_FILE,
@@ -16,18 +15,15 @@ export function servite(userServiteConfig?: UserServiteConfig): Plugin[] {
   const serviteConfig = resolveServiteConfig(userServiteConfig);
   const { hashRouter } = serviteConfig;
 
-  const pagesManager = new PagesManager();
-  let pagesManagerSetupPromise: Promise<void> | null = null;
-
-  let viteConfig: ResolvedConfig;
-  let viteDevServer: ViteDevServer;
-
   const plugins: Plugin[] = [
     {
       name: 'servite',
       enforce: 'pre',
-      config(config) {
-        const root = path.normalize(path.resolve(config.root || ''));
+      async config(config) {
+        const root = path.resolve(config.root || '');
+        const input = path.resolve(root, 'node_modules/.servite/index.html');
+
+        await fs.copy(APP_HTML_FILE, input);
 
         return {
           define: {
@@ -48,77 +44,9 @@ export function servite(userServiteConfig?: UserServiteConfig): Plugin[] {
           },
           build: {
             rollupOptions: {
-              input: APP_HTML_FILE,
+              input,
             },
           },
-        };
-      },
-      configResolved(config) {
-        viteConfig = config;
-        pagesManagerSetupPromise = pagesManager.setup(viteConfig);
-      },
-      async configureServer(server) {
-        viteDevServer = server;
-
-        const nitro = await initNitro({
-          serviteConfig,
-          viteConfig,
-          viteDevServer,
-          nitroConfig: { dev: true },
-        });
-
-        const nitroDevServer = createDevServer(nitro);
-        await prepare(nitro);
-
-        const buildPromise = build(nitro);
-
-        return () => {
-          server.middlewares.use(async (req, res, next) => {
-            if (res.writableEnded) {
-              return next();
-            }
-
-            // set url for custom server
-            if (req.originalUrl) {
-              req.url = req.originalUrl;
-            }
-
-            await pagesManagerSetupPromise;
-            await buildPromise;
-
-            try {
-              await nitroDevServer.app.nodeHandler(req, res);
-            } catch (err) {
-              res.statusCode = 500;
-
-              if (err instanceof Error) {
-                res.end(err.stack || err.message);
-              } else {
-                res.end('Unknown error');
-              }
-            }
-          });
-
-          // const historyMiddleware = history({
-          //   htmlAcceptHeaders: ['text/html', 'application/xhtml+xml'],
-          //   index: FS_PREFIX_APP_HTML,
-          // }) as Connect.NextHandleFunction;
-
-          // server.middlewares.use((req, res, next) => {
-          //   // The path of virtual module usually starts with @, we shouldn't rewrite it
-          //   if (!req.url || req.url.startsWith('/@')) {
-          //     return next();
-          //   }
-
-          //   const ext = path.extname(cleanUrl(req.url));
-
-          //   // Do not rewrite paths with non-html ext
-          //   if (ext && ext !== '.html') {
-          //     return next();
-          //   }
-
-          //   return historyMiddleware(req, res, next);
-          // });
         };
       },
       transformIndexHtml: {
@@ -143,7 +71,22 @@ export function servite(userServiteConfig?: UserServiteConfig): Plugin[] {
         },
       },
     },
-    servitePages({ pagesManager }),
+    {
+      name: 'servite:html-filename',
+      enforce: 'post',
+      async generateBundle(_options, bundle) {
+        Object.values(bundle).forEach(chunk => {
+          if (
+            chunk.type === 'asset' &&
+            chunk.fileName === 'node_modules/.servite/index.html'
+          ) {
+            chunk.fileName = 'index.html';
+          }
+        });
+      },
+    },
+    servitePages(),
+    serviteNitro({ serviteConfig }),
   ];
 
   return plugins;

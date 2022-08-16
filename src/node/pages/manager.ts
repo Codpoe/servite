@@ -14,26 +14,16 @@ const PAGES_DIR = 'src/pages';
 
 export class PagesManager {
   private reloadPromise: Promise<Page[]> | null = null;
-  private viteConfig: ResolvedConfig | null = null;
 
-  private assertViteConfig() {
-    if (!this.viteConfig) {
-      throw new Error('[servite] PagesManager is not yet setup');
-    }
+  constructor(private viteConfig: ResolvedConfig) {
+    this.reload();
   }
 
-  setup = async (config: ResolvedConfig) => {
-    this.viteConfig = config;
-    await this.reload();
+  reload = () => {
+    this.reloadPromise = debouncedScanPages(this.viteConfig.root);
   };
 
-  reload = debounce(async () => {
-    this.assertViteConfig();
-    await (this.reloadPromise = scanPages(this.viteConfig!.root));
-  }, 100);
-
   getPages = async () => {
-    this.assertViteConfig();
     return (await this.reloadPromise) || [];
   };
 
@@ -111,6 +101,8 @@ ${space}"element": React.createElement(${localName}.component)`;
     };
   };
 }
+
+const debouncedScanPages = debounce(scanPages, 50);
 
 async function scanPages(root: string): Promise<Page[]> {
   const pageFiles = await fg(

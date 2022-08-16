@@ -121,6 +121,8 @@ cli
 
     try {
       // TODO: start
+      // eslint-disable-next-line no-console
+      console.log('To be implemented');
     } catch (e: any) {
       createLogger(options.logLevel).error(
         colors.red(`error when starting production server:\n${e.stack}`),

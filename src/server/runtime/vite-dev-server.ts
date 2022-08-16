@@ -1,5 +1,5 @@
 import { createServer, ViteDevServer } from 'vite';
-import config from '#servite/vite-dev-server-config';
+import { useRuntimeConfig } from '#internal/nitro';
 
 export const getViteDevServer = (() => {
   let res: Promise<ViteDevServer> | null = null;
@@ -7,12 +7,12 @@ export const getViteDevServer = (() => {
   return async () => {
     if (res === null) {
       res = createServer({
-        ...config,
+        ...useRuntimeConfig()?.viteDevServerConfig,
         appType: 'custom',
         server: {
           middlewareMode: true,
         },
-        // logLevel: 'warn',
+        logLevel: 'warn',
       }).catch(err => {
         res = null;
         throw err;

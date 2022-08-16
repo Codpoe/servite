@@ -1,43 +1,19 @@
 import path from 'upath';
 import fs from 'fs-extra';
-import { build as viteBuild, InlineConfig } from 'vite';
-import { RollupOutput } from 'rollup';
+import { build as viteBuild, InlineConfig, ResolvedConfig } from 'vite';
+import {
+  build as nitroBuild,
+  copyPublicAssets,
+  prepare,
+  prerender,
+} from 'nitropack';
+import { initNitro } from '../nitro/init.js';
 import { SSR_ENTRY_FILE } from '../constants.js';
 import { ServiteConfig } from '../types.js';
-import { ssg } from './ssg.js';
-
-async function generateBootstrap(outDir: string) {
-  const code = `import * as path from 'path';
-import { createServerApp } from 'servite/server';
-
-process.env.NODE_ENV = 'production';
-
-function bootstrap() {
-  const app = createServerApp({
-    resolve(...paths) {
-      return path.resolve('${outDir}', ...paths);
-    },
-    ssr: true,
-  });
-
-  const port = process.env.PORT || 3000;
-
-  app.listen(port, () => {
-    console.log('start servite app on ' + port);
-  });
-}
-
-bootstrap();
-`;
-
-  const bootstrapFilePath = path.resolve(outDir, 'bootstrap.js');
-
-  await fs.outputFile(bootstrapFilePath, code);
-}
 
 export async function build(inlineConfig: InlineConfig) {
+  let viteConfig = {} as ResolvedConfig;
   let serviteConfig = {} as ServiteConfig;
-  let root = '';
   let outDir = 'dist';
 
   const resolveInlineConfig = (ssr: boolean): InlineConfig => {
@@ -49,49 +25,83 @@ export async function build(inlineConfig: InlineConfig) {
           name: 'servite:build',
           enforce: 'post',
           configResolved(config) {
+            viteConfig = config;
+
             const servitePlugin: any = config.plugins.find(
               p => p.name === 'servite'
             );
 
             if (!servitePlugin) {
-              throw new Error('The servite plugin is not found');
+              throw new Error('servite plugin not found');
             }
 
-            // save servite config
+            // Save servite config
             serviteConfig = servitePlugin.api.getServiteConfig();
 
             // save some config for generate bootstrap code and ssg
-            ({ root } = config);
             ({ outDir } = config.build);
 
-            // redirect ssr outDir to {outDir}/server
-            config.build.outDir = ssr
-              ? path.join(outDir ? outDir + '/' : '', 'server')
-              : outDir;
+            // Redirect ssr outDir to {outDir}/ssr.
+            config.build.outDir = ssr ? path.join(outDir, 'ssr') : outDir;
           },
         },
       ],
       build: {
         ...inlineConfig.build,
         ssr: ssr ? SSR_ENTRY_FILE : false,
-        ssrManifest: !ssr,
+        ssrManifest: !ssr, // generate ssr manifest while client bundle
       },
     };
   };
 
-  const clientResult = (await viteBuild(
-    resolveInlineConfig(false)
-  )) as RollupOutput;
+  // Client bundle
+  await viteBuild(resolveInlineConfig(false));
 
-  if (serviteConfig.ssr) {
-    await viteBuild(resolveInlineConfig(true));
-    await generateBootstrap(outDir);
+  emptyLine();
 
-    await ssg(root, outDir);
-  }
+  // SSR bundle
+  await viteBuild(resolveInlineConfig(true));
 
-  return {
-    clientResult,
-    outDir,
-  };
+  emptyLine();
+
+  // Build nitro output
+  const nitro = await initNitro({
+    serviteConfig,
+    viteConfig: {
+      ...viteConfig,
+      build: {
+        ...viteConfig.build,
+        // SSR bundle will overwrite outDir, here we need to restore the original outDir
+        outDir,
+      },
+    },
+    nitroConfig: { dev: false },
+  });
+
+  await prepare(nitro);
+
+  // Copy some client bundle result to server assets
+  // renderer will read server-assets by useStorage().getItem('/assets/servite/...')
+  await copyServerAssets(viteConfig, outDir);
+
+  await copyPublicAssets(nitro);
+  await prerender(nitro);
+  await nitroBuild(nitro);
+  await nitro.close();
+}
+
+function emptyLine() {
+  // eslint-disable-next-line no-console
+  console.log('');
+}
+
+async function copyServerAssets(viteConfig: ResolvedConfig, outDir: string) {
+  await Promise.all(
+    ['index.html', 'ssr-manifest.json'].map(filePath =>
+      fs.copy(
+        path.resolve(viteConfig.root, outDir, filePath),
+        path.resolve(viteConfig.root, outDir, 'server-assets', filePath)
+      )
+    )
+  );
 }

@@ -59,11 +59,7 @@ async function loadSSREntry() {
     return (await viteDevServer.ssrLoadModule(resolved.id)) as SSREntry;
   }
 
-  // TODO: load prod ssr entry
-  return {
-    render: () => '',
-    pages: [],
-  } as any as SSREntry;
+  return import('#servite/prod-ssr-entry');
 }
 
 let _prodAppHtml: string | undefined;
@@ -73,18 +69,18 @@ async function loadTemplate(url: string) {
 
   if (isDev) {
     const viteDevServer = await getViteDevServer();
-    template = await storage.getItem('servite-dist/client/app/index.html');
+    template = await storage.getItem('root/node_modules/.servite/index.html');
 
     if (viteDevServer) {
       template = await viteDevServer.transformIndexHtml(
-        '/node_modules/servite/dist/client/app/index.html',
+        '/node_modules/.servite/index.html',
         template,
         url
       );
     }
   } else {
     if (!_prodAppHtml) {
-      _prodAppHtml = await storage.getItem('build/index.html');
+      _prodAppHtml = await storage.getItem('/assets/servite/index.html');
     }
     template = _prodAppHtml!;
   }
@@ -125,8 +121,8 @@ async function renderPreloadLinks(
   }
 
   if (!_ssrManifestJson) {
-    _ssrManifestJson = JSON.parse(
-      await storage.getItem('build/ssr-manifest.json')
+    _ssrManifestJson = await storage.getItem(
+      '/assets/servite/ssr-manifest.json'
     );
   }
 
