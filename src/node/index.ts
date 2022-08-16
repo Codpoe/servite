@@ -78,7 +78,8 @@ export function servite(userServiteConfig?: UserServiteConfig): Plugin[] {
         Object.values(bundle).forEach(chunk => {
           if (
             chunk.type === 'asset' &&
-            chunk.fileName === 'node_modules/.servite/index.html'
+            path.normalize(chunk.fileName) ===
+              'node_modules/.servite/index.html'
           ) {
             chunk.fileName = 'index.html';
           }
