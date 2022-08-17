@@ -7,10 +7,8 @@ import { debounce } from 'perfect-debounce';
 import type { ResolvedConfig } from 'vite';
 import { isMarkdown } from '../utils.js';
 import type { Page, PagesDirConfig, Route, ServiteConfig } from '../types.js';
-import { IGNORE_PATTERN, PAGES_PATTERN } from '../constants.js';
+import { PAGES_IGNORE_PATTERN, PAGES_PATTERN } from '../constants.js';
 import { generateEnhanceCode } from './enhance.js';
-
-const PAGES_DIR = 'src/pages';
 
 export class PagesManager {
   private reloadPromise: Promise<Page[]> | null = null;
@@ -88,18 +86,26 @@ ${space}"element": React.createElement(${localName}.component)`;
     return routesCode;
   };
 
-  checkPageFile = async (filePath: string) => {
-    filePath = path.relative(this.viteConfig!.root, filePath);
+  checkPageFile = async (absFilePath: string) => {
+    const isPageFile = this.serviteConfig.pagesDir.some(
+      ({ dir, ignore = [] }) => {
+        const prefixPath = path.join(
+          path.resolve(this.viteConfig.root, dir),
+          '/'
+        );
 
-    const pages = await this.getPages();
-    const isPageFile =
-      filePath.startsWith(path.join(PAGES_DIR, '/')) &&
-      mm.isMatch(filePath, PAGES_PATTERN, {
-        cwd: path.resolve(this.viteConfig!.root, PAGES_DIR),
-        ignore: IGNORE_PATTERN,
-      });
+        return (
+          absFilePath.startsWith(prefixPath) &&
+          mm.isMatch(absFilePath.substring(prefixPath.length), PAGES_PATTERN, {
+            ignore: PAGES_IGNORE_PATTERN.concat(ignore),
+          })
+        );
+      }
+    );
 
-    const isExisting = pages.some(p => filePath.endsWith(p.filePath));
+    const isExisting =
+      isPageFile &&
+      (await this.getPages()).some(p => absFilePath.endsWith(p.filePath));
 
     return {
       isPageFile,
@@ -119,17 +125,16 @@ async function scanPages(
     base = viteConfig.base,
     ignore = [],
   }: PagesDirConfig) {
-    const pageFiles = await fg(
-      ['**/{page,layout}.{js,jsx,ts,tsx}', '**/*.{md,mdx}'],
-      {
-        cwd: path.resolve(viteConfig.root, dir),
-        ignore: ['**/{tests,__tests__}/**', ...ignore],
-        absolute: false,
-      }
-    );
+    const pageDir = path.resolve(viteConfig.root, dir);
+
+    const pageFiles = await fg(PAGES_PATTERN, {
+      cwd: pageDir,
+      ignore: PAGES_IGNORE_PATTERN.concat(ignore),
+      absolute: false,
+    });
 
     return pageFiles.map(pageFile =>
-      createPage(viteConfig.root, base, pageFile)
+      createPage(viteConfig.root, base, pageDir, pageFile)
     );
   }
 
@@ -140,10 +145,15 @@ async function scanPages(
   });
 }
 
-function createPage(root: string, base: string, pageFile: string): Page {
+function createPage(
+  root: string,
+  base: string,
+  pageDir: string,
+  pageFile: string
+): Page {
   const basename = path.basename(path.trimExt(pageFile));
-  const routePath = resolveRoutePath(pageFile);
-  const filePath = path.join(PAGES_DIR, pageFile);
+  const routePath = resolveRoutePath(base, pageFile);
+  const filePath = path.relative(root, path.join(pageDir, pageFile));
   const fileContent = fs.readFileSync(path.resolve(root, filePath), 'utf-8');
   const meta = isMarkdown(pageFile) ? extractFrontMatter(fileContent) : {};
 
@@ -156,12 +166,8 @@ function createPage(root: string, base: string, pageFile: string): Page {
   };
 }
 
-function resolveRoutePath(pageFile: string) {
-  let routePath = path
-    .trimExt(path.join('/', pageFile))
-    .replace(/\/404$/, '/*') // transform '/404' to '/*' so this route acts like a catch-all for URLs that we don't have explicit routes for
-    .replace(/\/\[\.{3}.*?\]$/, '/*') // transform '/post/[...]' to '/post/*'
-    .replace(/\/\[(.*?)\]/g, '/:$1'); // transform 'user/[id]' to 'user/:id'
+function resolveRoutePath(base: string, pageFile: string) {
+  let routePath = path.trimExt(path.join('/', base, pageFile));
 
   if (isMarkdown(pageFile)) {
     routePath = routePath
@@ -170,6 +176,11 @@ function resolveRoutePath(pageFile: string) {
   } else {
     routePath = routePath.replace(/\/(page|layout)$/, ''); // remove '/page' and '/layout'
   }
+
+  routePath = routePath
+    .replace(/\/404$/, '/*') // transform '/404' to '/*' so this route acts like a catch-all for URLs that we don't have explicit routes for
+    .replace(/\/\[\.{3}.*?\]$/, '/*') // transform '/post/[...]' to '/post/*'
+    .replace(/\/\[(.*?)\]/g, '/:$1'); // transform '/user/[id]' to '/user/:id'
 
   return routePath || '/';
 }

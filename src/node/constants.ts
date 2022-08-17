@@ -19,6 +19,9 @@ export const PAGES_PATTERN = [
   '**/{page,layout}.{js,jsx,ts,tsx}',
   '**/*.{md,mdx}',
 ];
-export const IGNORE_PATTERN = ['**/{tests,__tests__}/**'];
+export const PAGES_IGNORE_PATTERN = [
+  '**/{test,tests,__tests__}/**',
+  '**/*.test.*',
+];
 
 export const MARKDOWN_EXTS = ['.md', '.mdx'];
