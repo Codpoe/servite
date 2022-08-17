@@ -1,3 +1,4 @@
+import { isMainThread } from 'worker_threads';
 import { build, createDevServer, prepare } from 'nitropack';
 import { Plugin, ResolvedConfig } from 'vite';
 import { ServiteConfig } from '../types.js';
@@ -15,6 +16,8 @@ export function serviteNitro({
   return {
     name: 'servite:nitro',
     enforce: 'post',
+    // Only apply in main thread, not worker thread
+    apply: () => isMainThread,
     configResolved(config) {
       viteConfig = config;
     },
