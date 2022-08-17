@@ -9,8 +9,7 @@ import {
 } from 'nitropack';
 import { initNitro } from '../nitro/init.js';
 import { SSR_ENTRY_FILE } from '../constants.js';
-import { ServiteConfig } from '../config.js';
-import { Page } from '../types.js';
+import { Page, ServiteConfig } from '../types.js';
 
 export async function build(inlineConfig: InlineConfig) {
   let viteConfig = {} as ResolvedConfig;

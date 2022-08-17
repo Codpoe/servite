@@ -1,11 +1,17 @@
 import { NitroConfig } from 'nitropack';
 
+export interface PagesDirConfig {
+  base?: string;
+  dir: string;
+  ignore?: string[];
+}
+
 export interface UserServiteConfig {
   /**
    * Directory for finding pages
-   * @default 'src/pages'
+   * @default [{ dir: 'src/pages' }]
    */
-  pagesDir?: string | string[];
+  pagesDir?: PagesDirConfig[];
   /**
    * Server side render
    * @default true
@@ -27,6 +33,8 @@ export interface UserServiteConfig {
    */
   nitro?: NitroConfig;
 }
+
+export interface ServiteConfig extends Required<UserServiteConfig> {}
 
 export interface Page {
   routePath: string;

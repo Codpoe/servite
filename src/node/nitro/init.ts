@@ -8,7 +8,7 @@ import {
 import type { InlineConfig, ResolvedConfig, ViteDevServer } from 'vite';
 import { defu } from 'defu';
 import { DIST_DIR } from '../constants.js';
-import { ServiteConfig } from '../config.js';
+import { ServiteConfig } from '../types.js';
 
 export interface CreateServiteNitroConfig {
   serviteConfig: ServiteConfig;

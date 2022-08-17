@@ -5,9 +5,16 @@ import {
   RESOLVED_PAGES_MODULE_ID,
   RESOLVED_PAGES_ROUTES_MODULE_ID,
 } from '../constants.js';
+import { ServiteConfig } from '../types.js';
 import { PagesManager } from './manager.js';
 
-export function servitePages(): Plugin {
+export interface ServitePagesPluginConfig {
+  serviteConfig: ServiteConfig;
+}
+
+export function servitePages({
+  serviteConfig,
+}: ServitePagesPluginConfig): Plugin {
   let viteDevServer: ViteDevServer;
   let pagesManager: PagesManager;
 
@@ -24,7 +31,7 @@ export function servitePages(): Plugin {
     enforce: 'pre',
     // TODO: optimize deps for routes
     configResolved(config) {
-      pagesManager = new PagesManager(config);
+      pagesManager = new PagesManager(config, serviteConfig);
     },
     configureServer(server) {
       viteDevServer = server;

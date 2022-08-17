@@ -86,7 +86,7 @@ export function servite(userServiteConfig?: UserServiteConfig): Plugin[] {
         });
       },
     },
-    servitePages(),
+    servitePages({ serviteConfig }),
     serviteNitro({ serviteConfig }),
   ];
 
