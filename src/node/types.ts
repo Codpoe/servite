@@ -1,24 +1,32 @@
-import { FilledContext } from 'react-helmet-async';
+import { NitroConfig } from 'nitropack';
 
 export interface UserServiteConfig {
+  /**
+   * Directory for finding pages
+   * @default 'src/pages'
+   */
+  pagesDir?: string | string[];
   /**
    * Server side render
    * @default true
    */
-  ssr?: boolean;
+  ssr?: boolean | string[];
   /**
    * Static site generate
    * @default false
    */
-  ssg?: boolean;
+  ssg?: boolean | string[];
   /**
    * Use HashRouter instead of BrowserRouter
    * @default false
    */
   hashRouter?: boolean;
+  /**
+   * Nitro config
+   * @see https://github.com/unjs/nitro
+   */
+  nitro?: NitroConfig;
 }
-
-export interface ServiteConfig extends Required<UserServiteConfig> {}
 
 export interface Page {
   routePath: string;
@@ -34,19 +42,4 @@ export interface Route {
   children?: Route[];
   meta?: Record<string, any>;
   loader?: any;
-}
-
-export interface ServerEntryRenderContext {
-  helmetContext: Partial<FilledContext>;
-  loaderData?: Record<string, any>;
-}
-
-export type ServerEntryRender = (
-  pathname: string,
-  context: ServerEntryRenderContext
-) => Promise<string>;
-
-export interface ServerEntryExports {
-  render: ServerEntryRender;
-  pages: Page[];
 }

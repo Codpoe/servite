@@ -18,6 +18,7 @@ importers:
       chokidar: ^3.5.3
       connect-history-api-fallback: ^2.0.0
       cpy: ^9.0.1
+      defu: ^6.1.0
       eslint: ^8.19.0
       express: ^4.18.1
       fast-glob: ^3.2.11
@@ -48,6 +49,7 @@ importers:
     dependencies:
       cac: 6.7.12
       connect-history-api-fallback: 2.0.0
+      defu: 6.1.0
       express: 4.18.1
       fast-glob: 3.2.11
       fs-extra: 10.1.0
@@ -1572,7 +1574,7 @@ packages:
   /c12/0.2.9:
     resolution: {integrity: sha512-6jYdexgAKr+3kYoTmvC5eDtDHUg7GmFQSdeQqZzAKiPlFAN1heGUoXDbAYYwUCfefZy+WgVJbmAej5TTQpp3jA==}
     dependencies:
-      defu: 6.0.0
+      defu: 6.1.0
       dotenv: 16.0.1
       gittar: 0.1.1
       jiti: 1.14.0
@@ -2279,8 +2281,8 @@ packages:
       object-keys: 1.1.1
     dev: true
 
-  /defu/6.0.0:
-    resolution: {integrity: sha512-t2MZGLf1V2rV4VBZbWIaXKdX/mUcYW0n2znQZoADBkGGxYL8EWqCuCZBmJPJ/Yy9fofJkyuuSuo5GSwo0XdEgw==}
+  /defu/6.1.0:
+    resolution: {integrity: sha512-pOFYRTIhoKujrmbTRhcW5lYQLBXw/dlTwfI8IguF1QCDJOcJzNH1w+YFjxqy6BAuJrClTy6MUE8q+oKJ2FLsIw==}
     dev: false
 
   /degenerator/3.0.2:
@@ -4546,7 +4548,7 @@ packages:
     dependencies:
       clipboardy: 3.0.0
       colorette: 2.0.19
-      defu: 6.0.0
+      defu: 6.1.0
       get-port-please: 2.6.1
       http-shutdown: 1.2.2
       selfsigned: 2.0.1
@@ -4971,7 +4973,7 @@ packages:
       chokidar: 3.5.3
       consola: 2.15.3
       cookie-es: 0.5.0
-      defu: 6.0.0
+      defu: 6.1.0
       destr: 1.1.1
       dot-prop: 7.2.0
       esbuild: 0.15.1
@@ -5756,7 +5758,7 @@ packages:
   /rc9/1.2.2:
     resolution: {integrity: sha512-zbe8+HR2X28eZepAwohuKkebbEsA67h0DO9I7g12QrHa2CQopR9gztOLPIPXXGTvcxeUjAN4wZ+b29t3m/u05g==}
     dependencies:
-      defu: 6.0.0
+      defu: 6.1.0
       destr: 1.1.1
       flat: 5.0.2
     dev: false
@@ -6239,7 +6241,7 @@ packages:
   /serve-placeholder/2.0.1:
     resolution: {integrity: sha512-rUzLlXk4uPFnbEaIz3SW8VISTxMuONas88nYWjAWaM2W9VDbt9tyFOr3lq8RhVOFrT3XISoBw8vni5una8qMnQ==}
     dependencies:
-      defu: 6.0.0
+      defu: 6.1.0
     dev: false
 
   /serve-static/1.15.0:
@@ -6828,7 +6830,7 @@ packages:
   /unenv/0.5.4:
     resolution: {integrity: sha512-TsGsA7/kchJSrzGhnSXwm704qI5/yZ8gF1OnGtoHl778AfTYI/jRL6zQeQJn89VeMHZ+o9AvueSPpfrrSpv6Vg==}
     dependencies:
-      defu: 6.0.0
+      defu: 6.1.0
       mime: 3.0.0
       node-fetch-native: 0.1.4
       pathe: 0.3.4

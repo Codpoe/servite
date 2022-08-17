@@ -1,6 +1,6 @@
 import { build, createDevServer, prepare } from 'nitropack';
 import { Plugin, ResolvedConfig } from 'vite';
-import { ServiteConfig } from '../types.js';
+import { ServiteConfig } from '../config.js';
 import { initNitro } from './init.js';
 
 export interface ServiteNitroPluginConfig {

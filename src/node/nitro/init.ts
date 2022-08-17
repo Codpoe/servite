@@ -6,8 +6,9 @@ import {
   ServerAssetDir,
 } from 'nitropack';
 import type { InlineConfig, ResolvedConfig, ViteDevServer } from 'vite';
+import { defu } from 'defu';
 import { DIST_DIR } from '../constants.js';
-import type { ServiteConfig } from '../types.js';
+import { ServiteConfig } from '../config.js';
 
 export interface CreateServiteNitroConfig {
   serviteConfig: ServiteConfig;
@@ -17,52 +18,57 @@ export interface CreateServiteNitroConfig {
 }
 
 export async function initNitro({
+  serviteConfig,
   viteConfig,
   nitroConfig,
 }: CreateServiteNitroConfig) {
-  const nitro = await createNitro({
-    baseURL: viteConfig.base,
-    rootDir: viteConfig.root,
-    srcDir: 'src/server',
-    serverAssets: getNitroServerAssets(viteConfig),
-    publicAssets: getNitroPublicAssets(viteConfig),
-    runtimeConfig: {
-      viteDevServerConfig: <InlineConfig>{
-        root: viteConfig.root,
-        base: viteConfig.base,
-        configFile: viteConfig.configFile,
-        optimizeDeps: { force: viteConfig.optimizeDeps.force },
-        server: viteConfig.server,
-      },
-    },
-    renderer: path.resolve(DIST_DIR, 'server/runtime/renderer'),
-    externals: {
-      inline: [DIST_DIR, 'servite/server'],
-    },
-    // TODO: prerender
-    prerender: {},
-    typescript: {
-      generateTsConfig: false,
-    },
-    virtual: {
-      '#servite/prod-ssr-entry': () => {
-        if (nitroConfig?.dev) {
-          return `export const render = () => '';
+  const nitro = await createNitro(
+    defu(
+      {
+        baseURL: viteConfig.base,
+        rootDir: viteConfig.root,
+        srcDir: 'src/server',
+        serverAssets: getNitroServerAssets(viteConfig),
+        publicAssets: getNitroPublicAssets(viteConfig),
+        // Pass some config to runtime/renderer
+        runtimeConfig: {
+          serviteConfig,
+          viteDevServerConfig: <InlineConfig>{
+            root: viteConfig.root,
+            base: viteConfig.base,
+            configFile: viteConfig.configFile,
+            optimizeDeps: { force: viteConfig.optimizeDeps.force },
+            server: viteConfig.server,
+          },
+        },
+        renderer: path.resolve(DIST_DIR, 'server/runtime/renderer'),
+        externals: {
+          inline: [DIST_DIR, 'servite/server'],
+        },
+        typescript: {
+          generateTsConfig: false,
+        },
+        virtual: {
+          '#servite/prod-ssr-entry': () => {
+            if (nitroConfig?.dev) {
+              return `export const render = () => '';
 export const pages = [];
 `;
-        }
+            }
 
-        const ssrEntryPath = path.resolve(
-          viteConfig.root,
-          viteConfig.build.outDir,
-          'ssr/entry.server.js'
-        );
-        return `export * from '${ssrEntryPath}';`;
+            const ssrEntryPath = path.resolve(
+              viteConfig.root,
+              viteConfig.build.outDir,
+              'ssr/entry.server.js'
+            );
+            return `export * from '${ssrEntryPath}';`;
+          },
+        },
       },
-    },
-    // TODO: use defu
-    ...nitroConfig,
-  });
+      nitroConfig,
+      serviteConfig.nitro
+    )
+  );
 
   return nitro;
 }

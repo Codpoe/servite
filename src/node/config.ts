@@ -1,13 +1,15 @@
-import { UserServiteConfig, ServiteConfig } from './types.js';
+import { defu } from 'defu';
+import { UserServiteConfig } from './types.js';
 
 export function resolveServiteConfig(
   userServiteConfig: UserServiteConfig = {}
-): ServiteConfig {
-  const { ssr = true, ssg = true, hashRouter = false } = userServiteConfig;
-
-  return {
-    ssr,
-    ssg,
-    hashRouter,
-  };
+) {
+  return defu(userServiteConfig, {
+    pagesDir: 'src/pages',
+    ssr: true,
+    ssg: false,
+    hashRouter: false,
+  });
 }
+
+export type ServiteConfig = ReturnType<typeof resolveServiteConfig>;
