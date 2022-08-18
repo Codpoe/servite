@@ -44,6 +44,7 @@ importers:
       rimraf: ^3.0.2
       rollup: ^2.77.0
       typescript: ^4.7.4
+      ufo: ^0.8.5
       upath: ^2.0.1
       vite: ^3.0.2
     dependencies:
@@ -64,6 +65,7 @@ importers:
       react-helmet-async: 1.3.0_biqbaboplfbrettd7655fr4n2y
       react-router-dom: 6.3.0_biqbaboplfbrettd7655fr4n2y
       react-ssr-prepass: 1.5.0_react@18.2.0
+      ufo: 0.8.5
       upath: 2.0.1
     devDependencies:
       '@codpoe/eslint-config': 0.1.3_flglbjzonblgt5aytwoht4iaou

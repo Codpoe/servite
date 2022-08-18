@@ -87,6 +87,7 @@
     "react-helmet-async": "^1.3.0",
     "react-router-dom": "^6.3.0",
     "react-ssr-prepass": "^1.5.0",
+    "ufo": "^0.8.5",
     "upath": "^2.0.1"
   },
   "peerDependencies": {
