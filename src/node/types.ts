@@ -1,6 +1,6 @@
 import { NitroConfig } from 'nitropack';
 
-export interface PagesDirConfig {
+export interface PagesDir {
   base?: string;
   dir: string;
   ignore?: string[];
@@ -11,7 +11,11 @@ export interface UserServiteConfig {
    * Directory for finding pages
    * @default [{ dir: 'src/pages' }]
    */
-  pagesDir?: PagesDirConfig[];
+  pagesDirs?: PagesDir[];
+  /**
+   * theme
+   */
+  theme?: string;
   /**
    * Server side render
    * @default true
@@ -34,7 +38,15 @@ export interface UserServiteConfig {
   nitro?: NitroConfig;
 }
 
-export interface ServiteConfig extends Required<UserServiteConfig> {}
+type PartialRequired<T, K extends keyof T> = T & {
+  [P in K]-?: T[P];
+};
+
+export interface ServiteConfig
+  extends PartialRequired<
+    UserServiteConfig,
+    'pagesDirs' | 'ssr' | 'ssg' | 'hashRouter'
+  > {}
 
 export interface Page {
   routePath: string;
@@ -49,5 +61,4 @@ export interface Route {
   component: any;
   children?: Route[];
   meta?: Record<string, any>;
-  loader?: any;
 }

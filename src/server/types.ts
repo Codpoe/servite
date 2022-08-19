@@ -13,7 +13,7 @@ export interface Page {
 export interface SSREntryRenderContext {
   helmetContext: Partial<FilledContext>;
   loaderContext: LoaderContext;
-  loaderData?: Record<string, any>;
+  loaderData?: any;
 }
 
 export type SSREntryRender = (
@@ -42,7 +42,7 @@ export interface SSRContext {
 export interface SSRData {
   context: Omit<SSRContext, 'event'>;
   serverRendered: boolean;
-  loaderData?: Record<string, any>;
+  loaderData?: any;
 }
 
 export interface LoaderServerContext extends SSRContext {

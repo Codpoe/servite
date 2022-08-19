@@ -1,6 +1,5 @@
-import path from 'path';
-import { $URL } from 'ufo';
-import type { EventHandler } from 'h3';
+import { $URL, joinURL } from 'ufo';
+import type { CompatibilityEvent, EventHandler } from 'h3';
 import { matchPath } from 'react-router-dom';
 import type {
   SSRContext,
@@ -23,20 +22,13 @@ const storage = useStorage();
 
 export default <EventHandler>defineRenderHandler(async event => {
   const url = event.req.url!;
-  const parsedUrl = { ...new $URL(url) };
-
-  // TODO
-  const { ssr } = useRuntimeConfig().serviteConfig || {};
+  const parsedUrl: SSRContext['parsedUrl'] = { ...new $URL(url) };
 
   const ssrContext: SSRContext = {
     event,
     url,
     parsedUrl,
-    noSSR: Boolean(
-      parsedUrl.query['servite-no-ssr'] ||
-        event.req.headers['x-servite-no-ssr'] ||
-        process.env.SERVITE_NO_SSR
-    ),
+    noSSR: isNoSSR(event, parsedUrl),
   };
 
   const ssrEntry = await loadSSREntry();
@@ -65,6 +57,34 @@ export default <EventHandler>defineRenderHandler(async event => {
     },
   };
 });
+
+function isNoSSR(
+  event: CompatibilityEvent,
+  parsedUrl: SSRContext['parsedUrl']
+): boolean {
+  const noSSR = Boolean(
+    parsedUrl.query['servite-no-ssr'] ||
+      event.req.headers['x-servite-no-ssr'] ||
+      process.env.SERVITE_NO_SSR
+  );
+
+  if (noSSR) {
+    return noSSR;
+  }
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const runtimeConfig = useRuntimeConfig();
+  const baseURL: string = runtimeConfig.app.baseURL;
+  const ssr: boolean | string[] = runtimeConfig.serviteConfig.ssr;
+
+  // boolean
+  if (typeof ssr === 'boolean') {
+    return !ssr;
+  }
+
+  // path array
+  return ssr.every(item => joinURL(baseURL, item) !== parsedUrl.pathname);
+}
 
 async function loadSSREntry() {
   if (isDev) {

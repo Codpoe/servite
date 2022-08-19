@@ -6,7 +6,7 @@ import matter from 'gray-matter';
 import { debounce } from 'perfect-debounce';
 import type { ResolvedConfig } from 'vite';
 import { isMarkdown } from '../utils.js';
-import type { Page, PagesDirConfig, Route, ServiteConfig } from '../types.js';
+import type { Page, PagesDir, Route, ServiteConfig } from '../types.js';
 import { PAGES_IGNORE_PATTERN, PAGES_PATTERN } from '../constants.js';
 import { generateEnhanceCode } from './enhance.js';
 
@@ -23,7 +23,7 @@ export class PagesManager {
   reload = () => {
     this.reloadPromise = debouncedScanPages(
       this.viteConfig,
-      this.serviteConfig.pagesDir
+      this.serviteConfig
     );
   };
 
@@ -87,7 +87,7 @@ ${space}"element": React.createElement(${localName}.component)`;
   };
 
   checkPageFile = async (absFilePath: string) => {
-    const isPageFile = this.serviteConfig.pagesDir.some(
+    const isPageFile = this.serviteConfig.pagesDirs.some(
       ({ dir, ignore = [] }) => {
         const prefixPath = path.join(
           path.resolve(this.viteConfig.root, dir),
@@ -118,13 +118,35 @@ const debouncedScanPages = debounce(scanPages, 50);
 
 async function scanPages(
   viteConfig: ResolvedConfig,
-  pagesDir: PagesDirConfig[]
+  serviteConfig: ServiteConfig
 ): Promise<Page[]> {
-  async function _scan({
+  function createPage(base: string, pageDir: string, pageFile: string): Page {
+    const basename = path.basename(path.trimExt(pageFile));
+    const routePath = resolveRoutePath(base, pageFile);
+    const filePath = path.relative(
+      viteConfig.root,
+      path.join(pageDir, pageFile)
+    );
+    const fileContent = fs.readFileSync(
+      path.resolve(viteConfig.root, filePath),
+      'utf-8'
+    );
+    const meta = isMarkdown(pageFile) ? extractFrontMatter(fileContent) : {};
+
+    return {
+      routePath,
+      filePath,
+      isLayout: basename === 'layout',
+      is404: basename === '404',
+      meta,
+    };
+  }
+
+  async function scan({
     dir,
     base = viteConfig.base,
     ignore = [],
-  }: PagesDirConfig) {
+  }: PagesDir): Promise<Page[]> {
     const pageDir = path.resolve(viteConfig.root, dir);
 
     const pageFiles = await fg(PAGES_PATTERN, {
@@ -133,37 +155,16 @@ async function scanPages(
       absolute: false,
     });
 
-    return pageFiles.map(pageFile =>
-      createPage(viteConfig.root, base, pageDir, pageFile)
-    );
+    return pageFiles.map(pageFile => createPage(base, pageDir, pageFile));
   }
 
-  return (await Promise.all(pagesDir.map(_scan))).flat().sort((a, b) => {
-    const compareRes = a.routePath.localeCompare(b.routePath);
-    // layout first
-    return compareRes === 0 && a.isLayout ? -1 : compareRes;
-  });
-}
-
-function createPage(
-  root: string,
-  base: string,
-  pageDir: string,
-  pageFile: string
-): Page {
-  const basename = path.basename(path.trimExt(pageFile));
-  const routePath = resolveRoutePath(base, pageFile);
-  const filePath = path.relative(root, path.join(pageDir, pageFile));
-  const fileContent = fs.readFileSync(path.resolve(root, filePath), 'utf-8');
-  const meta = isMarkdown(pageFile) ? extractFrontMatter(fileContent) : {};
-
-  return {
-    routePath,
-    filePath,
-    isLayout: basename === 'layout',
-    is404: basename === '404',
-    meta,
-  };
+  return (await Promise.all(serviteConfig.pagesDirs.map(scan)))
+    .flat()
+    .sort((a, b) => {
+      const compareRes = a.routePath.localeCompare(b.routePath);
+      // layout first
+      return compareRes === 0 && a.isLayout ? -1 : compareRes;
+    });
 }
 
 function resolveRoutePath(base: string, pageFile: string) {

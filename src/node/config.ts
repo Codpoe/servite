@@ -4,17 +4,18 @@ export function resolveServiteConfig(
   userServiteConfig: UserServiteConfig = {}
 ): ServiteConfig {
   const {
-    pagesDir = [{ dir: 'src/pages' }],
+    pagesDirs = [{ dir: 'src/pages' }],
     ssr = true,
     ssg = false,
     hashRouter = false,
+    ...rest
   } = userServiteConfig;
 
   return {
-    pagesDir,
+    ...rest,
+    pagesDirs,
     ssr,
     ssg,
     hashRouter,
-    nitro: {},
   };
 }

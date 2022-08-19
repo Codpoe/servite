@@ -23,16 +23,10 @@ declare module 'virtual:servite/pages-routes*' {
   export default routes;
 }
 
-declare module '/@pressify/theme*' {
+declare module 'virtual:servite/theme' {
   import { ComponentType } from 'react';
-  import { Components } from '@mdx-js/react/lib';
 
-  const theme: {
-    Layout: ComponentType<any>;
-    NotFound?: ComponentType<any>;
-    mdxComponents?: Components;
-  };
-
+  const theme: ComponentType<any>;
   export default theme;
 }
 
@@ -41,8 +35,17 @@ declare const __HASH_ROUTER__: boolean;
 interface Window {
   __SSR_DATA__?: {
     context: {
-      serverRendered: boolean;
+      url: string;
+      parsedUrl: {
+        protocol: string;
+        host: string;
+        pathname: string;
+        query: QueryObject;
+        hash: string;
+      };
+      noSSR: boolean;
     };
-    loaderData?: Record<string, any>;
+    serverRendered: boolean;
+    loaderData?: any;
   };
 }
