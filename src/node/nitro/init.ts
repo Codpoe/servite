@@ -23,11 +23,12 @@ export async function initNitro({
   nitroConfig,
 }: CreateServiteNitroConfig) {
   const nitro = await createNitro(
-    defu(
+    defu<NitroConfig, (NitroConfig | undefined)[]>(
       {
         baseURL: viteConfig.base,
         rootDir: viteConfig.root,
         srcDir: 'src/server',
+        buildDir: path.resolve(viteConfig.root, 'node_modules/.servite'),
         serverAssets: getNitroServerAssets(viteConfig),
         publicAssets: getNitroPublicAssets(viteConfig),
         // Pass some config to runtime/renderer
