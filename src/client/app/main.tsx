@@ -3,21 +3,68 @@ import { useLocation, matchRoutes, matchPath } from 'react-router-dom';
 import { HelmetProvider, Helmet } from 'react-helmet-async';
 import nprogress from 'nprogress';
 import { pages } from 'virtual:servite/pages';
-import { routes, Route } from 'virtual:servite/pages-routes';
-import { appContext } from './context.js';
-import { AppState, PageError, LoaderResult } from './types.js';
+import { routes } from 'virtual:servite/pages-routes';
+import { $URL } from 'ufo';
+import {
+  LoaderBaseContext,
+  LoaderContext,
+  Route,
+  SSRContext,
+  SSREntryRenderContext,
+} from '../shared.js';
+import { appContext, loaderDataContext } from './context.js';
+import { AppState, PageError } from './types.js';
 import { Page } from './components/Page.js';
 
-// ssr will inject global variable: `__SSR_DATA__`
-const ssrData = typeof window !== 'undefined' ? window.__SSR_DATA__ : undefined;
+const isBrowser = typeof window !== 'undefined';
+// Ssr will inject global variable: `__SSR_DATA__`
+const ssrData = isBrowser ? window.__SSR_DATA__ : undefined;
 
-async function waitForPageReady(
-  appState: AppState,
-  pagePath: string,
-  initial = true
-): Promise<AppState | undefined> {
+function createLoaderContext(ssrContext?: SSRContext): LoaderContext {
+  const url = isBrowser ? window.location.href : ssrContext!.url;
+  const { pathname, search, hash, query } = new $URL(url);
+
+  const baseContext: LoaderBaseContext = {
+    url,
+    pathname,
+    search,
+    hash,
+    query,
+    params: {},
+  };
+
+  if (isBrowser) {
+    return {
+      ...baseContext,
+      isBrowser: true,
+    };
+  }
+
+  return {
+    ...baseContext,
+    isBrowser: false,
+    event: ssrContext!.event,
+  };
+}
+
+/**
+ * Load page
+ * - fetch page module
+ * - execute page loader
+ */
+async function waitForPageReady({
+  appState,
+  pagePath,
+  initial,
+  context,
+}: {
+  appState: AppState;
+  pagePath: string;
+  initial: boolean;
+  context?: SSREntryRenderContext;
+}): Promise<AppState> {
   if (appState.pagePath === pagePath) {
-    return;
+    return appState;
   }
 
   const newAppState = { ...appState };
@@ -31,37 +78,45 @@ async function waitForPageReady(
   }
 
   try {
-    const hasInitialLoaderData = Boolean(initial && ssrData?.loaderData);
+    const loaderContext = createLoaderContext(context?.ssrContext);
+    const shouldLoad = !initial || !ssrData?.loaderData;
+    const loaderData: any[] = [];
 
-    const preloadResults = await Promise.all(
-      matches.map(async m => {
-        const mod = await (m.route as Route).component.preload?.();
-        // execute loader
-        let data: any;
+    const pageModules = await Promise.all(
+      matches.map(async (match, index) => {
+        const route = match.route as Route;
+        const mod = await route.component.preload?.();
 
-        if (!hasInitialLoaderData) {
-          const ctx = {
-            params: m.params,
-          };
-          // TODO: loader params ctx 的类型
-          data = await mod?.loader?.(ctx);
+        // Execute loader
+        if (shouldLoad && typeof mod?.loader === 'function') {
+          loaderData[index] = await mod.loader({
+            ...loaderContext,
+            params: match.params,
+          });
         }
 
-        return { mod, data };
+        // Mount loader data in context for useLoaderData
+        route.element = (
+          <loaderDataContext.Provider value={loaderData[index]}>
+            {route.element}
+          </loaderDataContext.Provider>
+        );
+
+        return mod;
       })
     );
 
-    const pageModule = {};
-    let loaderData = hasInitialLoaderData ? ssrData?.loaderData : undefined;
+    const pageModule = pageModules.reduce(
+      (res, mod) => ({ ...res, ...mod }),
+      {}
+    );
 
-    preloadResults.forEach(res => {
-      Object.assign(pageModule, res.mod);
-
-      if (res.data) {
-        loaderData ??= {};
-        Object.assign(loaderData, res.data);
-      }
-    });
+    // Mount loaderData in context for ssr.
+    // The loaderData will be inject by __SSR_DATA__ in ssr,
+    // and the client side can use the loaderData to render.
+    if (context) {
+      context.loaderData = loaderData;
+    }
 
     Object.assign<AppState, Partial<AppState>>(newAppState, {
       pagePath,
@@ -73,10 +128,13 @@ async function waitForPageReady(
   } catch (err) {
     if (err instanceof Error) {
       newAppState.pageError = err;
+      // eslint-disable-next-line no-console
+      console.error('[servite]', err);
     }
   } finally {
     newAppState.pageLoading = false;
 
+    // In dev ssr, we should wait for style ready to show the page content
     if (
       typeof document !== 'undefined' &&
       document.documentElement.hasAttribute('hidden')
@@ -90,32 +148,30 @@ async function waitForPageReady(
   return newAppState;
 }
 
-export interface CreateAppConfig {
+export async function createApp({
+  pagePath,
+  context,
+}: {
   pagePath: string;
-  context?: {
-    helmetContext?: Record<string, unknown>;
-    loaderData?: LoaderResult;
-  };
-}
+  context?: SSREntryRenderContext;
+}) {
+  const initialAppState = await waitForPageReady({
+    appState: {
+      routes,
+      pages,
+      pageLoading: false,
+      pageError: null,
+    },
+    pagePath,
+    initial: true,
+    context,
+  });
 
-export async function createApp({ pagePath, context }: CreateAppConfig) {
-  let initialAppState: AppState = {
-    routes,
-    pages,
-    pageLoading: false,
-    pageError: null,
-  };
-
-  if (pagePath) {
-    initialAppState =
-      (await waitForPageReady(initialAppState, pagePath)) || initialAppState;
-
-    // Set loaderData in context for ssr.
-    // The loaderData will be inject by __SSR_DATA__ in ssr,
-    // and the client side can use the loaderData to render.
-    if (context) {
-      context.loaderData = initialAppState.loaderData;
-    }
+  // Set loaderData in context for ssr.
+  // The loaderData will be inject by __SSR_DATA__ in ssr,
+  // and the client side can use the loaderData to render.
+  if (context) {
+    context.loaderData = initialAppState?.loaderData;
   }
 
   return function App() {
@@ -134,16 +190,13 @@ export async function createApp({ pagePath, context }: CreateAppConfig) {
           }));
         }, 100);
 
-        const newAppState = await waitForPageReady(
-          appStateRef.current,
-          pathname,
-          false
-        );
+        const newAppState = await waitForPageReady({
+          appState: appStateRef.current,
+          pagePath: pathname,
+          initial: false,
+        });
 
-        if (newAppState) {
-          setAppState(newAppState);
-        }
-
+        setAppState(newAppState);
         clearTimeout(timer);
       })();
     }, [pathname]);

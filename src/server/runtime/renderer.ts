@@ -1,12 +1,12 @@
-import { $URL, joinURL } from 'ufo';
-import type { CompatibilityEvent, EventHandler } from 'h3';
+import { CompatibilityEvent, EventHandler, getHeader, getQuery } from 'h3';
+import { joinURL } from 'ufo';
 import { matchPath } from 'react-router-dom';
 import type {
   SSRContext,
   SSRData,
   SSREntry,
   SSREntryRenderContext,
-} from '../types.js';
+} from '../shared.js';
 import { renderPreloadLink, trapConsole } from './utils.js';
 import { getViteDevServer } from './vite-dev-server.js';
 import {
@@ -22,13 +22,13 @@ const storage = useStorage();
 
 export default <EventHandler>defineRenderHandler(async event => {
   const url = event.req.url!;
-  const parsedUrl: SSRContext['parsedUrl'] = { ...new $URL(url) };
+  const { pathname } = new URL(url);
 
   const ssrContext: SSRContext = {
     event,
     url,
-    parsedUrl,
-    noSSR: isNoSSR(event, parsedUrl),
+    pathname,
+    noSSR: isNoSSR(event, pathname),
   };
 
   const ssrEntry = await loadSSREntry();
@@ -58,13 +58,10 @@ export default <EventHandler>defineRenderHandler(async event => {
   };
 });
 
-function isNoSSR(
-  event: CompatibilityEvent,
-  parsedUrl: SSRContext['parsedUrl']
-): boolean {
+function isNoSSR(event: CompatibilityEvent, pathname: string): boolean {
   const noSSR = Boolean(
-    parsedUrl.query['servite-no-ssr'] ||
-      event.req.headers['x-servite-no-ssr'] ||
+    getQuery(event)['servite-no-ssr'] ||
+      getHeader(event, 'x-servite-no-ssr') ||
       process.env.SERVITE_NO_SSR
   );
 
@@ -83,7 +80,7 @@ function isNoSSR(
   }
 
   // path array
-  return ssr.every(item => joinURL(baseURL, item) !== parsedUrl.pathname);
+  return ssr.every(item => joinURL(baseURL, item) !== pathname);
 }
 
 async function loadSSREntry() {
@@ -152,19 +149,13 @@ async function renderAppHtml(
   }
 
   const renderContext: SSREntryRenderContext = {
+    ssrContext,
     helmetContext: {},
-    loaderContext: {
-      ...ssrContext,
-      isServer: true,
-    },
   };
 
   // Disable console while rendering in production
   const recoverConsole = isDev ? undefined : trapConsole();
-  const appHtml = await ssrEntry.render(
-    ssrContext.parsedUrl.pathname,
-    renderContext
-  );
+  const appHtml = await ssrEntry.render(renderContext);
   recoverConsole?.();
 
   return {
@@ -184,7 +175,7 @@ async function renderPreloadLinks(
   }
 
   const page = ssrEntry.pages.find(p =>
-    matchPath(p.routePath, ssrContext.parsedUrl.pathname)
+    matchPath(p.routePath, ssrContext.pathname)
   );
 
   if (!page) {
@@ -254,7 +245,7 @@ function renderFullHtml(
   const ssrData: SSRData = {
     context: {
       url: ssrContext.url,
-      parsedUrl: ssrContext.parsedUrl,
+      pathname: ssrContext.pathname,
       noSSR: ssrContext.noSSR,
     },
     serverRendered: Boolean(appHtml),

@@ -1,6 +1,9 @@
 # servite
 
 ## TODO
-- optional ssr / ssg
+- [x] optional ssr / ssg
   - header: no ssr
-- loader params ctx
+- [x] loader params ctx
+- [x] useLoaderData
+- [ ] theme
+- [x] copy shared types

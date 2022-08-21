@@ -6,7 +6,8 @@ import matter from 'gray-matter';
 import { debounce } from 'perfect-debounce';
 import type { ResolvedConfig } from 'vite';
 import { isMarkdown } from '../utils.js';
-import type { Page, PagesDir, Route, ServiteConfig } from '../types.js';
+import type { PagesDir, ServiteConfig } from '../types.js';
+import { Page, Route } from '../shared.js';
 import { PAGES_IGNORE_PATTERN, PAGES_PATTERN } from '../constants.js';
 import { generateEnhanceCode } from './enhance.js';
 
@@ -144,7 +145,7 @@ async function scanPages(
 
   async function scan({
     dir,
-    base = viteConfig.base,
+    base = '/',
     ignore = [],
   }: PagesDir): Promise<Page[]> {
     const pageDir = path.resolve(viteConfig.root, dir);

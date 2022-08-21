@@ -1,15 +1,15 @@
 import { renderToString } from 'react-dom/server';
 import { StaticRouter } from 'react-router-dom/server.js';
+import { withoutBase, withoutTrailingSlash } from 'ufo';
+import { SSREntryRenderContext } from '../shared.js';
 // import ssrPrepass from 'react-ssr-prepass';
-import { createApp, CreateAppConfig } from './main.js';
+import { createApp } from './main.js';
 
-const basename = import.meta.env.BASE_URL?.replace(/\/$/, '');
+const basename = withoutTrailingSlash(import.meta.env.BASE_URL);
 
-export async function render(
-  pathname: string,
-  context: CreateAppConfig['context']
-) {
-  const pagePath = basename ? pathname.substring(basename.length) : pathname;
+export async function render(context: SSREntryRenderContext) {
+  const { pathname } = context.ssrContext;
+  const pagePath = withoutBase(pathname, basename);
   const App = await createApp({ pagePath, context });
 
   const element = (

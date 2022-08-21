@@ -47,18 +47,3 @@ export interface ServiteConfig
     UserServiteConfig,
     'pagesDirs' | 'ssr' | 'ssg' | 'hashRouter'
   > {}
-
-export interface Page {
-  routePath: string;
-  filePath: string;
-  isLayout: boolean;
-  is404: boolean;
-  meta: Record<string, any>;
-}
-
-export interface Route {
-  path: string;
-  component: any;
-  children?: Route[];
-  meta?: Record<string, any>;
-}
