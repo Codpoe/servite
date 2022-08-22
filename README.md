@@ -7,3 +7,5 @@
 - [x] useLoaderData
 - [ ] theme
 - [x] copy shared types
+- [ ] hooks
+  - [ ] onCreatePage

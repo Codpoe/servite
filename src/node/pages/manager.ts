@@ -203,12 +203,12 @@ function createRoutes(pages: Page[]): Route[] {
   const layoutRouteStack: Route[] = [];
 
   for (const page of pages) {
-    const route: Route = {
+    const route = {
       path: page.routePath,
       component: path.join('/', page.filePath),
       children: page.isLayout ? [] : undefined,
       meta: page.meta,
-    };
+    } as Route;
 
     while (layoutRouteStack.length) {
       const layout = layoutRouteStack[layoutRouteStack.length - 1];
