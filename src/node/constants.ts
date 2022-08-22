@@ -16,6 +16,7 @@ export const PAGES_ROUTES_MODULE_ID = 'virtual:servite/pages-routes';
 export const RESOLVED_PAGES_ROUTES_MODULE_ID = '\0' + PAGES_ROUTES_MODULE_ID;
 
 export const THEME_MODULE_ID = 'virtual:servite/theme';
+export const RESOLVED_THEME_MODULE_ID = '\0' + THEME_MODULE_ID;
 
 export const PAGES_PATTERN = [
   '**/{page,layout}.{js,jsx,ts,tsx}',

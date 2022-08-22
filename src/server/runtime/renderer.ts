@@ -1,5 +1,5 @@
 import { CompatibilityEvent, EventHandler, getHeader, getQuery } from 'h3';
-import { joinURL } from 'ufo';
+import { joinURL, parseURL } from 'ufo';
 import { matchPath } from 'react-router-dom';
 import type {
   SSRContext,
@@ -22,7 +22,7 @@ const storage = useStorage();
 
 export default <EventHandler>defineRenderHandler(async event => {
   const url = event.req.url!;
-  const { pathname } = new URL(url);
+  const { pathname } = parseURL(url);
 
   const ssrContext: SSRContext = {
     event,

@@ -1,6 +1,6 @@
 import path from 'upath';
 import { Plugin, ResolvedConfig } from 'vite';
-import { THEME_MODULE_ID } from '../constants.js';
+import { RESOLVED_THEME_MODULE_ID, THEME_MODULE_ID } from '../constants.js';
 import { ServiteConfig } from '../types.js';
 
 export interface ServiteThemePluginConfig {
@@ -10,6 +10,7 @@ export interface ServiteThemePluginConfig {
 export function serviteTheme({
   serviteConfig,
 }: ServiteThemePluginConfig): Plugin {
+  const { theme } = serviteConfig;
   let viteConfig: ResolvedConfig;
 
   return {
@@ -19,8 +20,15 @@ export function serviteTheme({
     },
     resolveId(source) {
       if (source === THEME_MODULE_ID) {
-        // TODO: resolve theme path
-        return path.resolve(viteConfig.root, serviteConfig.theme);
+        if (theme) {
+          return path.resolve(viteConfig.root, theme);
+        }
+        return RESOLVED_THEME_MODULE_ID;
+      }
+    },
+    load(id) {
+      if (id === RESOLVED_THEME_MODULE_ID) {
+        return '// Fallback\nexport default undefined;\n';
       }
     },
   };

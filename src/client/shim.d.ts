@@ -1,11 +1,11 @@
-declare module 'virtual:servite/pages*' {
+declare module 'virtual:servite/pages' {
   import { Page } from './shared';
 
   export const pages: Page[];
   export default pages;
 }
 
-declare module 'virtual:servite/pages-routes*' {
+declare module 'virtual:servite/pages-routes' {
   import { Route } from './shared';
 
   export const routes: Route[];
@@ -15,7 +15,7 @@ declare module 'virtual:servite/pages-routes*' {
 declare module 'virtual:servite/theme' {
   import { ComponentType } from 'react';
 
-  const theme: ComponentType<any>;
+  const theme: ComponentType<any> | undefined;
   export default theme;
 }
 

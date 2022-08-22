@@ -3,6 +3,7 @@ import fs from 'fs-extra';
 import { Plugin } from 'vite';
 import { servitePages } from './pages/plugin.js';
 import { serviteNitro } from './nitro/plugin.js';
+import { serviteTheme } from './theme/plugin.js';
 import { resolveServiteConfig } from './config.js';
 import {
   APP_HTML_FILE,
@@ -88,6 +89,7 @@ export function servite(userServiteConfig?: UserServiteConfig): Plugin[] {
     },
     servitePages({ serviteConfig }),
     serviteNitro({ serviteConfig }),
+    serviteTheme({ serviteConfig }),
   ];
 
   return plugins;

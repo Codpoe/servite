@@ -27,7 +27,7 @@ export interface SSRContext {
 export interface SSREntryRenderContext {
   ssrContext: SSRContext;
   helmetContext: Partial<FilledContext>;
-  loaderData?: any;
+  loaderData?: any[];
 }
 
 export type SSREntryRender = (
@@ -42,7 +42,7 @@ export interface SSREntry {
 export interface SSRData {
   context: Omit<SSRContext, 'event'>;
   serverRendered: boolean;
-  loaderData?: any;
+  loaderData?: any[];
 }
 
 export interface LoaderBaseContext {

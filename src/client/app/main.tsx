@@ -4,6 +4,7 @@ import { HelmetProvider, Helmet } from 'react-helmet-async';
 import nprogress from 'nprogress';
 import { pages } from 'virtual:servite/pages';
 import { routes } from 'virtual:servite/pages-routes';
+import _Theme from 'virtual:servite/theme';
 import { $URL } from 'ufo';
 import {
   LoaderBaseContext,
@@ -19,6 +20,8 @@ import { Page } from './components/Page.js';
 const isBrowser = typeof window !== 'undefined';
 // Ssr will inject global variable: `__SSR_DATA__`
 const ssrData = isBrowser ? window.__SSR_DATA__ : undefined;
+
+const Theme = _Theme || (() => <Page />);
 
 function createLoaderContext(ssrContext?: SSRContext): LoaderContext {
   const url = isBrowser ? window.location.href : ssrContext!.url;
@@ -80,7 +83,7 @@ async function waitForPageReady({
   try {
     const loaderContext = createLoaderContext(context?.ssrContext);
     const shouldLoad = !initial || !ssrData?.loaderData;
-    const loaderData: any[] = [];
+    const loaderData: any[] = ssrData?.loaderData || [];
 
     const pageModules = await Promise.all(
       matches.map(async (match, index) => {
@@ -88,11 +91,12 @@ async function waitForPageReady({
         const mod = await route.component.preload?.();
 
         // Execute loader
-        if (shouldLoad && typeof mod?.loader === 'function') {
-          loaderData[index] = await mod.loader({
-            ...loaderContext,
-            params: match.params,
-          });
+        if (shouldLoad) {
+          loaderData[index] =
+            (await mod?.loader?.({
+              ...loaderContext,
+              params: match.params,
+            })) ?? null;
         }
 
         // Mount loader data in context for useLoaderData
@@ -167,13 +171,6 @@ export async function createApp({
     context,
   });
 
-  // Set loaderData in context for ssr.
-  // The loaderData will be inject by __SSR_DATA__ in ssr,
-  // and the client side can use the loaderData to render.
-  if (context) {
-    context.loaderData = initialAppState?.loaderData;
-  }
-
   return function App() {
     const [appState, setAppState] = useState(initialAppState);
     const appStateRef = useRef(appState);
@@ -222,7 +219,7 @@ export async function createApp({
       <HelmetProvider context={context?.helmetContext}>
         <Helmet defaultTitle="Servite App"></Helmet>
         <appContext.Provider value={appState}>
-          <Page />
+          <Theme />
         </appContext.Provider>
       </HelmetProvider>
     );
