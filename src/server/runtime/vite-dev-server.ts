@@ -10,5 +10,8 @@ export const getViteDevServer = lazyCachedFn(() => {
       middlewareMode: true,
     },
     logLevel: 'warn',
+    optimizeDeps: {
+      disabled: true,
+    },
   });
 });
