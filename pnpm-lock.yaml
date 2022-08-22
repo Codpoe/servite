@@ -26,6 +26,7 @@ importers:
       gray-matter: ^4.0.3
       h3: ^0.7.15
       husky: ^8.0.1
+      jest-docblock: ^28.1.1
       lint-staged: ^13.0.3
       micromatch: ^4.0.5
       mlly: ^0.5.12
@@ -56,6 +57,7 @@ importers:
       fs-extra: 10.1.0
       gray-matter: 4.0.3
       h3: 0.7.15
+      jest-docblock: 28.1.1
       micromatch: 4.0.5
       mlly: 0.5.12
       nitropack: 0.4.22_vite@3.0.2
@@ -2333,6 +2335,11 @@ packages:
     engines: {node: '>=8'}
     dev: false
 
+  /detect-newline/3.1.0:
+    resolution: {integrity: sha512-TLz+x/vEXm/Y7P7wn1EJFNLxYpUD4TgMosxY6fAVJUnJMbupHBOncxyWUG9OpTaH9EBD7uFI5LfEgmMOc54DsA==}
+    engines: {node: '>=8'}
+    dev: false
+
   /dir-glob/3.0.1:
     resolution: {integrity: sha512-WkrWp9GR4KXfKGYzOLmTuGVi1UWFfws377n9cc55/tb6DuqyF6pcQ5AbiHEshaDpY9v6oaSr2XCDidGmMwdzIA==}
     engines: {node: '>=8'}
@@ -4345,6 +4352,13 @@ packages:
       es-get-iterator: 1.1.2
       iterate-iterator: 1.0.2
     dev: true
+
+  /jest-docblock/28.1.1:
+    resolution: {integrity: sha512-3wayBVNiOYx0cwAbl9rwm5kKFP8yHH3d/fkEaL02NPTkDojPtheGB7HZSFY4wzX+DxyrvhXz0KSCVksmCknCuA==}
+    engines: {node: ^12.13.0 || ^14.15.0 || ^16.10.0 || >=17.0.0}
+    dependencies:
+      detect-newline: 3.1.0
+    dev: false
 
   /jest-worker/26.6.2:
     resolution: {integrity: sha512-KWYVV1c4i+jbMpaBC+U++4Va0cp8OisU185o73T1vo99hqi7w8tSJfUXYswwqqrjzwxa6KpRK54WhPvwf5w6PQ==}

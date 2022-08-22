@@ -3,6 +3,7 @@ import fs from 'fs-extra';
 import fg from 'fast-glob';
 import mm from 'micromatch';
 import matter from 'gray-matter';
+import { extract, parse } from 'jest-docblock';
 import { debounce } from 'perfect-debounce';
 import type { ResolvedConfig } from 'vite';
 import { isMarkdown } from '../utils.js';
@@ -104,13 +105,13 @@ ${space}"element": React.createElement(${localName}.component)`;
       }
     );
 
-    const isExisting =
-      isPageFile &&
-      (await this.getPages()).some(p => absFilePath.endsWith(p.filePath));
+    const existingPage = isPageFile
+      ? (await this.getPages()).find(p => absFilePath.endsWith(p.filePath))
+      : undefined;
 
     return {
       isPageFile,
-      isExisting,
+      existingPage,
     };
   };
 }
@@ -121,7 +122,11 @@ async function scanPages(
   viteConfig: ResolvedConfig,
   serviteConfig: ServiteConfig
 ): Promise<Page[]> {
-  function createPage(base: string, pageDir: string, pageFile: string): Page {
+  async function createPage(
+    base: string,
+    pageDir: string,
+    pageFile: string
+  ): Promise<Page> {
     const basename = path.basename(path.trimExt(pageFile));
     const routePath = resolveRoutePath(base, pageFile);
     const filePath = path.relative(
@@ -132,7 +137,7 @@ async function scanPages(
       path.resolve(viteConfig.root, filePath),
       'utf-8'
     );
-    const meta = isMarkdown(pageFile) ? extractFrontMatter(fileContent) : {};
+    const meta = await parsePageMeta(filePath, fileContent);
 
     return {
       routePath,
@@ -156,7 +161,9 @@ async function scanPages(
       absolute: false,
     });
 
-    return pageFiles.map(pageFile => createPage(base, pageDir, pageFile));
+    return Promise.all(
+      pageFiles.map(pageFile => createPage(base, pageDir, pageFile))
+    );
   }
 
   return (await Promise.all(serviteConfig.pagesDirs.map(scan)))
@@ -187,15 +194,27 @@ function resolveRoutePath(base: string, pageFile: string) {
   return routePath || '/';
 }
 
-function extractFrontMatter(fileContent: string) {
-  const { data: frontMatter, content } = matter(fileContent);
+export async function parsePageMeta(filePath: string, fileContent?: string) {
+  fileContent ??= await fs.readFile(filePath, 'utf-8');
 
-  if (!frontMatter.title) {
-    const m = content.match(/^#\s+(.*)$/m);
-    frontMatter.title = m?.[1];
+  // Markdown frontmatter
+  if (isMarkdown(filePath)) {
+    const { data: frontMatter, content } = matter(fileContent);
+
+    if (!frontMatter.title) {
+      const m = content.match(/^#\s+(.*)$/m);
+      frontMatter.title = m?.[1];
+    }
+
+    return frontMatter;
   }
 
-  return frontMatter;
+  // JS/TS docblock
+  if (fileContent.trim().startsWith('/*')) {
+    return parse(extract(fileContent));
+  }
+
+  return {};
 }
 
 function createRoutes(pages: Page[]): Route[] {

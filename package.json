@@ -77,6 +77,7 @@
     "fs-extra": "^10.1.0",
     "gray-matter": "^4.0.3",
     "h3": "^0.7.15",
+    "jest-docblock": "^28.1.1",
     "micromatch": "^4.0.5",
     "mlly": "^0.5.12",
     "nitropack": "^0.4.22",

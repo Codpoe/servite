@@ -14,3 +14,18 @@ export function isMarkdown(filePath: string): boolean {
 export function randomKey(key: string) {
   return '__SERVITE__' + key + '__' + crypto.randomBytes(20).toString('hex');
 }
+
+export function shallowCompare(
+  a: Record<string, any>,
+  b: Record<string, any>
+): boolean {
+  const aKeys = Object.keys(a || {});
+  const bKeys = Object.keys(b || {});
+
+  return (
+    aKeys.length === bKeys.length &&
+    aKeys.every(
+      key => Object.prototype.hasOwnProperty.call(a, key) && a[key] === b[key]
+    )
+  );
+}

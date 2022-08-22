@@ -5,8 +5,9 @@
   - header: no ssr
 - [x] loader params ctx
 - [x] useLoaderData
-- [ ] theme
+- [x] theme
 - [x] copy shared types
 - [x] routes deps optimize
 - [ ] hooks
   - [ ] onCreatePage
+- [x] parse docblock for js/ts

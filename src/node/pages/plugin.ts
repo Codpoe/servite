@@ -1,5 +1,5 @@
 import path from 'upath';
-import { ModuleNode, Plugin, ViteDevServer } from 'vite';
+import { HmrContext, ModuleNode, Plugin, ViteDevServer } from 'vite';
 import {
   PAGES_IGNORE_PATTERN,
   PAGES_MODULE_ID,
@@ -8,8 +8,10 @@ import {
   RESOLVED_PAGES_MODULE_ID,
   RESOLVED_PAGES_ROUTES_MODULE_ID,
 } from '../constants.js';
+import { Page } from '../shared.js';
 import { ServiteConfig } from '../types.js';
-import { PagesManager } from './manager.js';
+import { shallowCompare } from '../utils.js';
+import { PagesManager, parsePageMeta } from './manager.js';
 
 export interface ServitePagesPluginConfig {
   serviteConfig: ServiteConfig;
@@ -23,9 +25,12 @@ export function servitePages({
 
   function getPagesAndRoutesModules() {
     return [
-      ...(viteDevServer.moduleGraph.getModulesByFile(PAGES_MODULE_ID) || []),
-      ...(viteDevServer.moduleGraph.getModulesByFile(PAGES_ROUTES_MODULE_ID) ||
-        []),
+      ...(viteDevServer.moduleGraph.getModulesByFile(
+        RESOLVED_PAGES_MODULE_ID
+      ) || []),
+      ...(viteDevServer.moduleGraph.getModulesByFile(
+        RESOLVED_PAGES_ROUTES_MODULE_ID
+      ) || []),
     ];
   }
 
@@ -105,11 +110,14 @@ export function servitePages({
       }
     },
     async handleHotUpdate(ctx) {
-      const { isPageFile, isExisting } = await pagesManager.checkPageFile(
+      const { isPageFile, existingPage } = await pagesManager.checkPageFile(
         ctx.file
       );
 
-      if (isPageFile && !isExisting) {
+      if (
+        isPageFile &&
+        (!existingPage || (await isPageMetaUpdated(existingPage, ctx)))
+      ) {
         const modules = [...ctx.modules];
         modules.push(...getPagesAndRoutesModules());
         pagesManager.reload();
@@ -148,4 +156,9 @@ if (import.meta.hot) {
   }
 
   return code;
+}
+
+async function isPageMetaUpdated(page: Page, hmrCtx: HmrContext) {
+  const newMeta = await parsePageMeta(hmrCtx.file, await hmrCtx.read());
+  return !shallowCompare(page.meta, newMeta);
 }
