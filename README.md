@@ -7,5 +7,6 @@
 - [x] useLoaderData
 - [ ] theme
 - [x] copy shared types
+- [x] routes deps optimize
 - [ ] hooks
   - [ ] onCreatePage

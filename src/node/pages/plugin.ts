@@ -1,6 +1,9 @@
+import path from 'upath';
 import { ModuleNode, Plugin, ViteDevServer } from 'vite';
 import {
+  PAGES_IGNORE_PATTERN,
   PAGES_MODULE_ID,
+  PAGES_PATTERN,
   PAGES_ROUTES_MODULE_ID,
   RESOLVED_PAGES_MODULE_ID,
   RESOLVED_PAGES_ROUTES_MODULE_ID,
@@ -29,7 +32,34 @@ export function servitePages({
   return {
     name: 'servite:pages',
     enforce: 'pre',
-    // TODO: optimize deps for routes
+    config(config) {
+      const root = path.resolve(config.root || '');
+
+      const optimizeEntries = serviteConfig.pagesDirs.flatMap(
+        ({ dir, ignore = [] }) => {
+          const dirFromRoot = path.relative(root, path.resolve(root, dir));
+
+          // ignore dir outside root
+          if (dirFromRoot.startsWith('../')) {
+            return [];
+          }
+
+          const positive = PAGES_PATTERN.map(p => `${dirFromRoot}/${p}`);
+          // ignore pattern should prefix with '!'
+          const negative = PAGES_IGNORE_PATTERN.concat(ignore).map(
+            p => `!${dirFromRoot}/${p}`
+          );
+
+          return positive.concat(negative);
+        }
+      );
+
+      return {
+        optimizeDeps: {
+          entries: optimizeEntries,
+        },
+      };
+    },
     configResolved(config) {
       pagesManager = new PagesManager(config, serviteConfig);
     },
