@@ -1,5 +1,6 @@
 import { isMainThread } from 'worker_threads';
 import { build, createDevServer, prepare } from 'nitropack';
+import { H3Event } from 'h3';
 import { Plugin, ResolvedConfig } from 'vite';
 import { ServiteConfig } from '../types.js';
 import { initNitro } from './init.js';
@@ -49,7 +50,7 @@ export function serviteNitro({
           await buildPromise;
 
           try {
-            await nitroDevServer.app.nodeHandler(req, res);
+            await nitroDevServer.app.handler(new H3Event(req, res));
           } catch (err) {
             res.statusCode = 500;
 
