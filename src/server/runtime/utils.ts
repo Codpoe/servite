@@ -45,6 +45,16 @@ export function renderScript({
   }>${children}</script>`;
 }
 
+export function renderTag(
+  tagName: string,
+  attrs: Record<string, any>,
+  children?: string
+) {
+  return `<${tagName}${Object.entries(attrs).map(([k, v]) =>
+    v == null ? '' : ` ${k}="${v}"`
+  )}>${children || ''}</${tagName}>`;
+}
+
 export function renderPreloadLink(link: string): string {
   switch (extname(link)) {
     case '.js':

@@ -1,7 +1,8 @@
 import { H3Event, EventHandler, getHeader, getQuery } from 'h3';
-import { joinURL, parseURL } from 'ufo';
+import { parseURL, withoutBase } from 'ufo';
 import { RouteMatch } from 'react-router-dom';
 import LZString from 'lz-string';
+import mm from 'micromatch';
 import {
   Island,
   Route,
@@ -18,6 +19,7 @@ import {
   renderIslandsCode,
   renderPreloadLink,
   renderScript,
+  renderTag,
   trapConsole,
 } from './utils.js';
 import { collectRoutesStyles, getViteDevServer } from './vite.js';
@@ -82,14 +84,19 @@ function isNoSSR(event: H3Event, pathname: string): boolean {
   const runtimeConfig = useRuntimeConfig();
   const baseURL: string = runtimeConfig.app.baseURL;
   const ssr: boolean | string[] = runtimeConfig.serviteConfig.ssr;
+  const ssg: boolean | string[] = runtimeConfig.serviteConfig.ssg;
 
-  // boolean
-  if (typeof ssr === 'boolean') {
-    return !ssr;
+  if (ssr === true || ssg === true) {
+    return true;
   }
 
-  // path array
-  return ssr.every(item => joinURL(baseURL, item) !== pathname);
+  if (ssr === false && ssg === false) {
+    return false;
+  }
+  return !mm.isMatch(
+    withoutBase(pathname, baseURL),
+    (ssr || []).concat(ssg || [])
+  );
 }
 
 async function loadSSREntry() {
@@ -180,14 +187,6 @@ async function renderAssets(
   routeMatches: RouteMatch[],
   hasIslandsScript: boolean
 ): Promise<string> {
-  if (ssrContext.noSSR) {
-    return '';
-  }
-
-  if (!routeMatches.length) {
-    return '';
-  }
-
   if (isDev) {
     const devAssets = hasIslandsScript
       ? []
@@ -199,24 +198,35 @@ async function renderAssets(
           }),
         ];
 
-    // Collect routes styles to avoid FOUC
-    const { styleCodeMap, styleUrls } = await collectRoutesStyles(routeMatches);
+    if (!ssrContext.noSSR) {
+      // Collect routes styles to avoid FOUC
+      const collectedStyles = await collectRoutesStyles(routeMatches);
 
-    styleCodeMap.forEach((code, url) => {
-      // Vite handles HMR for styles injected as scripts
-      devAssets.push(`<script type="module" src="${url}"></script>`);
-      // - We still want to inject the styles to avoid FOUC.
-      // - The `ssr` attribute will be used by ssr-styles-cleaner
-      //   to determine whether a style element is injected in ssr
-      devAssets.push(`<style data-ssr>\n${code}\n</style>`);
-    });
+      if (collectedStyles.length) {
+        collectedStyles.forEach(({ id, url, code }) => {
+          if (code) {
+            // Vite handles HMR for styles injected as scripts
+            devAssets.push(renderTag('script', { type: 'module', src: url }));
+            // - We still want to inject the styles to avoid FOUC.
+            // - The `data-ssr-dev-id` attribute will be used by ssr-styles-cleaner
+            //   to determine whether a style element is injected in ssr
+            devAssets.push(
+              renderTag('style', { 'data-ssr-dev-id': id }, `\n${code}\n`)
+            );
+          } else if (url) {
+            // eg. css modules file
+            devAssets.push(
+              renderTag('link', {
+                rel: 'stylesheet',
+                href: url,
+                'data-ssr-dev-id': id,
+              })
+            );
+          }
+        });
 
-    styleUrls.forEach(url => {
-      devAssets.push(renderPreloadLink(url));
-    });
-
-    if (styleCodeMap.size || styleUrls.size) {
-      devAssets.push(renderScript({ children: ssrStylesCleanerCode }));
+        devAssets.push(renderTag('script', {}, ssrStylesCleanerCode));
+      }
     }
 
     return devAssets.filter(Boolean).join('\n    ');

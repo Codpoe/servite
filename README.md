@@ -25,3 +25,4 @@
 - [x] dev spa: inject entry.client.tsx
 - [x] prebuild src/node/pages/enhance.ts
 - [x] prebuild ssr-styles-cleaner
+- [ ] support custom html template

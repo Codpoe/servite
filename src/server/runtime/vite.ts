@@ -22,12 +22,17 @@ export const getViteDevServer = lazyCachedFn(() => {
   });
 });
 
+export interface CollectedStyle {
+  id: string | null;
+  url: string;
+  code: string | null;
+}
+
 /**
  * Collect routes styles to avoid FOUC
  */
 export async function collectRoutesStyles(routeMatches: RouteMatch[]) {
-  const styleCodeMap = new Map<string, string>();
-  const styleUrls = new Set<string>();
+  const styles: CollectedStyle[] = [];
   const seen = new Set<string>();
   const viteDevServer = await getViteDevServer();
 
@@ -39,11 +44,13 @@ export async function collectRoutesStyles(routeMatches: RouteMatch[]) {
     seen.add(mod.url);
 
     if (styleUrlRE.test(mod.url)) {
-      if (typeof mod.ssrModule?.default === 'string') {
-        styleCodeMap.set(mod.url, mod.ssrModule.default);
-      } else {
-        styleUrls.add(mod.url);
-      }
+      const defaultExport = mod.ssrModule?.default;
+
+      styles.push({
+        id: mod.id,
+        url: mod.url,
+        code: typeof defaultExport === 'string' ? defaultExport : null,
+      });
 
       return;
     }
@@ -66,8 +73,5 @@ export async function collectRoutesStyles(routeMatches: RouteMatch[]) {
     }
   }
 
-  return {
-    styleCodeMap,
-    styleUrls,
-  };
+  return styles;
 }

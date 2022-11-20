@@ -14,7 +14,9 @@ export interface UserServiteConfig {
   pagesDirs?: PagesDir[];
   /**
    * Server side render
-   * @default true
+   *
+   * supports glob patterns
+   * @default false
    */
   ssr?: boolean | string[];
   /**

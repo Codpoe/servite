@@ -1,30 +1,39 @@
-function isStyle(node: Node): node is HTMLStyleElement {
-  return (
-    node.nodeType === node.ELEMENT_NODE &&
-    (node as Element).tagName.toLowerCase() === 'style'
-  );
+function getStyleSsrDevId(el: HTMLElement): string | undefined {
+  return el.dataset.ssrDevId;
 }
 
-function isViteInjectedStyle(node: Node): node is HTMLStyleElement {
-  return isStyle(node) && node.getAttribute('type') === 'text/css';
+function getStyleViteDevId(node: Node): string | undefined {
+  if (
+    node.nodeType === node.ELEMENT_NODE &&
+    (node as Element).tagName.toLowerCase() === 'style'
+  ) {
+    return (node as HTMLStyleElement).dataset.viteDevId;
+  }
+  return undefined;
 }
 
 const ssrInjectedStyles = new Map<string, Element>();
 
-document.querySelectorAll<HTMLStyleElement>('style').forEach(el => {
-  if (el.dataset.ssr != null) {
-    ssrInjectedStyles.set(el.innerHTML.trim(), el);
-  }
-});
+document
+  .querySelectorAll<HTMLElement>(
+    'style[data-ssr-dev-id], link[data-ssr-dev-id]'
+  )
+  .forEach(el => {
+    const ssrDevId = getStyleSsrDevId(el);
+    if (ssrDevId) {
+      ssrInjectedStyles.set(ssrDevId, el);
+    }
+  });
 
 // Vite injects `<style type="text/css">` for ESM imports of styles
-// but servite also SSRs with `<style data-ssr>` blocks.
+// but servite also SSRs with `<style data-ssr-dev-id="xxx">` blocks.
 // This MutationObserver removes any duplicates as soon as they are hydrated client-side.
 const observer = new MutationObserver(records => {
   records.forEach(record => {
     record.addedNodes.forEach(node => {
-      if (isViteInjectedStyle(node)) {
-        ssrInjectedStyles.get(node.innerHTML.trim())?.remove();
+      const viteDevId = getStyleViteDevId(node);
+      if (viteDevId) {
+        ssrInjectedStyles.get(viteDevId)?.remove();
       }
     });
   });
