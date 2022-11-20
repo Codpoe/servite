@@ -15,11 +15,8 @@ import { gzipSizeSync } from 'gzip-size';
 import { RollupOutput } from 'rollup';
 import { Page } from '../../shared/types.js';
 import { unwrapViteId } from '../../shared/utils.js';
-import {
-  FS_PREFIX_CLIENT_ENTRY,
-  SSR_ENTRY_FILE,
-} from '../../shared/constants.js';
 import { initNitro } from '../nitro/init.js';
+import { FS_PREFIX_CLIENT_ENTRY, SSR_ENTRY_FILE } from '../constants.js';
 import { ServiteConfig } from '../types.js';
 
 export async function build(inlineConfig: InlineConfig) {

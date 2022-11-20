@@ -12,7 +12,6 @@ import {
   SSREntryRenderResult,
 } from '../../shared/types.js';
 import { wrapViteId } from '../../shared/utils.js';
-import { FS_PREFIX_CLIENT_ENTRY } from '../../shared/constants.js';
 import islandsHydrateCode from '../../prebuild/islands-hydrate.prebuilt.js';
 import ssrStylesCleanerCode from '../../prebuild/ssr-styles-cleaner.prebuilt.js';
 import {
@@ -192,7 +191,13 @@ async function renderAssets(
   if (isDev) {
     const devAssets = hasIslandsScript
       ? []
-      : [renderScript({ type: 'module', src: FS_PREFIX_CLIENT_ENTRY })]; // inject spa client entry
+      : [
+          // inject csr client entry
+          renderScript({
+            type: 'module',
+            src: wrapViteId('virtual:servite-dist/client/app/entry.client.js'),
+          }),
+        ];
 
     // Collect routes styles to avoid FOUC
     const { styleCodeMap, styleUrls } = await collectRoutesStyles(routeMatches);
@@ -203,7 +208,7 @@ async function renderAssets(
       // - We still want to inject the styles to avoid FOUC.
       // - The `ssr` attribute will be used by ssr-styles-cleaner
       //   to determine whether a style element is injected in ssr
-      devAssets.push(`<style ssr>\n${code}\n</style>`);
+      devAssets.push(`<style data-ssr>\n${code}\n</style>`);
     });
 
     styleUrls.forEach(url => {

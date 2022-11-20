@@ -7,7 +7,7 @@ import {
   CLIENT_DIR,
   CLIENT_ENTRY_FILE,
   DIST_DIR,
-} from '../shared/constants.js';
+} from './constants.js';
 import { serviteJsx } from './jsx/plugin.js';
 import { servitePages } from './pages/plugin.js';
 import { serviteNitro } from './nitro/plugin.js';
