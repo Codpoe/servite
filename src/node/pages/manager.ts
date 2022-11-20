@@ -6,11 +6,11 @@ import matter from 'gray-matter';
 import { extract, parse } from 'jest-docblock';
 import { debounce } from 'perfect-debounce';
 import type { ResolvedConfig } from 'vite';
+import type { Page, Route } from '../../shared/types.js';
+import enhanceRouteCode from '../../prebuild/enhance-route.prebuilt.js';
 import { isMarkdown } from '../utils.js';
 import type { PagesDir, ServiteConfig } from '../types.js';
-import { Page, Route } from '../shared.js';
 import { PAGES_IGNORE_PATTERN, PAGES_PATTERN } from '../constants.js';
-import { generateEnhanceCode } from './enhance.js';
 
 export class PagesManager {
   private reloadPromise: Promise<Page[]> | null = null;
@@ -129,14 +129,9 @@ async function scanPages(
   ): Promise<Page> {
     const basename = path.basename(path.trimExt(pageFile));
     const routePath = resolveRoutePath(base, pageFile);
-    const filePath = path.relative(
-      viteConfig.root,
-      path.join(pageDir, pageFile)
-    );
-    const fileContent = fs.readFileSync(
-      path.resolve(viteConfig.root, filePath),
-      'utf-8'
-    );
+    const absFilePath = path.join(pageDir, pageFile);
+    const filePath = path.relative(viteConfig.root, absFilePath);
+    const fileContent = fs.readFileSync(absFilePath, 'utf-8');
     const meta = await parsePageMeta(filePath, fileContent);
 
     return {
@@ -194,9 +189,7 @@ function resolveRoutePath(base: string, pageFile: string) {
   return routePath || '/';
 }
 
-export async function parsePageMeta(filePath: string, fileContent?: string) {
-  fileContent ??= await fs.readFile(filePath, 'utf-8');
-
+export async function parsePageMeta(filePath: string, fileContent: string) {
   // Markdown frontmatter
   if (isMarkdown(filePath)) {
     const { data: frontMatter, content } = matter(fileContent);
@@ -224,6 +217,7 @@ function createRoutes(pages: Page[]): Route[] {
   for (const page of pages) {
     const route = {
       path: page.routePath,
+      filePath: page.filePath,
       component: path.join('/', page.filePath),
       children: page.isLayout ? [] : undefined,
       meta: page.meta,
@@ -257,6 +251,13 @@ function createRoutes(pages: Page[]): Route[] {
   }
 
   return routes;
+}
+
+function generateEnhanceCode(viteConfig: ResolvedConfig) {
+  return `const seen = {};
+const base = '${viteConfig.base}';
+const assetsDir = '${viteConfig.build.assetsDir}';
+${enhanceRouteCode}`;
 }
 
 async function writeFile(

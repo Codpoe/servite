@@ -1,3 +1,4 @@
+import assert from 'assert';
 import { ServiteConfig, UserServiteConfig } from './types.js';
 
 export function resolveServiteConfig(
@@ -6,10 +7,12 @@ export function resolveServiteConfig(
   const {
     pagesDirs = [{ dir: 'src/pages' }],
     ssr = true,
-    ssg = false,
+    ssg = true,
     hashRouter = false,
     ...rest
   } = userServiteConfig;
+
+  assert(pagesDirs.length, 'pagesDirs is empty');
 
   return {
     ...rest,

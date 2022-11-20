@@ -1,4 +1,4 @@
-import React, { useEffect, useTransition } from 'react';
+import React, { useTransition } from 'react';
 import {
   matchRoutes,
   resolvePath,
@@ -7,8 +7,8 @@ import {
   useLinkClickHandler,
   useLocation,
 } from 'react-router-dom';
-import nprogress from 'nprogress';
 import { useAppState } from '../context.js';
+import { useNProgress } from '../hooks/useNProgress.js';
 
 export interface LinkProps
   extends Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'href'> {
@@ -20,6 +20,10 @@ export interface LinkProps
 
 /**
  * Based on the Link component of react-router-dom
+ *
+ * features:
+ * - wait for new page ready
+ * - prefetch page assets while mouse enter
  */
 export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
   function LinkWithRef(
@@ -61,18 +65,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
       }
     };
 
-    useEffect(() => {
-      if (isPending) {
-        const timer = setTimeout(() => {
-          nprogress.start();
-        }, 200);
-
-        return () => {
-          clearTimeout(timer);
-          nprogress.done();
-        };
-      }
-    }, [isPending]);
+    useNProgress(isPending, 200);
 
     return (
       <a

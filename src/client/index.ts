@@ -62,6 +62,5 @@ export { Helmet } from 'react-helmet-async';
 
 export { useAppState, useLoaderData } from './app/context.js';
 export * from './app/types.js';
-export * from './app/components/Page.js';
 export * from './app/components/Link.js';
-export * from './app/components/NoSSR.js';
+export * from './app/components/ClientOnly.js';

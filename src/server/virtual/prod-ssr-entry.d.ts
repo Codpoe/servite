@@ -1,4 +1,4 @@
-import { Page, SSREntryRender } from '../types';
+import { Page, SSREntryRender } from '../../shared/types';
 
 export const render: SSREntryRender;
 

@@ -7,7 +7,7 @@ import {
 } from 'nitropack';
 import type { InlineConfig, ResolvedConfig, ViteDevServer } from 'vite';
 import { defu } from 'defu';
-import { DIST_DIR } from '../constants.js';
+import { DIST_DIR } from '../../shared/constants.js';
 import { ServiteConfig } from '../types.js';
 
 export interface CreateServiteNitroConfig {
@@ -24,11 +24,20 @@ export async function initNitro({
 }: CreateServiteNitroConfig) {
   const nitro = await createNitro(
     defu<NitroConfig, (NitroConfig | undefined)[]>(
+      nitroConfig,
+      serviteConfig.nitro,
       {
         baseURL: viteConfig.base,
         rootDir: viteConfig.root,
         srcDir: 'src/server',
         buildDir: path.resolve(viteConfig.root, 'node_modules/.servite'),
+        output: {
+          dir: path.resolve(
+            viteConfig.root,
+            viteConfig.build.outDir,
+            '.output'
+          ),
+        },
         serverAssets: getNitroServerAssets(viteConfig),
         publicAssets: getNitroPublicAssets(viteConfig),
         // Pass some config to runtime/renderer
@@ -50,7 +59,7 @@ export async function initNitro({
           generateTsConfig: false,
         },
         virtual: {
-          '#servite/prod-ssr-entry': () => {
+          'virtual:servite/prod-ssr-entry': () => {
             if (nitroConfig?.dev) {
               return `export const render = () => '';
 export const pages = [];
@@ -65,9 +74,7 @@ export const pages = [];
             return `export * from '${ssrEntryPath}';`;
           },
         },
-      },
-      nitroConfig,
-      serviteConfig.nitro
+      }
     )
   );
 
@@ -85,7 +92,7 @@ function getNitroServerAssets(viteConfig: ResolvedConfig): ServerAssetDir[] {
       dir: path.resolve(
         viteConfig.root,
         viteConfig.build.outDir,
-        'server-assets'
+        '.output/server-assets'
       ),
     },
   ];
@@ -110,7 +117,7 @@ function getNitroPublicAssets(viteConfig: ResolvedConfig): PublicAssetDir[] {
         viteConfig.build.outDir,
         viteConfig.build.assetsDir
       ),
-      maxAge: 60,
+      maxAge: 60 * 60 * 24 * 365, // 1 year
     },
   ];
 }

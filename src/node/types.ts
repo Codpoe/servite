@@ -13,21 +13,21 @@ export interface UserServiteConfig {
    */
   pagesDirs?: PagesDir[];
   /**
-   * theme
-   */
-  theme?: string;
-  /**
    * Server side render
    * @default true
    */
   ssr?: boolean | string[];
   /**
-   * Static site generate
+   * Prerender routes (Static site generate)
+   *
+   * supports glob patterns
    * @default false
    */
   ssg?: boolean | string[];
   /**
    * Use HashRouter instead of BrowserRouter
+   *
+   * NOT IMPLEMENT
    * @default false
    */
   hashRouter?: boolean;
@@ -46,4 +46,6 @@ export interface ServiteConfig
   extends PartialRequired<
     UserServiteConfig,
     'pagesDirs' | 'ssr' | 'ssg' | 'hashRouter'
-  > {}
+  > {
+  serverRenderFile?: string;
+}

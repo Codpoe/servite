@@ -1,9 +1,6 @@
-import type { ResolvedConfig } from 'vite';
-
 declare const seen: Record<string, boolean>;
 declare const base: string;
 declare const assetsDir: string;
-declare const document: any;
 
 type PageFactory = (() => Promise<any>) & { _result?: Promise<any> };
 interface PageModule {
@@ -22,6 +19,7 @@ interface EnhanceResult {
  * Add preload function to `React.lazy`.
  * This function will be injected into routes code
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function enhance(factoryOrModules: PageFactory | PageModule): EnhanceResult {
   const relativeBase = base === '' || base.startsWith('.');
 
@@ -125,11 +123,4 @@ function enhance(factoryOrModules: PageFactory | PageModule): EnhanceResult {
   }
 
   return enhanceFactory(factoryOrModules as PageFactory);
-}
-
-export function generateEnhanceCode(viteConfig: ResolvedConfig) {
-  return `const seen = {};
-const base = '${viteConfig.base}';
-const assetsDir = '${viteConfig.build.assetsDir}';
-${enhance.toString()}`;
 }

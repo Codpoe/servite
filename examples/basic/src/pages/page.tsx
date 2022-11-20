@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { useLoaderData } from 'servite/client';
 import reactLogo from '../assets/react.svg';
+import { Counter } from '../components/Counter';
 import './page.css';
 
 interface LoaderData {
@@ -45,6 +46,9 @@ function Page() {
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
+      <Counter __island={'load'} initialCount={2}>
+        Hello World
+      </Counter>
     </div>
   );
 }

@@ -1,14 +1,24 @@
 import path from 'upath';
-import { HmrContext, ModuleNode, Plugin, ViteDevServer } from 'vite';
+import fs from 'fs-extra';
 import {
+  HmrContext,
+  ModuleNode,
+  Plugin,
+  ResolvedConfig,
+  ViteDevServer,
+} from 'vite';
+import { Page } from '../../shared/types.js';
+import {
+  CUSTOM_SERVER_RENDER_MODULE_ID,
   PAGES_IGNORE_PATTERN,
   PAGES_MODULE_ID,
   PAGES_PATTERN,
   PAGES_ROUTES_MODULE_ID,
+  RESOLVED_CUSTOM_SERVER_RENDER_MODULE_ID,
   RESOLVED_PAGES_MODULE_ID,
   RESOLVED_PAGES_ROUTES_MODULE_ID,
+  SCRIPT_EXTS,
 } from '../constants.js';
-import { Page } from '../shared.js';
 import { ServiteConfig } from '../types.js';
 import { shallowCompare } from '../utils.js';
 import { PagesManager, parsePageMeta } from './manager.js';
@@ -20,6 +30,7 @@ export interface ServitePagesPluginConfig {
 export function servitePages({
   serviteConfig,
 }: ServitePagesPluginConfig): Plugin {
+  let viteConfig: ResolvedConfig;
   let viteDevServer: ViteDevServer;
   let pagesManager: PagesManager;
 
@@ -66,6 +77,7 @@ export function servitePages({
       };
     },
     configResolved(config) {
+      viteConfig = config;
       pagesManager = new PagesManager(config, serviteConfig);
     },
     configureServer(server) {
@@ -91,6 +103,9 @@ export function servitePages({
       if (source === PAGES_ROUTES_MODULE_ID) {
         return RESOLVED_PAGES_ROUTES_MODULE_ID;
       }
+      if (source === CUSTOM_SERVER_RENDER_MODULE_ID) {
+        return RESOLVED_CUSTOM_SERVER_RENDER_MODULE_ID;
+      }
     },
     async load(id) {
       if (id === RESOLVED_PAGES_MODULE_ID) {
@@ -98,6 +113,17 @@ export function servitePages({
       }
       if (id === RESOLVED_PAGES_ROUTES_MODULE_ID) {
         return pagesManager.generatePagesRoutesCode();
+      }
+      if (id === RESOLVED_CUSTOM_SERVER_RENDER_MODULE_ID) {
+        const customServerRenderFile = findServerRender(
+          viteConfig.root,
+          serviteConfig.pagesDirs[0].dir
+        );
+
+        if (customServerRenderFile) {
+          return `export { render } from '/@fs/${customServerRenderFile}';`;
+        }
+        return `export const render = undefined;`;
       }
     },
     async transform(code, id) {
@@ -127,7 +153,7 @@ export function servitePages({
     },
     api: {
       getPages: () => pagesManager.getPages(),
-    },
+    } as any,
   };
 }
 
@@ -161,4 +187,13 @@ if (import.meta.hot) {
 async function isPageMetaUpdated(page: Page, hmrCtx: HmrContext) {
   const newMeta = await parsePageMeta(hmrCtx.file, await hmrCtx.read());
   return !shallowCompare(page.meta, newMeta);
+}
+
+function findServerRender(root: string, dir: string) {
+  for (const ext of SCRIPT_EXTS) {
+    const serverRenderFile = path.resolve(root, dir, `server-render${ext}`);
+    if (fs.existsSync(serverRenderFile)) {
+      return serverRenderFile;
+    }
+  }
 }

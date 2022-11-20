@@ -1,5 +1,5 @@
 import { isMainThread } from 'worker_threads';
-import { build, createDevServer, prepare } from 'nitropack';
+import { build, createDevServer, Nitro, prepare } from 'nitropack';
 import { H3Event } from 'h3';
 import { Plugin, ResolvedConfig } from 'vite';
 import { ServiteConfig } from '../types.js';
@@ -13,6 +13,7 @@ export function serviteNitro({
   serviteConfig,
 }: ServiteNitroPluginConfig): Plugin {
   let viteConfig: ResolvedConfig;
+  let nitro: Nitro;
 
   return {
     name: 'servite:nitro',
@@ -23,7 +24,7 @@ export function serviteNitro({
       viteConfig = config;
     },
     async configureServer(server) {
-      const nitro = await initNitro({
+      nitro = await initNitro({
         serviteConfig,
         viteConfig,
         viteDevServer: server,
@@ -83,6 +84,9 @@ export function serviteNitro({
         //   return historyMiddleware(req, res, next);
         // });
       };
+    },
+    async closeBundle() {
+      await nitro?.close();
     },
   };
 }

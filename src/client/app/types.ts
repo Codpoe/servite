@@ -1,4 +1,4 @@
-import type { Page as PageData, Route } from '../shared';
+import type { Page as PageData, Route } from '../../shared/types.js';
 
 export type { PageData };
 

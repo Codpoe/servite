@@ -1,14 +1,27 @@
-import { CompatibilityEvent, EventHandler, getHeader, getQuery } from 'h3';
+import { H3Event, EventHandler, getHeader, getQuery } from 'h3';
 import { joinURL, parseURL } from 'ufo';
-import { matchPath } from 'react-router-dom';
-import type {
+import { RouteMatch } from 'react-router-dom';
+import LZString from 'lz-string';
+import {
+  Island,
+  Route,
   SSRContext,
   SSRData,
   SSREntry,
   SSREntryRenderContext,
-} from '../shared.js';
-import { renderPreloadLink, trapConsole } from './utils.js';
-import { getViteDevServer } from './vite-dev-server.js';
+  SSREntryRenderResult,
+} from '../../shared/types.js';
+import { wrapViteId } from '../../shared/utils.js';
+import { FS_PREFIX_CLIENT_ENTRY } from '../../shared/constants.js';
+import islandsHydrateCode from '../../prebuild/islands-hydrate.prebuilt.js';
+import ssrStylesCleanerCode from '../../prebuild/ssr-styles-cleaner.prebuilt.js';
+import {
+  renderIslandsCode,
+  renderPreloadLink,
+  renderScript,
+  trapConsole,
+} from './utils.js';
+import { collectRoutesStyles, getViteDevServer } from './vite.js';
 import {
   defineRenderHandler,
   useRuntimeConfig,
@@ -33,18 +46,15 @@ export default <EventHandler>defineRenderHandler(async event => {
 
   const ssrEntry = await loadSSREntry();
 
-  const [template, { appHtml, renderContext }, preloadLinks] =
-    await Promise.all([
-      loadTemplate(ssrContext),
-      renderAppHtml(ssrContext, ssrEntry),
-      renderPreloadLinks(ssrContext, ssrEntry),
-    ]);
+  const [template, { renderResult, renderContext }] = await Promise.all([
+    loadTemplate(ssrContext),
+    renderAppHtml(ssrContext, ssrEntry),
+  ]);
 
-  const fullHtml = renderFullHtml(ssrContext, {
+  const fullHtml = await renderFullHtml(ssrContext, {
     template,
-    appHtml,
+    renderResult,
     renderContext,
-    preloadLinks,
   });
 
   return {
@@ -58,7 +68,7 @@ export default <EventHandler>defineRenderHandler(async event => {
   };
 });
 
-function isNoSSR(event: CompatibilityEvent, pathname: string): boolean {
+function isNoSSR(event: H3Event, pathname: string): boolean {
   const noSSR = Boolean(
     getQuery(event)['servite-no-ssr'] ||
       getHeader(event, 'x-servite-no-ssr') ||
@@ -87,7 +97,7 @@ async function loadSSREntry() {
   if (isDev) {
     const viteDevServer = await getViteDevServer();
     const resolved = await viteDevServer.pluginContainer.resolveId(
-      'servite/dev-ssr-entry',
+      'virtual:servite-dist/client/app/entry.server.js',
       undefined,
       {
         ssr: true,
@@ -96,7 +106,7 @@ async function loadSSREntry() {
 
     if (!resolved) {
       throw new Error(
-        '[servite] Failed to resolve module: servite/dev-ssr-entry'
+        '[servite] Failed to resolve module: virtual:servite-dist/client/app/entry.server.js'
       );
     }
 
@@ -106,7 +116,7 @@ async function loadSSREntry() {
     return (await viteDevServer.ssrLoadModule(resolved.id)) as SSREntry;
   }
 
-  return import('#servite/prod-ssr-entry');
+  return import('virtual:servite/prod-ssr-entry');
 }
 
 let _prodAppHtml: string | undefined;
@@ -139,12 +149,12 @@ async function renderAppHtml(
   ssrContext: SSRContext,
   ssrEntry: SSREntry
 ): Promise<{
-  appHtml: string;
+  renderResult: SSREntryRenderResult;
   renderContext?: SSREntryRenderContext;
 }> {
   if (ssrContext.noSSR) {
     return {
-      appHtml: '',
+      renderResult: { appHtml: '' },
     };
   }
 
@@ -155,31 +165,56 @@ async function renderAppHtml(
 
   // Disable console while rendering in production
   const recoverConsole = isDev ? undefined : trapConsole();
-  const appHtml = await ssrEntry.render(renderContext);
+  const renderResult = await ssrEntry.render(renderContext);
   recoverConsole?.();
 
   return {
-    appHtml,
+    renderResult,
     renderContext,
   };
 }
 
 let _ssrManifestJson: Record<string, string[]> | undefined;
 
-async function renderPreloadLinks(
+async function renderAssets(
   ssrContext: SSRContext,
-  ssrEntry: SSREntry
+  routeMatches: RouteMatch[],
+  hasIslandsScript: boolean
 ): Promise<string> {
-  if (isDev) {
+  if (ssrContext.noSSR) {
     return '';
   }
 
-  const page = ssrEntry.pages.find(p =>
-    matchPath(p.routePath, ssrContext.pathname)
-  );
-
-  if (!page) {
+  if (!routeMatches.length) {
     return '';
+  }
+
+  if (isDev) {
+    const devAssets = hasIslandsScript
+      ? []
+      : [renderScript({ type: 'module', src: FS_PREFIX_CLIENT_ENTRY })]; // inject spa client entry
+
+    // Collect routes styles to avoid FOUC
+    const { styleCodeMap, styleUrls } = await collectRoutesStyles(routeMatches);
+
+    styleCodeMap.forEach((code, url) => {
+      // Vite handles HMR for styles injected as scripts
+      devAssets.push(`<script type="module" src="${url}"></script>`);
+      // - We still want to inject the styles to avoid FOUC.
+      // - The `ssr` attribute will be used by ssr-styles-cleaner
+      //   to determine whether a style element is injected in ssr
+      devAssets.push(`<style ssr>\n${code}\n</style>`);
+    });
+
+    styleUrls.forEach(url => {
+      devAssets.push(renderPreloadLink(url));
+    });
+
+    if (styleCodeMap.size || styleUrls.size) {
+      devAssets.push(renderScript({ children: ssrStylesCleanerCode }));
+    }
+
+    return devAssets.filter(Boolean).join('\n    ');
   }
 
   if (!_ssrManifestJson) {
@@ -188,22 +223,41 @@ async function renderPreloadLinks(
     );
   }
 
-  return (_ssrManifestJson![page.filePath] || [])
-    .map(renderPreloadLink)
+  return routeMatches
+    .flatMap(m => {
+      const route = m.route as Route;
+      return (_ssrManifestJson?.[route.filePath] || []).map(link =>
+        hasIslandsScript && link.endsWith('.js') ? '' : renderPreloadLink(link)
+      );
+    })
     .filter(Boolean)
     .join('\n    ');
 }
 
+function renderIslandsScript(islands?: Island[]) {
+  if (!islands?.length) {
+    return '';
+  }
+
+  const islandsCode = renderIslandsCode(islands);
+  const compressed = LZString.compressToEncodedURIComponent(islandsCode);
+
+  return `${renderScript({ children: islandsHydrateCode })}
+${renderScript({
+  type: 'module',
+  src: wrapViteId(`virtual:servite/islands/${compressed}`),
+})}`;
+}
+
 interface RenderFullHtmlOptions {
   template: string;
-  appHtml: string;
-  preloadLinks: string;
+  renderResult: SSREntryRenderResult;
   renderContext?: SSREntryRenderContext;
 }
 
-function renderFullHtml(
+async function renderFullHtml(
   ssrContext: SSRContext,
-  { template, appHtml, preloadLinks, renderContext }: RenderFullHtmlOptions
+  { template, renderResult, renderContext }: RenderFullHtmlOptions
 ) {
   const {
     htmlAttributes,
@@ -216,12 +270,7 @@ function renderFullHtml(
     style,
   } = renderContext?.helmetContext?.helmet || {};
 
-  let htmlAttrs = htmlAttributes?.toString() || '';
-
-  // Add hidden attribute to wait for style ready while dev
-  if (isDev) {
-    htmlAttrs += ' hidden';
-  }
+  const htmlAttrs = htmlAttributes?.toString() || '';
 
   if (htmlAttrs) {
     template = template.replace('<html', `<html ${htmlAttrs}`);
@@ -233,7 +282,27 @@ function renderFullHtml(
     template = template.replace('<body', `<body ${bodyAttrs}`);
   }
 
-  const headTags = [title, priority, meta, link, script, style, preloadLinks]
+  // Islands
+  const islandsScript = renderIslandsScript(renderContext?.islands);
+
+  // Assets
+  const assets = await renderAssets(
+    ssrContext,
+    renderContext?.routeMatches || [],
+    Boolean(islandsScript)
+  );
+
+  const headTags = [
+    title,
+    priority,
+    meta,
+    link,
+    script,
+    style,
+    assets,
+    islandsScript,
+    renderResult.headTags,
+  ]
     .map(x => x?.toString())
     .filter(Boolean)
     .join('\n    ');
@@ -248,16 +317,16 @@ function renderFullHtml(
       pathname: ssrContext.pathname,
       noSSR: ssrContext.noSSR,
     },
-    serverRendered: Boolean(appHtml),
+    serverRendered: Boolean(renderResult.appHtml),
     loaderData: renderContext?.loaderData,
   };
 
   template = template.replace(
     '<div id="root"></div>',
-    `<script>window.__SSR_DATA__ = ${JSON.stringify(ssrData)}</script>
-    <div id="root" data-server-rendered="${
-      ssrData.serverRendered
-    }">${appHtml}</div>`
+    `<script>window.__SERVITE__ssrData = ${JSON.stringify(ssrData)}</script>
+    <div id="root" data-server-rendered="${ssrData.serverRendered}">${
+      renderResult.appHtml
+    }</div>`
   );
 
   return template;

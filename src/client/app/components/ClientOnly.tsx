@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 
-export interface NoSSRProps {
+export interface ClientOnlyProps {
   children: React.ReactNode;
 }
 
 let _isMounted = false;
 
-export const NoSSR: React.FC<NoSSRProps> = ({ children }) => {
+export const ClientOnly: React.FC<ClientOnlyProps> = ({ children }) => {
   const [isMounted, setIsMounted] = useState(_isMounted);
 
   useEffect(() => {

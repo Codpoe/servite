@@ -1,10 +1,13 @@
-import { useEffect, useRef, useState } from 'react';
-import { useLocation, matchRoutes, matchPath } from 'react-router-dom';
+import { Suspense, useEffect, useRef, useState } from 'react';
+import {
+  useLocation,
+  matchRoutes,
+  matchPath,
+  useRoutes,
+} from 'react-router-dom';
 import { HelmetProvider, Helmet } from 'react-helmet-async';
-import nprogress from 'nprogress';
 import { pages } from 'virtual:servite/pages';
 import { routes } from 'virtual:servite/pages-routes';
-import _Theme from 'virtual:servite/theme';
 import { $URL } from 'ufo';
 import {
   LoaderBaseContext,
@@ -12,16 +15,14 @@ import {
   Route,
   SSRContext,
   SSREntryRenderContext,
-} from '../shared.js';
+} from '../../shared/types.js';
 import { appContext, loaderDataContext } from './context.js';
 import { AppState, PageError } from './types.js';
-import { Page } from './components/Page.js';
+import { useNProgress } from './hooks/useNProgress.js';
 
 const isBrowser = typeof window !== 'undefined';
-// Ssr will inject global variable: `__SSR_DATA__`
-const ssrData = isBrowser ? window.__SSR_DATA__ : undefined;
-
-const Theme = _Theme || (() => <Page />);
+// Ssr will inject global variable: `__SERVITE__ssrData`
+const ssrData = isBrowser ? window.__SERVITE__ssrData : undefined;
 
 function createLoaderContext(ssrContext?: SSRContext): LoaderContext {
   const url = isBrowser ? window.location.href : ssrContext!.url;
@@ -81,6 +82,10 @@ async function waitForPageReady({
   }
 
   try {
+    const pageData = appState.pages.find(
+      p => !p.isLayout && matchPath(p.routePath, pagePath)
+    );
+
     const loaderContext = createLoaderContext(context?.ssrContext);
     const shouldLoad = !initial || !ssrData?.loaderData;
     const loaderData: any[] = ssrData?.loaderData || [];
@@ -115,16 +120,20 @@ async function waitForPageReady({
       {}
     );
 
-    // Mount loaderData in context for ssr.
-    // The loaderData will be inject by __SSR_DATA__ in ssr,
-    // and the client side can use the loaderData to render.
     if (context) {
+      // Mount routeMatches in context for ssr.
+      // server/runtime/renderer will crawl css by routeMatches, and inject the styles in html
+      context.routeMatches = matches;
+
+      // Mount loaderData in context for ssr.
+      // The loaderData will be inject by __SSR_DATA__ in ssr,
+      // and the client side can use the loaderData to render.
       context.loaderData = loaderData;
     }
 
     Object.assign<AppState, Partial<AppState>>(newAppState, {
       pagePath,
-      pageData: appState.pages.find(p => matchPath(p.routePath, pagePath)),
+      pageData,
       pageModule,
       pageError: null,
       loaderData,
@@ -176,8 +185,11 @@ export async function createApp({
     const appStateRef = useRef(appState);
     appStateRef.current = appState;
 
+    const routesElement = useRoutes(appState.routes, appState.pagePath);
+
     const { pathname } = useLocation();
 
+    // location pathname changed, wait for new page
     useEffect(() => {
       (async () => {
         const timer = setTimeout(() => {
@@ -198,15 +210,7 @@ export async function createApp({
       })();
     }, [pathname]);
 
-    useEffect(() => {
-      if (appState.pageLoading) {
-        nprogress.start();
-
-        return () => {
-          nprogress.done();
-        };
-      }
-    }, [appState.pageLoading]);
+    useNProgress(appState.pageLoading);
 
     useEffect(() => {
       if (import.meta.env.DEV) {
@@ -219,7 +223,7 @@ export async function createApp({
       <HelmetProvider context={context?.helmetContext}>
         <Helmet defaultTitle="Servite App"></Helmet>
         <appContext.Provider value={appState}>
-          <Theme />
+          {pagePath ? <Suspense>{routesElement}</Suspense> : null}
         </appContext.Provider>
       </HelmetProvider>
     );

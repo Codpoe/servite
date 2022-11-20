@@ -4,6 +4,4 @@ node_modules
 *.log
 dist
 
-src/node/shared.ts
-src/server/shared.ts
-src/client/shared.ts
+*.prebuilt.ts

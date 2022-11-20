@@ -1,4 +1,5 @@
 import { extname } from 'path';
+import { Island } from '../../shared/types.js';
 
 export function lazyCachedFn<T>(fn: () => Promise<T>): () => Promise<T> {
   let res: Promise<T> | null = null;
@@ -27,6 +28,23 @@ export function trapConsole() {
   };
 }
 
+export function renderScript({
+  type,
+  src,
+  children = '',
+}: {
+  type?: 'module';
+  src?: string;
+  children?: string;
+}) {
+  if (!src && !children) {
+    return '';
+  }
+  return `<script${type ? ` type=${type}` : ''}${
+    src ? ` crossorigin src="${src}"` : ''
+  }>${children}</script>`;
+}
+
 export function renderPreloadLink(link: string): string {
   switch (extname(link)) {
     case '.js':
@@ -47,4 +65,71 @@ export function renderPreloadLink(link: string): string {
     default:
       return '';
   }
+}
+
+/**
+ * Generate islands code.
+ * @example
+ * import { createElement } from 'react';
+ * import { createRoot, hydrateRoot } from 'react-dom/client';
+ *
+ * window.__SERVITE__createElement = createElement;
+ * window.__SERVITE__createRoot = createRoot;
+ * window.__SERVITE__hydrateRoot = hydrateRoot;
+ *
+ * import { default as A } from './A';
+ * const island_0 = () => A;
+ *
+ * import { B } from './B';
+ * const island_1 = () => B.C;
+ *
+ * const island_2 = () => import('./D').then(mod => mod.default);
+ *
+ * window.__SERVITE__islands = [
+ *   island_0,
+ *   island_1,
+ *   island_2
+ * ];
+ *
+ * window.dispatchEvent(new CustomEvent('servite:hydrate'));
+ */
+export function renderIslandsCode(islands: Island[]) {
+  let index = 0;
+
+  let code = `import { createElement } from 'react';
+import { createRoot, hydrateRoot } from 'react-dom/client';
+
+window.__SERVITE__createElement = createElement;
+window.__SERVITE__createRoot = createRoot;
+window.__SERVITE__hydrateRoot = hydrateRoot;
+
+${islands
+  .map(({ type, component }) => {
+    const [, imported, componentPath] =
+      component.match(/(.*?)__ISLAND__(.*)/) || [];
+    const [, first, members] = imported.match(/([^.]*)(.*)/) || [];
+
+    const islandName = `island_${index++}`;
+
+    if (type === 'load') {
+      const importName = `__import_${islandName}`;
+
+      return `import { ${first} as ${importName} } from '${componentPath}';
+const ${islandName} = () => ${importName}${members}\n`;
+    }
+
+    return `const ${islandName} = () => import('${componentPath}').then(mod => mod.${imported});\n`;
+  })
+  .join('\n')}`;
+
+  code += `
+window.__SERVITE__islands = [
+  ${islands.map((_, index) => `island_${index}`).join(',\n  ')}
+];
+
+// Notify hydrator
+window.dispatchEvent(new CustomEvent('servite:hydrate'));
+`;
+
+  return code;
 }

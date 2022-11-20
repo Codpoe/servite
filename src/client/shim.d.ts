@@ -1,26 +1,34 @@
 declare module 'virtual:servite/pages' {
-  import { Page } from './shared';
+  import { Page } from '../shared/types';
 
   export const pages: Page[];
   export default pages;
 }
 
 declare module 'virtual:servite/pages-routes' {
-  import { Route } from './shared';
+  import { Route } from '../shared/types';
 
   export const routes: Route[];
   export default routes;
 }
 
-declare module 'virtual:servite/theme' {
-  import { ComponentType } from 'react';
+declare module 'virtual:servite/custom-server-render' {
+  import { ReactElement } from 'react';
+  import { SSREntryRenderResult } from '../shared/types';
 
-  const theme: ComponentType<any> | undefined;
-  export default theme;
+  export const render:
+    | ((
+        element: ReactElement
+      ) => SSREntryRenderResult | Promise<SSREntryRenderResult>)
+    | undefined;
 }
 
 declare const __HASH_ROUTER__: boolean;
 
 interface Window {
-  __SSR_DATA__?: import('./shared').SSRData;
+  __SERVITE__ssrData?: import('../shared/types').SSRData;
+  __SERVITE__islands?: (() => any)[];
+  __SERVITE__createElement: any;
+  __SERVITE__createRoot: any;
+  __SERVITE__hydrateRoot: any;
 }

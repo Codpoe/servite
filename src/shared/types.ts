@@ -1,5 +1,6 @@
-import type { CompatibilityEvent } from 'h3';
+import type { H3Event } from 'h3';
 import type { FilledContext } from 'react-helmet-async';
+import type { RouteMatch } from 'react-router-dom';
 
 export interface Page {
   routePath: string;
@@ -11,6 +12,7 @@ export interface Page {
 
 export interface Route {
   path: string;
+  filePath: string;
   component: any;
   element: any;
   children?: Route[];
@@ -18,21 +20,35 @@ export interface Route {
 }
 
 export interface SSRContext {
-  event: CompatibilityEvent;
+  event: H3Event;
   url: string;
   pathname: string;
   noSSR: boolean;
 }
 
+export interface Island {
+  type: IslandType;
+  component: string;
+}
+
+export type IslandType = 'load' | 'idle' | 'visible' | 'media';
+
 export interface SSREntryRenderContext {
   ssrContext: SSRContext;
   helmetContext: Partial<FilledContext>;
+  routeMatches?: RouteMatch[];
+  islands?: Island[];
   loaderData?: any[];
+}
+
+export interface SSREntryRenderResult {
+  appHtml: string;
+  headTags?: string;
 }
 
 export type SSREntryRender = (
   context: SSREntryRenderContext
-) => Promise<string>;
+) => Promise<SSREntryRenderResult>;
 
 export interface SSREntry {
   render: SSREntryRender;
@@ -56,7 +72,7 @@ export interface LoaderBaseContext {
 
 export interface LoaderServerContext extends LoaderBaseContext {
   isBrowser: false;
-  event: CompatibilityEvent;
+  event: H3Event;
 }
 
 export interface LoaderClientContext extends LoaderBaseContext {

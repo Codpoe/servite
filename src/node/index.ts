@@ -1,32 +1,42 @@
 import path from 'upath';
 import fs from 'fs-extra';
-import { Plugin } from 'vite';
-import { servitePages } from './pages/plugin.js';
-import { serviteNitro } from './nitro/plugin.js';
-import { serviteTheme } from './theme/plugin.js';
-import { resolveServiteConfig } from './config.js';
+import { PluginOption } from 'vite';
+import fg from 'fast-glob';
 import {
   APP_HTML_FILE,
+  CLIENT_DIR,
   CLIENT_ENTRY_FILE,
-  FS_PREFIX_CLIENT_ENTRY,
-} from './constants.js';
+  DIST_DIR,
+} from '../shared/constants.js';
+import { serviteJsx } from './jsx/plugin.js';
+import { servitePages } from './pages/plugin.js';
+import { serviteNitro } from './nitro/plugin.js';
+import { resolveServiteConfig } from './config.js';
 import { UserServiteConfig } from './types.js';
 
-export function servite(userServiteConfig?: UserServiteConfig): Plugin[] {
+export function servite(userServiteConfig?: UserServiteConfig): PluginOption[] {
   const serviteConfig = resolveServiteConfig(userServiteConfig);
   const { hashRouter } = serviteConfig;
 
-  const plugins: Plugin[] = [
+  const plugins: PluginOption[] = [
     {
       name: 'servite',
       enforce: 'pre',
       async config(config) {
         const root = path.resolve(config.root || '');
-        const input = path.resolve(root, 'node_modules/.servite/index.html');
 
-        await fs.copy(APP_HTML_FILE, input);
+        // Generate html for ssr load template
+        await fs.copy(
+          APP_HTML_FILE,
+          path.resolve(root, 'node_modules/.servite/index.html')
+        );
 
         return {
+          resolve: {
+            alias: {
+              'virtual:servite-dist': DIST_DIR,
+            },
+          },
           define: {
             __HASH_ROUTER__: hashRouter,
           },
@@ -36,60 +46,33 @@ export function servite(userServiteConfig?: UserServiteConfig): Plugin[] {
               'react',
               'react/jsx-runtime',
               'react/jsx-dev-runtime',
+              'react-dom',
               'react-dom/client',
               'nprogress',
             ],
           },
-          ssr: {
-            noExternal: ['servite'],
-          },
-          build: {
-            rollupOptions: {
-              input,
-            },
-          },
         };
       },
-      transformIndexHtml: {
-        enforce: 'pre',
-        transform() {
-          // inject client entry
-          return [
-            {
-              tag: 'script',
-              attrs: {
-                type: 'module',
-                src: FS_PREFIX_CLIENT_ENTRY,
-              },
-              injectTo: 'body',
-            },
-          ];
-        },
+      async configureServer(server) {
+        if (server.config.command === 'serve') {
+          const files = await fg('**/*', {
+            cwd: DIST_DIR,
+            ignore: [`${CLIENT_DIR}/**/*`],
+            absolute: true,
+          });
+          server.config.configFileDependencies.push(...files);
+          server.watcher.add(files);
+        }
       },
       api: {
         getServiteConfig() {
           return serviteConfig;
         },
-      },
+      } as any,
     },
-    {
-      name: 'servite:html-filename',
-      enforce: 'post',
-      async generateBundle(_options, bundle) {
-        Object.values(bundle).forEach(chunk => {
-          if (
-            chunk.type === 'asset' &&
-            path.normalize(chunk.fileName) ===
-              'node_modules/.servite/index.html'
-          ) {
-            chunk.fileName = 'index.html';
-          }
-        });
-      },
-    },
+    ...serviteJsx(),
     servitePages({ serviteConfig }),
     serviteNitro({ serviteConfig }),
-    serviteTheme({ serviteConfig }),
   ];
 
   return plugins;
