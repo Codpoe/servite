@@ -7,6 +7,7 @@ import {
   CLIENT_DIR,
   CLIENT_ENTRY_FILE,
   DIST_DIR,
+  PKG_DIR,
 } from './constants.js';
 import { serviteJsx } from './jsx/plugin.js';
 import { servitePages } from './pages/plugin.js';
@@ -54,7 +55,8 @@ export function servite(userServiteConfig?: UserServiteConfig): PluginOption[] {
         };
       },
       async configureServer(server) {
-        if (server.config.command === 'serve') {
+        // for local dev
+        if (path.normalize(server.config.root).startsWith(PKG_DIR)) {
           const files = await fg('**/*', {
             cwd: DIST_DIR,
             ignore: [`${CLIENT_DIR}/**/*`],
