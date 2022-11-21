@@ -1,4 +1,5 @@
 import { extname } from 'path';
+import type { HtmlTagDescriptor } from 'vite';
 import { Island } from '../../shared/types.js';
 
 export function lazyCachedFn<T>(fn: () => Promise<T>): () => Promise<T> {
@@ -28,31 +29,24 @@ export function trapConsole() {
   };
 }
 
-export function renderScript({
-  type,
-  src,
+export function renderTag({
+  tag,
+  attrs = {},
   children = '',
-}: {
-  type?: 'module';
-  src?: string;
-  children?: string;
-}) {
-  if (!src && !children) {
-    return '';
-  }
-  return `<script${type ? ` type=${type}` : ''}${
-    src ? ` crossorigin src="${src}"` : ''
-  }>${children}</script>`;
-}
+}: Omit<HtmlTagDescriptor, 'injectTo'>) {
+  const attrsStr = Object.entries(attrs)
+    .map(([k, v]) => {
+      if (v == null) {
+        return '';
+      }
+      if (v === '') {
+        return ` ${k}`;
+      }
+      return ` ${k}="${v}"`;
+    })
+    .join('');
 
-export function renderTag(
-  tagName: string,
-  attrs: Record<string, any>,
-  children?: string
-) {
-  return `<${tagName}${Object.entries(attrs).map(([k, v]) =>
-    v == null ? '' : ` ${k}="${v}"`
-  )}>${children || ''}</${tagName}>`;
+  return `<${tag}${attrsStr}>${children}</${tag}>`;
 }
 
 export function renderPreloadLink(link: string): string {

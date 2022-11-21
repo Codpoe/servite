@@ -23,9 +23,9 @@ export const getViteDevServer = lazyCachedFn(() => {
 });
 
 export interface CollectedStyle {
-  id: string | null;
+  id?: string;
   url: string;
-  code: string | null;
+  code?: string;
 }
 
 /**
@@ -47,9 +47,9 @@ export async function collectRoutesStyles(routeMatches: RouteMatch[]) {
       const defaultExport = mod.ssrModule?.default;
 
       styles.push({
-        id: mod.id,
+        id: mod.id || undefined,
         url: mod.url,
-        code: typeof defaultExport === 'string' ? defaultExport : null,
+        code: typeof defaultExport === 'string' ? defaultExport : undefined,
       });
 
       return;

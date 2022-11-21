@@ -64,6 +64,23 @@ export function servite(userServiteConfig?: UserServiteConfig): PluginOption[] {
           server.watcher.add(files);
         }
       },
+      transformIndexHtml: {
+        enforce: 'pre',
+        transform(html) {
+          // inject div#root
+          if (!/<div.*?id=('|")root(\1)/.test(html)) {
+            return [
+              {
+                tag: 'div',
+                attrs: {
+                  id: 'root',
+                },
+                injectTo: 'body',
+              },
+            ];
+          }
+        },
+      },
       api: {
         getServiteConfig() {
           return serviteConfig;

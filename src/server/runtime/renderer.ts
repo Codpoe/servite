@@ -18,7 +18,6 @@ import ssrStylesCleanerCode from '../../prebuild/ssr-styles-cleaner.prebuilt.js'
 import {
   renderIslandsCode,
   renderPreloadLink,
-  renderScript,
   renderTag,
   trapConsole,
 } from './utils.js';
@@ -192,9 +191,15 @@ async function renderAssets(
       ? []
       : [
           // inject csr client entry
-          renderScript({
-            type: 'module',
-            src: wrapViteId('virtual:servite-dist/client/app/entry.client.js'),
+          renderTag({
+            tag: 'script',
+            attrs: {
+              type: 'module',
+              crossorigin: '',
+              src: wrapViteId(
+                'virtual:servite-dist/client/app/entry.client.js'
+              ),
+            },
           }),
         ];
 
@@ -206,26 +211,49 @@ async function renderAssets(
         collectedStyles.forEach(({ id, url, code }) => {
           if (code) {
             // Vite handles HMR for styles injected as scripts
-            devAssets.push(renderTag('script', { type: 'module', src: url }));
+            devAssets.push(
+              renderTag({
+                tag: 'script',
+                attrs: {
+                  type: 'module',
+                  crossorigin: '',
+                  src: url,
+                },
+              })
+            );
             // - We still want to inject the styles to avoid FOUC.
             // - The `data-ssr-dev-id` attribute will be used by ssr-styles-cleaner
             //   to determine whether a style element is injected in ssr
             devAssets.push(
-              renderTag('style', { 'data-ssr-dev-id': id }, `\n${code}\n`)
+              renderTag({
+                tag: 'style',
+                attrs: {
+                  'data-ssr-dev-id': id,
+                },
+                children: `\n${code}\n`,
+              })
             );
           } else if (url) {
             // eg. css modules file
             devAssets.push(
-              renderTag('link', {
-                rel: 'stylesheet',
-                href: url,
-                'data-ssr-dev-id': id,
+              renderTag({
+                tag: 'link',
+                attrs: {
+                  rel: 'stylesheet',
+                  href: url,
+                  'data-ssr-dev-id': id,
+                },
               })
             );
           }
         });
 
-        devAssets.push(renderTag('script', {}, ssrStylesCleanerCode));
+        devAssets.push(
+          renderTag({
+            tag: 'script',
+            children: ssrStylesCleanerCode,
+          })
+        );
       }
     }
 
@@ -257,10 +285,17 @@ function renderIslandsScript(islands?: Island[]) {
   const islandsCode = renderIslandsCode(islands);
   const compressed = LZString.compressToEncodedURIComponent(islandsCode);
 
-  return `${renderScript({ children: islandsHydrateCode })}
-${renderScript({
-  type: 'module',
-  src: wrapViteId(`virtual:servite/islands/${compressed}`),
+  return `${renderTag({
+    tag: 'script',
+    children: islandsHydrateCode,
+  })}
+${renderTag({
+  tag: 'script',
+  attrs: {
+    type: 'module',
+    crossorigin: '',
+    src: wrapViteId(`virtual:servite/islands/${compressed}`),
+  },
 })}`;
 }
 
