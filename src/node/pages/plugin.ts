@@ -78,10 +78,10 @@ export function servitePages({
     },
     configResolved(config) {
       viteConfig = config;
-      pagesManager = new PagesManager(config, serviteConfig);
     },
     configureServer(server) {
       viteDevServer = server;
+      pagesManager = new PagesManager(viteConfig, serviteConfig);
 
       server.watcher.on('unlink', async filePath => {
         const { isPageFile } = await pagesManager.checkPageFile(filePath);
