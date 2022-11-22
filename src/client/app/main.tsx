@@ -223,7 +223,9 @@ export async function createApp({
       <HelmetProvider context={context?.helmetContext}>
         <Helmet defaultTitle="Servite App"></Helmet>
         <appContext.Provider value={appState}>
-          {pagePath ? <Suspense>{routesElement}</Suspense> : null}
+          {pagePath ? (
+            <Suspense>{routesElement || '404 - Page Not Found'}</Suspense>
+          ) : null}
         </appContext.Provider>
       </HelmetProvider>
     );

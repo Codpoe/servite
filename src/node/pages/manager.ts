@@ -166,7 +166,13 @@ async function scanPages(
     .sort((a, b) => {
       const compareRes = a.routePath.localeCompare(b.routePath);
       // layout first
-      return compareRes === 0 && a.isLayout ? -1 : compareRes;
+      if (compareRes === 0) {
+        if (a.isLayout && b.isLayout) {
+          return 0;
+        }
+        return b.isLayout ? 0 : -1;
+      }
+      return compareRes;
     });
 }
 
