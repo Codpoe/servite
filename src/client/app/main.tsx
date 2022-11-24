@@ -19,6 +19,7 @@ import {
 import { appContext, loaderDataContext } from './context.js';
 import { AppState, PageError } from './types.js';
 import { useNProgress } from './hooks/useNProgress.js';
+import { NotFound } from './components/NotFound.js';
 
 const isBrowser = typeof window !== 'undefined';
 // Ssr will inject global variable: `__SERVITE__ssrData`
@@ -72,7 +73,15 @@ async function waitForPageReady({
   }
 
   const newAppState = { ...appState };
-  const matches = matchRoutes(appState.routes, pagePath);
+  const matches = matchRoutes(
+    [
+      ...appState.routes,
+      {
+        element: <NotFound />,
+      },
+    ],
+    pagePath
+  );
 
   if (!matches?.length) {
     newAppState.pageError = new PageError('Page not found', {
@@ -223,8 +232,10 @@ export async function createApp({
       <HelmetProvider context={context?.helmetContext}>
         <Helmet defaultTitle="Servite App"></Helmet>
         <appContext.Provider value={appState}>
-          {pagePath ? (
-            <Suspense>{routesElement || '404 - Page Not Found'}</Suspense>
+          {appState.pagePath ? (
+            <Suspense>{routesElement}</Suspense>
+          ) : appState.pageError ? (
+            `${appState.pageError}`
           ) : null}
         </appContext.Provider>
       </HelmetProvider>
