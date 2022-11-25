@@ -19,7 +19,7 @@ import {
 import { appContext, loaderDataContext } from './context.js';
 import { AppState, PageError } from './types.js';
 import { useNProgress } from './hooks/useNProgress.js';
-import { NotFound } from './components/NotFound.js';
+import { ErrorPage } from './components/ErrorPage.js';
 
 const isBrowser = typeof window !== 'undefined';
 // Ssr will inject global variable: `__SERVITE__ssrData`
@@ -73,18 +73,10 @@ async function waitForPageReady({
   }
 
   const newAppState = { ...appState };
-  const matches = matchRoutes(
-    [
-      ...appState.routes,
-      {
-        element: <NotFound />,
-      },
-    ],
-    pagePath
-  );
+  const matches = matchRoutes(appState.routes, pagePath);
 
   if (!matches?.length) {
-    newAppState.pageError = new PageError('Page not found', {
+    newAppState.pageError = new PageError('This page could not be found.', {
       isNotFound: true,
     });
     return newAppState;
@@ -235,7 +227,7 @@ export async function createApp({
           {appState.pagePath ? (
             <Suspense>{routesElement}</Suspense>
           ) : appState.pageError ? (
-            `${appState.pageError}`
+            <ErrorPage error={appState.pageError} />
           ) : null}
         </appContext.Provider>
       </HelmetProvider>
