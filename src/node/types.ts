@@ -13,13 +13,6 @@ export interface UserServiteConfig {
    */
   pagesDirs?: PagesDir[];
   /**
-   * Server side render
-   *
-   * supports glob patterns
-   * @default false
-   */
-  ssr?: boolean | string[];
-  /**
    * Prerender routes (Static site generate)
    *
    * supports glob patterns
@@ -47,7 +40,7 @@ type PartialRequired<T, K extends keyof T> = T & {
 export interface ServiteConfig
   extends PartialRequired<
     UserServiteConfig,
-    'pagesDirs' | 'ssr' | 'ssg' | 'hashRouter'
+    'pagesDirs' | 'ssg' | 'hashRouter'
   > {
   serverRenderFile?: string;
 }

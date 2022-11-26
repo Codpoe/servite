@@ -106,9 +106,11 @@ export function servitePages({
       if (source === PAGES_MODULE_ID) {
         return RESOLVED_PAGES_MODULE_ID;
       }
+
       if (source === PAGES_ROUTES_MODULE_ID) {
         return RESOLVED_PAGES_ROUTES_MODULE_ID;
       }
+
       if (source === CUSTOM_SERVER_RENDER_MODULE_ID) {
         return RESOLVED_CUSTOM_SERVER_RENDER_MODULE_ID;
       }
@@ -117,9 +119,11 @@ export function servitePages({
       if (id === RESOLVED_PAGES_MODULE_ID) {
         return pagesManager.generatePagesCode();
       }
+
       if (id === RESOLVED_PAGES_ROUTES_MODULE_ID) {
         return pagesManager.generatePagesRoutesCode();
       }
+
       if (id === RESOLVED_CUSTOM_SERVER_RENDER_MODULE_ID) {
         const customServerRenderFile = findServerRender(
           viteConfig.root,

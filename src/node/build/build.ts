@@ -46,6 +46,7 @@ class Builder {
 
     const rollupOutput = (await viteBuild({
       ...this.inlineConfig,
+      logLevel: extraConfig?.logLevel || 'info',
       plugins: [
         ...(this.inlineConfig?.plugins || []),
         ...(extraConfig?.plugins || []),

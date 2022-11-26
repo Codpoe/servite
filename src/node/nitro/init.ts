@@ -63,6 +63,7 @@ export async function initNitro({
             if (nitroConfig?.dev) {
               return `export const render = () => '';
 export const pages = [];
+export const routes = [];
 `;
             }
 

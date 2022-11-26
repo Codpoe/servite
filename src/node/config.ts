@@ -6,7 +6,6 @@ export function resolveServiteConfig(
 ): ServiteConfig {
   const {
     pagesDirs = [{ dir: 'src/pages' }],
-    ssr = false,
     ssg = false,
     hashRouter = false,
     ...rest
@@ -17,7 +16,6 @@ export function resolveServiteConfig(
   return {
     ...rest,
     pagesDirs,
-    ssr,
     ssg,
     hashRouter,
   };

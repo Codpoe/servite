@@ -1,8 +1,9 @@
+import path from 'upath';
+import fs from 'fs-extra';
 import { H3Event, EventHandler, getHeader, getQuery } from 'h3';
-import { parseURL, withoutBase } from 'ufo';
+import { parseURL } from 'ufo';
 import { RouteMatch } from 'react-router-dom';
 import LZString from 'lz-string';
-import mm from 'micromatch';
 import {
   Island,
   Route,
@@ -22,11 +23,7 @@ import {
   trapConsole,
 } from './utils.js';
 import { collectRoutesStyles, getViteDevServer } from './vite.js';
-import {
-  defineRenderHandler,
-  useRuntimeConfig,
-  useStorage,
-} from '#internal/nitro';
+import { defineRenderHandler, useStorage } from '#internal/nitro';
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -41,18 +38,17 @@ export default <EventHandler>defineRenderHandler(async event => {
     event,
     url,
     pathname,
-    noSSR: isNoSSR(event, pathname),
+    noSSR: isNoSSR(event),
   };
 
   const ssrEntry = await loadSSREntry();
 
-  const [template, { renderResult, renderContext }] = await Promise.all([
-    loadTemplate(ssrContext),
-    renderAppHtml(ssrContext, ssrEntry),
-  ]);
+  const { renderResult, renderContext } = await renderAppHtml(
+    ssrContext,
+    ssrEntry
+  );
 
   const fullHtml = await renderFullHtml(ssrContext, {
-    template,
     renderResult,
     renderContext,
   });
@@ -68,7 +64,7 @@ export default <EventHandler>defineRenderHandler(async event => {
   };
 });
 
-function isNoSSR(event: H3Event, pathname: string): boolean {
+function isNoSSR(event: H3Event): boolean {
   const noSSR = Boolean(
     getQuery(event)['servite-no-ssr'] ||
       getHeader(event, 'x-servite-no-ssr') ||
@@ -79,23 +75,7 @@ function isNoSSR(event: H3Event, pathname: string): boolean {
     return noSSR;
   }
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const runtimeConfig = useRuntimeConfig();
-  const baseURL: string = runtimeConfig.app.baseURL;
-  const ssr: boolean | string[] = runtimeConfig.serviteConfig.ssr;
-  const ssg: boolean | string[] = runtimeConfig.serviteConfig.ssg;
-
-  if (ssr === true || ssg === true) {
-    return true;
-  }
-
-  if (ssr === false && ssg === false) {
-    return false;
-  }
-  return !mm.isMatch(
-    withoutBase(pathname, baseURL),
-    (ssr || []).concat(ssg || [])
-  );
+  return false;
 }
 
 async function loadSSREntry() {
@@ -126,20 +106,38 @@ async function loadSSREntry() {
 
 let _prodAppHtml: string | undefined;
 
-async function loadTemplate(ssrContext: SSRContext) {
+async function loadTemplate(
+  ssrContext: SSRContext,
+  routeMatches: RouteMatch[]
+) {
   let template = '';
 
   if (isDev) {
     const viteDevServer = await getViteDevServer();
-    template = await storage.getItem('root/node_modules/.servite/index.html');
+    const route = routeMatches[routeMatches.length - 1].route as
+      | Route
+      | undefined;
 
-    if (viteDevServer) {
-      template = await viteDevServer.transformIndexHtml(
-        '/node_modules/.servite/index.html',
-        template,
-        ssrContext.url
+    // Prefer to use custom html
+    if (route) {
+      const customHtmlFile = path.resolve(
+        viteDevServer.config.root,
+        route.filePath,
+        '../index.html'
       );
+
+      if (fs.existsSync(customHtmlFile)) {
+        template = await fs.readFile(customHtmlFile, 'utf-8');
+      }
     }
+
+    template = await viteDevServer.transformIndexHtml(
+      '/node_modules/.servite/index.html',
+      // Fallback to internal default html
+      template ||
+        (await storage.getItem('root/node_modules/.servite/index.html')),
+      ssrContext.url
+    );
   } else {
     if (!_prodAppHtml) {
       _prodAppHtml = await storage.getItem('/assets/servite/index.html');
@@ -150,13 +148,15 @@ async function loadTemplate(ssrContext: SSRContext) {
   return template;
 }
 
+interface RenderAppHtmlResult {
+  renderResult: SSREntryRenderResult;
+  renderContext?: SSREntryRenderContext;
+}
+
 async function renderAppHtml(
   ssrContext: SSRContext,
   ssrEntry: SSREntry
-): Promise<{
-  renderResult: SSREntryRenderResult;
-  renderContext?: SSREntryRenderContext;
-}> {
+): Promise<RenderAppHtmlResult> {
   if (ssrContext.noSSR) {
     return {
       renderResult: { appHtml: '' },
@@ -299,16 +299,13 @@ ${renderTag({
 })}`;
 }
 
-interface RenderFullHtmlOptions {
-  template: string;
-  renderResult: SSREntryRenderResult;
-  renderContext?: SSREntryRenderContext;
-}
-
 async function renderFullHtml(
   ssrContext: SSRContext,
-  { template, renderResult, renderContext }: RenderFullHtmlOptions
+  { renderResult, renderContext }: RenderAppHtmlResult
 ) {
+  const routeMatches = renderContext?.routeMatches || [];
+  let template = await loadTemplate(ssrContext, routeMatches);
+
   const {
     htmlAttributes,
     bodyAttributes,
@@ -338,7 +335,7 @@ async function renderFullHtml(
   // Assets
   const assets = await renderAssets(
     ssrContext,
-    renderContext?.routeMatches || [],
+    routeMatches,
     Boolean(islandsScript)
   );
 

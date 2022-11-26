@@ -43,6 +43,7 @@ export async function render(
 }
 
 export { pages } from 'virtual:servite/pages';
+export { routes } from 'virtual:servite/pages-routes';
 
 function fallbackRender(element: ReactElement): SSREntryRenderResult {
   return {

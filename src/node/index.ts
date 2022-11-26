@@ -50,6 +50,7 @@ export function servite(userServiteConfig?: UserServiteConfig): PluginOption[] {
               'react-dom',
               'react-dom/client',
               'nprogress',
+              'ufo',
             ],
           },
         };

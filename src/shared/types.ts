@@ -53,6 +53,7 @@ export type SSREntryRender = (
 export interface SSREntry {
   render: SSREntryRender;
   pages: Page[];
+  routes: Route[];
 }
 
 export interface SSRData {
