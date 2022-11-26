@@ -81,9 +81,12 @@ export function servitePages({
     },
     configureServer(server) {
       viteDevServer = server;
-      pagesManager = new PagesManager(viteConfig, serviteConfig);
 
       server.watcher.on('unlink', async filePath => {
+        if (!pagesManager) {
+          return;
+        }
+
         const { isPageFile } = await pagesManager.checkPageFile(filePath);
 
         if (isPageFile) {
@@ -95,6 +98,9 @@ export function servitePages({
           pagesManager.reload();
         }
       });
+    },
+    buildStart() {
+      pagesManager = new PagesManager(viteConfig, serviteConfig);
     },
     resolveId(source) {
       if (source === PAGES_MODULE_ID) {
@@ -136,6 +142,10 @@ export function servitePages({
       }
     },
     async handleHotUpdate(ctx) {
+      if (!pagesManager) {
+        return;
+      }
+
       const { isPageFile, existingPage } = await pagesManager.checkPageFile(
         ctx.file
       );

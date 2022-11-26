@@ -23,6 +23,11 @@ export function serviteJsx(): PluginOption[] {
     },
     {
       name: 'servite:islands',
+      // If the module name is too long,
+      // vite core plugin `vite:resolve` will throw resolve error,
+      // so we should set enforce: 'pre' here
+      // to resolve 'virtual:servite/islands/xxx' before vite:resolve
+      enforce: 'pre',
       resolveId(source) {
         if (source.startsWith(ISLANDS_MODULE_ID_PREFIX)) {
           return source;

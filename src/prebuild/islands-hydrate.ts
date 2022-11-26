@@ -33,19 +33,21 @@ if (!customElements.get('servite-island')) {
     class ServiteIsland extends HTMLElement {
       Component?: any;
 
-      connectedCallback() {
+      async connectedCallback() {
         const type = this.getAttribute('type') as IslandType;
 
         switch (type) {
           case 'idle': {
             if ('requestIdleCallback' in window) {
-              (window as any).requestIdleCallback(this.hydrate);
+              window.requestIdleCallback(this.hydrate);
             } else {
               setTimeout(this.hydrate, 200);
             }
             break;
           }
           case 'visible': {
+            await this.ensureChildren();
+
             const observer = new IntersectionObserver(entries => {
               for (const entry of entries) {
                 if (!entry.isIntersecting) {
@@ -81,6 +83,21 @@ if (!customElements.get('servite-island')) {
             this.hydrate();
           }
         }
+      }
+
+      async ensureChildren() {
+        if (this.children.length) {
+          return;
+        }
+
+        return new Promise<void>(resolve => {
+          new MutationObserver((_, observer) => {
+            if (this.children.length) {
+              observer.disconnect();
+              resolve();
+            }
+          }).observe(this, { childList: true });
+        });
       }
 
       hydrate = async () => {

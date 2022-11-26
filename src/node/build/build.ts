@@ -70,7 +70,8 @@ class Builder {
             if (extraOutDir) {
               config.build.outDir = path.join(outDir, extraOutDir);
             }
-
+          },
+          async buildEnd() {
             // Save pages to prerender
             pages = await (getPlugin('servite:pages').api as any).getPages();
           },
@@ -176,8 +177,12 @@ class Builder {
             };
           },
           generateBundle(_options, bundle) {
+            // Delete unused asset
             for (const name in bundle) {
-              if (bundle[name].type === 'asset') {
+              if (
+                bundle[name].type === 'asset' &&
+                bundle[name].fileName.length > 100
+              ) {
                 delete bundle[name];
               }
             }
