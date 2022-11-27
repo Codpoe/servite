@@ -1,10 +1,8 @@
 /**
  * @title 1234
  */
-import { useState } from 'react';
 import { useLoaderData } from 'servite/client';
 import reactLogo from '../assets/react.svg';
-import { Counter } from '../components/Counter';
 import './page.css';
 
 interface LoaderData {
@@ -19,8 +17,7 @@ export const loader = () => {
   };
 };
 
-function Page() {
-  const [count, setCount] = useState(0);
+export default function Page() {
   const loaderData = useLoaderData<LoaderData>();
 
   return (
@@ -36,21 +33,13 @@ function Page() {
       </div>
       <h1>Vite + React</h1>
       <div className="card">
-        <button onClick={() => setCount(count => count + 1)}>
-          count is {count}
-        </button>
         <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
+          Edit <code>src/pages/page.tsx</code> and save to test HMR
         </p>
       </div>
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
-      <Counter __island={'load'} initialCount={2}>
-        Hello World
-      </Counter>
     </div>
   );
 }
-
-export default Page;
