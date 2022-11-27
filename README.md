@@ -1,5 +1,18 @@
 # servite
 
+A vite plugin for React SSR / SSG. Powered by [nitro](https://github.com/unjs/nitro).
+
+To check out docs, visit https://servite.vercel.app.
+
+## Features
+
+- 🌟 SSR by default
+- ⚡️ SSG easily
+- 🔥 Support islands architecture
+- 🎉 Powered by [nitro](https://github.com/unjs/nitro)
+
+
+---
 ## TODO
 - [x] optional ssr / ssg
   - header: no ssr
