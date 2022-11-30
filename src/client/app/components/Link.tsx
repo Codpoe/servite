@@ -3,10 +3,10 @@ import {
   matchRoutes,
   resolvePath,
   To,
-  useHref,
   useLinkClickHandler,
-  useLocation,
 } from 'react-router-dom';
+import { useHref, useLocation } from '../router';
+import { hasIslands } from '../constants.js';
 import { useAppState } from '../context.js';
 import { useNProgress } from '../hooks/useNProgress.js';
 
@@ -43,7 +43,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
         onClick(event);
       }
 
-      if (!event.defaultPrevented && !reloadDocument) {
+      if (!hasIslands && !event.defaultPrevented && !reloadDocument) {
         startTransition(() => {
           internalOnClick(event);
         });
@@ -52,8 +52,9 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
 
     const handleMouseEnter = () => {
       if (
-        (typeof to === 'string' && to.startsWith('/')) ||
-        (typeof to === 'object' && to.pathname?.startsWith('/'))
+        !hasIslands &&
+        ((typeof to === 'string' && to.startsWith('/')) ||
+          (typeof to === 'object' && to.pathname?.startsWith('/')))
       ) {
         const { pathname: targetPath } = resolvePath(to, pathname);
 

@@ -41,17 +41,29 @@ export default <EventHandler>defineRenderHandler(async event => {
     noSSR: isNoSSR(event),
   };
 
+  console.log('loadSSREntry start', new Date().toLocaleTimeString());
+
   const ssrEntry = await loadSSREntry();
+
+  console.log('loadSSREntry end', new Date().toLocaleTimeString());
+
+  console.log('renderAppHtml start', new Date().toLocaleTimeString());
 
   const { renderResult, renderContext } = await renderAppHtml(
     ssrContext,
     ssrEntry
   );
 
+  console.log('renderAppHtml end', new Date().toLocaleTimeString());
+
+  console.log('renderFullHtml start', new Date().toLocaleTimeString());
+
   const fullHtml = await renderFullHtml(ssrContext, {
     renderResult,
     renderContext,
   });
+
+  console.log('renderFullHtml end', new Date().toLocaleTimeString());
 
   return {
     body: fullHtml,
@@ -114,7 +126,7 @@ async function loadTemplate(
 
   if (isDev) {
     const viteDevServer = await getViteDevServer();
-    const route = routeMatches[routeMatches.length - 1].route as
+    const route = routeMatches[routeMatches.length - 1]?.route as
       | Route
       | undefined;
 
@@ -184,10 +196,10 @@ let _ssrManifestJson: Record<string, string[]> | undefined;
 async function renderAssets(
   ssrContext: SSRContext,
   routeMatches: RouteMatch[],
-  hasIslandsScript: boolean
+  hasIslands: boolean
 ): Promise<string> {
   if (isDev) {
-    const devAssets = hasIslandsScript
+    const devAssets = hasIslands
       ? []
       : [
           // inject csr client entry
@@ -270,7 +282,7 @@ async function renderAssets(
     .flatMap(m => {
       const route = m.route as Route;
       return (_ssrManifestJson?.[route.filePath] || []).map(link =>
-        hasIslandsScript && link.endsWith('.js') ? '' : renderPreloadLink(link)
+        hasIslands && link.endsWith('.js') ? '' : renderPreloadLink(link)
       );
     })
     .filter(Boolean)
@@ -331,13 +343,10 @@ async function renderFullHtml(
 
   // Islands
   const islandsScript = renderIslandsScript(renderContext?.islands);
+  const hasIslands = Boolean(renderContext?.islands);
 
   // Assets
-  const assets = await renderAssets(
-    ssrContext,
-    routeMatches,
-    Boolean(islandsScript)
-  );
+  const assets = await renderAssets(ssrContext, routeMatches, hasIslands);
 
   const headTags = [
     title,
@@ -365,7 +374,8 @@ async function renderFullHtml(
       noSSR: ssrContext.noSSR,
     },
     serverRendered: Boolean(renderResult.appHtml),
-    loaderData: renderContext?.loaderData,
+    hasIslands,
+    appState: renderContext?.appState,
   };
 
   template = template.replace(

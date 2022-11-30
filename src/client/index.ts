@@ -13,11 +13,7 @@ export {
   parsePath,
   resolvePath,
   renderMatches,
-  useHref,
   useInRouterContext,
-  useLocation,
-  useMatch,
-  useNavigate,
   useNavigationType,
   useOutlet,
   useParams,
@@ -60,6 +56,8 @@ export {
 
 export { Helmet } from 'react-helmet-async';
 
+export { isBrowser, ssrData } from './app/constants.js';
+export { useHref, useLocation, useMatch, useNavigate } from './app/router.js';
 export { useAppState, useLoaderData } from './app/context.js';
 export * from './app/types.js';
 export * from './app/components/Link.js';

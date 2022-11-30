@@ -28,7 +28,7 @@ export function serviteNitro({
         serviteConfig,
         viteConfig,
         viteDevServer: server,
-        nitroConfig: { dev: true },
+        nitroConfig: { dev: true, logLevel: 2 },
       });
 
       const nitroDevServer = createDevServer(nitro);
@@ -50,8 +50,11 @@ export function serviteNitro({
 
           await buildPromise;
 
+          console.log('start', new Date().toLocaleTimeString());
+
           try {
             await nitroDevServer.app.handler(new H3Event(req, res));
+            console.log('end', new Date().toLocaleTimeString());
           } catch (err) {
             res.statusCode = 500;
 

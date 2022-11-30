@@ -16,7 +16,7 @@ import {
   SSRContext,
   SSREntryRenderContext,
 } from '../../shared/types.js';
-import { appContext, loaderDataContext } from './context.js';
+import { appContext } from './context.js';
 import { AppState, PageError } from './types.js';
 import { useNProgress } from './hooks/useNProgress.js';
 import { ErrorPage } from './components/ErrorPage.js';
@@ -88,37 +88,43 @@ async function waitForPageReady({
     );
 
     const loaderContext = createLoaderContext(context?.ssrContext);
-    const shouldLoad = !initial || !ssrData?.loaderData;
-    const loaderData: any[] = ssrData?.loaderData || [];
+    const shouldLoad = !initial || !ssrData?.appState?.loaderData;
 
-    const pageModules = await Promise.all(
-      matches.map(async (match, index) => {
+    const results = await Promise.all(
+      matches.map(async match => {
         const route = match.route as Route;
         const mod = await route.component.preload?.();
 
         // Execute loader
-        if (shouldLoad) {
-          loaderData[index] =
-            (await mod?.loader?.({
+        const loaderResult = shouldLoad
+          ? await mod?.loader?.({
               ...loaderContext,
               params: match.params,
-            })) ?? null;
-        }
+            })
+          : undefined;
 
-        // Mount loader data in context for useLoaderData
-        route.element = (
-          <loaderDataContext.Provider value={loaderData[index]}>
-            {route.element}
-          </loaderDataContext.Provider>
-        );
-
-        return mod;
+        return { mod, loaderResult };
       })
     );
 
-    const pageModule = pageModules.reduce(
-      (res, mod) => ({ ...res, ...mod }),
-      {}
+    const { pageModule, loaderData } = results.reduce<{
+      pageModule: any;
+      loaderData?: Record<string, any>;
+    }>(
+      (res, { mod, loaderResult }) => {
+        Object.assign(res.pageModule, mod);
+
+        if (loaderResult) {
+          res.loaderData ||= {};
+          Object.assign(res.loaderData, loaderResult);
+        }
+
+        return res;
+      },
+      {
+        pageModule: {},
+        loaderData: initial ? ssrData?.appState?.loaderData : undefined,
+      }
     );
 
     if (context) {
@@ -126,10 +132,14 @@ async function waitForPageReady({
       // server/runtime/renderer will crawl css by routeMatches, and inject the styles in html
       context.routeMatches = matches;
 
-      // Mount loaderData in context for ssr.
-      // The loaderData will be inject by __SSR_DATA__ in ssr,
-      // and the client side can use the loaderData to render.
-      context.loaderData = loaderData;
+      // Mount appState in context for ssr.
+      // The appState will be inject by __SSR_DATA__ in ssr,
+      // and the client side / islands can use the appState to render.
+      context.appState = {
+        pagePath,
+        pageData,
+        loaderData,
+      };
     }
 
     Object.assign<AppState, Partial<AppState>>(newAppState, {
@@ -147,16 +157,6 @@ async function waitForPageReady({
     }
   } finally {
     newAppState.pageLoading = false;
-
-    // In dev ssr, we should wait for style ready to show the page content
-    if (
-      typeof document !== 'undefined' &&
-      document.documentElement.hasAttribute('hidden')
-    ) {
-      setTimeout(() => {
-        document.documentElement.removeAttribute('hidden');
-      }, 0);
-    }
   }
 
   return newAppState;

@@ -15,7 +15,8 @@
     "bin",
     "dist",
     "server.d.ts",
-    "client.d.ts"
+    "client.d.ts",
+    "types.d.ts"
   ],
   "main": "dist/node/index.js",
   "types": "dist/node/index.d.ts",

@@ -33,12 +33,23 @@ export interface Island {
 
 export type IslandType = 'load' | 'idle' | 'visible' | 'media';
 
+export interface AppState {
+  routes: Route[];
+  pages: Page[];
+  pagePath?: string;
+  pageData?: Page;
+  pageModule?: any;
+  pageLoading: boolean;
+  pageError: Error | null;
+  loaderData?: Record<string, any>;
+}
+
 export interface SSREntryRenderContext {
   ssrContext: SSRContext;
   helmetContext: Partial<FilledContext>;
   routeMatches?: RouteMatch[];
   islands?: Island[];
-  loaderData?: any[];
+  appState?: Pick<AppState, 'pagePath' | 'pageData' | 'loaderData'>;
 }
 
 export interface SSREntryRenderResult {
@@ -59,7 +70,8 @@ export interface SSREntry {
 export interface SSRData {
   context: Omit<SSRContext, 'event'>;
   serverRendered: boolean;
-  loaderData?: any[];
+  hasIslands: boolean;
+  appState?: SSREntryRenderContext['appState'];
 }
 
 export interface LoaderBaseContext {
