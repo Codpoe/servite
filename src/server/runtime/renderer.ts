@@ -31,7 +31,7 @@ const isDev = process.env.NODE_ENV === 'development';
 const storage = useStorage();
 
 export default <EventHandler>defineRenderHandler(async event => {
-  const url = event.req.url!;
+  const url = event.node.req.url!;
   const { pathname } = parseURL(url);
 
   const ssrContext: SSRContext = {
@@ -41,7 +41,14 @@ export default <EventHandler>defineRenderHandler(async event => {
     noSSR: isNoSSR(event),
   };
 
-  console.log('loadSSREntry start', new Date().toLocaleTimeString());
+  console.log(
+    'loadSSREntry start',
+    new Date().toLocaleTimeString(),
+    '>>',
+    event.path,
+    '<<',
+    event.node.req.url!
+  );
 
   const ssrEntry = await loadSSREntry();
 
