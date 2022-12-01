@@ -26,11 +26,8 @@ export function servite(userServiteConfig?: UserServiteConfig): PluginOption[] {
       async config(config) {
         const root = path.resolve(config.root || '');
 
-        // Generate html for ssr load template
-        await fs.copy(
-          APP_HTML_FILE,
-          path.resolve(root, 'node_modules/.servite/index.html')
-        );
+        // Generate html for ssr load template and build input
+        await ensureHtmlTemplate(root);
 
         return {
           resolve: {
@@ -66,6 +63,16 @@ export function servite(userServiteConfig?: UserServiteConfig): PluginOption[] {
           server.config.configFileDependencies.push(...files);
           server.watcher.add(files);
         }
+
+        async function handleCustomHtml(filePath: string) {
+          if (filePath === path.resolve(server.config.root, 'src/index.html')) {
+            await ensureHtmlTemplate(server.config.root);
+          }
+        }
+
+        server.watcher
+          .on('add', handleCustomHtml)
+          .on('unlink', handleCustomHtml);
       },
       transformIndexHtml: {
         enforce: 'pre',
@@ -99,3 +106,17 @@ export function servite(userServiteConfig?: UserServiteConfig): PluginOption[] {
 }
 
 export default servite;
+
+async function ensureHtmlTemplate(root: string) {
+  const target = path.resolve(root, 'node_modules/.servite/index.html');
+  const customHtmlFile = path.resolve(root, 'src/index.html');
+
+  if (fs.existsSync(customHtmlFile)) {
+    if (fs.existsSync(target)) {
+      await fs.unlink(target);
+    }
+    await fs.symlink(customHtmlFile, target);
+  } else {
+    await fs.copy(APP_HTML_FILE, target);
+  }
+}

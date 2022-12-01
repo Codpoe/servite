@@ -125,10 +125,7 @@ export function servitePages({
       }
 
       if (id === RESOLVED_CUSTOM_SERVER_RENDER_MODULE_ID) {
-        const customServerRenderFile = findServerRender(
-          viteConfig.root,
-          serviteConfig.pagesDirs[0].dir
-        );
+        const customServerRenderFile = findServerRender(viteConfig.root);
 
         if (customServerRenderFile) {
           return `export { render } from '/@fs/${customServerRenderFile}';`;
@@ -203,9 +200,9 @@ async function isPageMetaUpdated(page: Page, hmrCtx: HmrContext) {
   return !shallowCompare(page.meta, newMeta);
 }
 
-function findServerRender(root: string, dir: string) {
+function findServerRender(root: string) {
   for (const ext of SCRIPT_EXTS) {
-    const serverRenderFile = path.resolve(root, dir, `server-render${ext}`);
+    const serverRenderFile = path.resolve(root, `src/server-render${ext}`);
     if (fs.existsSync(serverRenderFile)) {
       return serverRenderFile;
     }

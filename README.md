@@ -40,4 +40,3 @@ To check out docs, visit https://servite.vercel.app.
 - [x] prebuild ssr-styles-cleaner
 - [x] default 404 page
 - [x] support custom html template
-- [ ] lookup latest custom html

@@ -1,5 +1,3 @@
-import path from 'upath';
-import fs from 'fs-extra';
 import { H3Event, EventHandler, getHeader, getQuery } from 'h3';
 import { parseURL } from 'ufo';
 import { RouteMatch } from 'react-router-dom';
@@ -40,37 +38,17 @@ export default <EventHandler>defineRenderHandler(async event => {
     pathname,
     noSSR: isNoSSR(event),
   };
-
-  console.log(
-    'loadSSREntry start',
-    new Date().toLocaleTimeString(),
-    '>>',
-    event.path,
-    '<<',
-    event.node.req.url!
-  );
-
   const ssrEntry = await loadSSREntry();
-
-  console.log('loadSSREntry end', new Date().toLocaleTimeString());
-
-  console.log('renderAppHtml start', new Date().toLocaleTimeString());
 
   const { renderResult, renderContext } = await renderAppHtml(
     ssrContext,
     ssrEntry
   );
 
-  console.log('renderAppHtml end', new Date().toLocaleTimeString());
-
-  console.log('renderFullHtml start', new Date().toLocaleTimeString());
-
   const fullHtml = await renderFullHtml(ssrContext, {
     renderResult,
     renderContext,
   });
-
-  console.log('renderFullHtml end', new Date().toLocaleTimeString());
 
   return {
     body: fullHtml,
@@ -125,36 +103,15 @@ async function loadSSREntry() {
 
 let _prodAppHtml: string | undefined;
 
-async function loadTemplate(
-  ssrContext: SSRContext,
-  routeMatches: RouteMatch[]
-) {
+async function loadTemplate(ssrContext: SSRContext) {
   let template = '';
 
   if (isDev) {
     const viteDevServer = await getViteDevServer();
-    const route = routeMatches[routeMatches.length - 1]?.route as
-      | Route
-      | undefined;
-
-    // Prefer to use custom html
-    if (route) {
-      const customHtmlFile = path.resolve(
-        viteDevServer.config.root,
-        route.filePath,
-        '../index.html'
-      );
-
-      if (fs.existsSync(customHtmlFile)) {
-        template = await fs.readFile(customHtmlFile, 'utf-8');
-      }
-    }
 
     template = await viteDevServer.transformIndexHtml(
       '/node_modules/.servite/index.html',
-      // Fallback to internal default html
-      template ||
-        (await storage.getItem('root/node_modules/.servite/index.html')),
+      await storage.getItem('root/node_modules/.servite/index.html'),
       ssrContext.url
     );
   } else {
@@ -323,7 +280,7 @@ async function renderFullHtml(
   { renderResult, renderContext }: RenderAppHtmlResult
 ) {
   const routeMatches = renderContext?.routeMatches || [];
-  let template = await loadTemplate(ssrContext, routeMatches);
+  let template = await loadTemplate(ssrContext);
 
   const {
     htmlAttributes,
