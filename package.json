@@ -1,11 +1,12 @@
 {
   "name": "servite",
   "version": "0.1.0",
-  "description": "A vite plugin for React SSR / SSG",
+  "description": "A vite plugin for React SSR / SSG / CSR",
   "keywords": [
     "vite-plugin",
     "ssr",
     "ssg",
+    "csr",
     "islands"
   ],
   "author": "Codpoe <codpoe.me@gmail.com>",
