@@ -193,7 +193,7 @@ importers:
       typescript: 4.7.4
       vite: 3.2.4
 
-  examples/spa:
+  examples/csr:
     specifiers:
       '@types/react': ^18.0.24
       '@types/react-dom': ^18.0.8

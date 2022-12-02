@@ -240,7 +240,7 @@ class Builder {
 
     let pages: Page[] = [];
 
-    if (!serviteConfig.spa) {
+    if (!serviteConfig.csr) {
       emptyLine();
       // SSR bundle
       ({ pages } = await this.ssrBuild());
@@ -263,8 +263,8 @@ class Builder {
     await copyServerAssets(viteConfig);
     await copyPublicAssets(nitro);
 
-    if (serviteConfig.spa) {
-      await copySpaHtml(viteConfig, nitro);
+    if (serviteConfig.csr) {
+      await copyCsrHtml(viteConfig, nitro);
     } else {
       // Prerender
       await this.prerender(nitro, clientEntryUrl);
@@ -286,8 +286,8 @@ function getEntryUrl(rollupOutput: RollupOutput, viteConfig: ResolvedConfig) {
   return path.join(viteConfig.base || '/', rollupOutput.output[0].fileName);
 }
 
-function getPrerenderRoutes(pages: Page[], { ssg, spa }: ServiteConfig) {
-  if (spa || !ssg || (Array.isArray(ssg) && !ssg.length)) {
+function getPrerenderRoutes(pages: Page[], { ssg, csr }: ServiteConfig) {
+  if (csr || !ssg || (Array.isArray(ssg) && !ssg.length)) {
     return [];
   }
 
@@ -300,7 +300,7 @@ function getPrerenderRoutes(pages: Page[], { ssg, spa }: ServiteConfig) {
   return mm(allRoutes, ssg);
 }
 
-async function copySpaHtml(viteConfig: ResolvedConfig, nitro: Nitro) {
+async function copyCsrHtml(viteConfig: ResolvedConfig, nitro: Nitro) {
   await fs.copy(
     path.resolve(viteConfig.root, viteConfig.build.outDir, 'index.html'),
     path.resolve(nitro.options.output.publicDir, 'index.html')

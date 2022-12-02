@@ -60,7 +60,7 @@ export async function initNitro({
         },
         virtual: {
           'virtual:servite/prod-ssr-entry': () => {
-            if (nitroConfig?.dev || serviteConfig.spa) {
+            if (nitroConfig?.dev || serviteConfig.csr) {
               return `export const render = () => '';
 export const pages = [];
 export const routes = [];

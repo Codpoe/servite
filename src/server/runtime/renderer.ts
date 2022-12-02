@@ -68,7 +68,7 @@ export default <EventHandler>defineRenderHandler(async event => {
 function isNoSSR(event: H3Event): boolean {
   const noSSR = Boolean(
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useRuntimeConfig()?.serviteConfig?.spa ||
+    useRuntimeConfig()?.serviteConfig?.csr ||
       getQuery(event)['servite-no-ssr'] ||
       getHeader(event, 'x-servite-no-ssr') ||
       process.env.SERVITE_NO_SSR
@@ -171,7 +171,7 @@ async function renderAssets(
   if (isDev) {
     const devAssets =
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      hasIslands || useRuntimeConfig()?.serviteConfig?.spa
+      hasIslands || useRuntimeConfig()?.serviteConfig?.csr
         ? []
         : [
             // inject csr client entry

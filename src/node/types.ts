@@ -13,17 +13,17 @@ export interface UserServiteConfig {
    */
   pagesDirs?: PagesDir[];
   /**
-   * Prerender routes (Static site generate)
+   * Prerender routes (Static Site Generate)
    *
    * supports glob patterns
    * @default false
    */
   ssg?: boolean | string[];
   /**
-   * Switch to SPA (Single page application)
+   * Switch to CSR (Client Side Rendering)
    * @default false
    */
-  spa?: boolean;
+  csr?: boolean;
   /**
    * Nitro config
    * @see https://github.com/unjs/nitro
@@ -36,6 +36,6 @@ type PartialRequired<T, K extends keyof T> = T & {
 };
 
 export interface ServiteConfig
-  extends PartialRequired<UserServiteConfig, 'pagesDirs' | 'ssg' | 'spa'> {
+  extends PartialRequired<UserServiteConfig, 'pagesDirs' | 'ssg' | 'csr'> {
   serverRenderFile?: string;
 }

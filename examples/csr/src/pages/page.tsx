@@ -22,7 +22,7 @@ export default function Page() {
 
   return (
     <div className="App">
-      <h1>SPA</h1>
+      <h1>CSR</h1>
       <pre>loaderData: {JSON.stringify(loaderData)}</pre>
       <div>
         <a href="https://vitejs.dev" target="_blank" rel="noreferrer">

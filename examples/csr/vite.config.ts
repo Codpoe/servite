@@ -5,7 +5,7 @@ import { servite } from 'servite';
 export default defineConfig({
   plugins: [
     servite({
-      spa: true,
+      csr: true,
     }),
   ],
 });

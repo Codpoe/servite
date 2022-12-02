@@ -7,7 +7,7 @@ export function resolveServiteConfig(
   const {
     pagesDirs = [{ dir: 'src/pages' }],
     ssg = false,
-    spa = false,
+    csr = false,
     ...rest
   } = userServiteConfig;
 
@@ -17,6 +17,6 @@ export function resolveServiteConfig(
     ...rest,
     pagesDirs,
     ssg,
-    spa,
+    csr,
   };
 }

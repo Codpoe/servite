@@ -31,7 +31,7 @@ export function serviteHtml({
         await fs.copy(APP_HTML_FILE, target);
       }
 
-      if (serviteConfig?.spa || isClientBuild) {
+      if (serviteConfig?.csr || isClientBuild) {
         return {
           build: {
             rollupOptions: {
@@ -58,7 +58,7 @@ export function serviteHtml({
         }
 
         // inject client entry
-        if (serviteConfig?.spa || isClientBuild) {
+        if (serviteConfig?.csr || isClientBuild) {
           htmlTags.push({
             tag: 'script',
             attrs: {
@@ -72,7 +72,7 @@ export function serviteHtml({
         return htmlTags;
       },
     },
-    ...((serviteConfig?.spa || isClientBuild) && {
+    ...((serviteConfig?.csr || isClientBuild) && {
       async generateBundle(_options, bundle) {
         Object.values(bundle).forEach(chunk => {
           if (
