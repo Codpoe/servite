@@ -20,10 +20,7 @@ import { appContext } from './context.js';
 import { AppState, PageError } from './types.js';
 import { useNProgress } from './hooks/useNProgress.js';
 import { ErrorPage } from './components/ErrorPage.js';
-
-const isBrowser = typeof window !== 'undefined';
-// Ssr will inject global variable: `__SERVITE__ssrData`
-const ssrData = isBrowser ? window.__SERVITE__ssrData : undefined;
+import { isBrowser, ssrData } from './constants.js';
 
 function createLoaderContext(ssrContext?: SSRContext): LoaderContext {
   const url = isBrowser ? window.location.href : ssrContext!.url;
@@ -222,7 +219,9 @@ export async function createApp({
 
     return (
       <HelmetProvider context={context?.helmetContext}>
-        <Helmet defaultTitle="Servite App"></Helmet>
+        <Helmet
+          defaultTitle={(isBrowser && document.title) || 'Servite App'}
+        ></Helmet>
         <appContext.Provider value={appState}>
           {appState.pagePath ? (
             <Suspense>{routesElement}</Suspense>

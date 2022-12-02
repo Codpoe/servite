@@ -21,7 +21,11 @@ import {
   trapConsole,
 } from './utils.js';
 import { collectRoutesStyles, getViteDevServer } from './vite.js';
-import { defineRenderHandler, useStorage } from '#internal/nitro';
+import {
+  defineRenderHandler,
+  useStorage,
+  useRuntimeConfig,
+} from '#internal/nitro';
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -38,7 +42,7 @@ export default <EventHandler>defineRenderHandler(async event => {
     pathname,
     noSSR: isNoSSR(event),
   };
-  const ssrEntry = await loadSSREntry();
+  const ssrEntry = ssrContext.noSSR ? undefined : await loadSSREntry();
 
   const { renderResult, renderContext } = await renderAppHtml(
     ssrContext,
@@ -63,7 +67,9 @@ export default <EventHandler>defineRenderHandler(async event => {
 
 function isNoSSR(event: H3Event): boolean {
   const noSSR = Boolean(
-    getQuery(event)['servite-no-ssr'] ||
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useRuntimeConfig()?.serviteConfig?.spa ||
+      getQuery(event)['servite-no-ssr'] ||
       getHeader(event, 'x-servite-no-ssr') ||
       process.env.SERVITE_NO_SSR
   );
@@ -131,9 +137,9 @@ interface RenderAppHtmlResult {
 
 async function renderAppHtml(
   ssrContext: SSRContext,
-  ssrEntry: SSREntry
+  ssrEntry?: SSREntry
 ): Promise<RenderAppHtmlResult> {
-  if (ssrContext.noSSR) {
+  if (ssrContext.noSSR || !ssrEntry) {
     return {
       renderResult: { appHtml: '' },
     };
@@ -163,21 +169,23 @@ async function renderAssets(
   hasIslands: boolean
 ): Promise<string> {
   if (isDev) {
-    const devAssets = hasIslands
-      ? []
-      : [
-          // inject csr client entry
-          renderTag({
-            tag: 'script',
-            attrs: {
-              type: 'module',
-              crossorigin: '',
-              src: wrapViteId(
-                'virtual:servite-dist/client/app/entry.client.js'
-              ),
-            },
-          }),
-        ];
+    const devAssets =
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      hasIslands || useRuntimeConfig()?.serviteConfig?.spa
+        ? []
+        : [
+            // inject csr client entry
+            renderTag({
+              tag: 'script',
+              attrs: {
+                type: 'module',
+                crossorigin: '',
+                src: wrapViteId(
+                  'virtual:servite-dist/client/app/entry.client.js'
+                ),
+              },
+            }),
+          ];
 
     if (!ssrContext.noSSR) {
       // Collect routes styles to avoid FOUC
@@ -307,7 +315,7 @@ async function renderFullHtml(
 
   // Islands
   const islandsScript = renderIslandsScript(renderContext?.islands);
-  const hasIslands = Boolean(renderContext?.islands);
+  const hasIslands = Boolean(renderContext?.islands?.length);
 
   // Assets
   const assets = await renderAssets(ssrContext, routeMatches, hasIslands);

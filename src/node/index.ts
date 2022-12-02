@@ -1,14 +1,13 @@
 import path from 'upath';
-import fs from 'fs-extra';
 import { PluginOption } from 'vite';
 import fg from 'fast-glob';
 import {
-  APP_HTML_FILE,
   CLIENT_DIR,
   CLIENT_ENTRY_FILE,
   DIST_DIR,
   PKG_DIR,
 } from './constants.js';
+import { serviteHtml } from './html/plugin.js';
 import { serviteJsx } from './jsx/plugin.js';
 import { servitePages } from './pages/plugin.js';
 import { serviteNitro } from './nitro/plugin.js';
@@ -17,7 +16,6 @@ import { UserServiteConfig } from './types.js';
 
 export function servite(userServiteConfig?: UserServiteConfig): PluginOption[] {
   const serviteConfig = resolveServiteConfig(userServiteConfig);
-  const { hashRouter } = serviteConfig;
 
   const plugins: PluginOption[] = [
     {
@@ -26,17 +24,11 @@ export function servite(userServiteConfig?: UserServiteConfig): PluginOption[] {
       async config(config) {
         const root = path.resolve(config.root || '');
 
-        // Generate html for ssr load template and build input
-        await ensureHtmlTemplate(root);
-
         return {
           resolve: {
             alias: {
               'virtual:servite-dist': DIST_DIR,
             },
-          },
-          define: {
-            __HASH_ROUTER__: hashRouter,
           },
           optimizeDeps: {
             entries: [path.relative(root, CLIENT_ENTRY_FILE)],
@@ -63,33 +55,6 @@ export function servite(userServiteConfig?: UserServiteConfig): PluginOption[] {
           server.config.configFileDependencies.push(...files);
           server.watcher.add(files);
         }
-
-        async function handleCustomHtml(filePath: string) {
-          if (filePath === path.resolve(server.config.root, 'src/index.html')) {
-            await ensureHtmlTemplate(server.config.root);
-          }
-        }
-
-        server.watcher
-          .on('add', handleCustomHtml)
-          .on('unlink', handleCustomHtml);
-      },
-      transformIndexHtml: {
-        enforce: 'pre',
-        transform(html) {
-          // inject div#root
-          if (!/<div.*?id=('|")root(\1)/.test(html)) {
-            return [
-              {
-                tag: 'div',
-                attrs: {
-                  id: 'root',
-                },
-                injectTo: 'body',
-              },
-            ];
-          }
-        },
       },
       api: {
         getServiteConfig() {
@@ -97,6 +62,7 @@ export function servite(userServiteConfig?: UserServiteConfig): PluginOption[] {
         },
       } as any,
     },
+    serviteHtml({ serviteConfig }),
     ...serviteJsx(),
     servitePages({ serviteConfig }),
     serviteNitro({ serviteConfig }),
@@ -106,17 +72,3 @@ export function servite(userServiteConfig?: UserServiteConfig): PluginOption[] {
 }
 
 export default servite;
-
-async function ensureHtmlTemplate(root: string) {
-  const target = path.resolve(root, 'node_modules/.servite/index.html');
-  const customHtmlFile = path.resolve(root, 'src/index.html');
-
-  if (fs.existsSync(customHtmlFile)) {
-    if (fs.existsSync(target)) {
-      await fs.unlink(target);
-    }
-    await fs.symlink(customHtmlFile, target);
-  } else {
-    await fs.copy(APP_HTML_FILE, target);
-  }
-}

@@ -16,8 +16,9 @@ import { RollupOutput } from 'rollup';
 import { Page } from '../../shared/types.js';
 import { unwrapViteId } from '../../shared/utils.js';
 import { initNitro } from '../nitro/init.js';
-import { FS_PREFIX_CLIENT_ENTRY, SSR_ENTRY_FILE } from '../constants.js';
+import { SSR_ENTRY_FILE } from '../constants.js';
 import { ServiteConfig } from '../types.js';
+import { serviteHtml } from '../html/plugin.js';
 
 export async function build(inlineConfig: InlineConfig) {
   return new Builder(inlineConfig).build();
@@ -94,50 +95,7 @@ class Builder {
       build: {
         ssrManifest: true, // generate ssr manifest while client bundle
       },
-      plugins: [
-        {
-          name: 'servite:build:client',
-          enforce: 'post',
-          async config(config) {
-            const root = path.resolve(config.root || '');
-
-            return {
-              build: {
-                rollupOptions: {
-                  input: path.resolve(root, 'node_modules/.servite/index.html'),
-                },
-              },
-            };
-          },
-          transformIndexHtml: {
-            enforce: 'pre',
-            transform() {
-              // inject client entry
-              return [
-                {
-                  tag: 'script',
-                  attrs: {
-                    type: 'module',
-                    src: FS_PREFIX_CLIENT_ENTRY,
-                  },
-                  injectTo: 'head',
-                },
-              ];
-            },
-          },
-          async generateBundle(_options, bundle) {
-            Object.values(bundle).forEach(chunk => {
-              if (
-                chunk.type === 'asset' &&
-                path.normalize(chunk.fileName) ===
-                  'node_modules/.servite/index.html'
-              ) {
-                chunk.fileName = 'index.html';
-              }
-            });
-          },
-        },
-      ],
+      plugins: [serviteHtml({ isClientBuild: true })],
     });
   };
 
@@ -276,43 +234,42 @@ class Builder {
 
   build = async () => {
     // Client bundle
-    const { rollupOutput, viteConfig: clientViteConfig } =
+    const { rollupOutput, viteConfig, serviteConfig } =
       await this.clientBuild();
-    const clientEntryUrl = getEntryUrl(rollupOutput, clientViteConfig);
+    const clientEntryUrl = getEntryUrl(rollupOutput, viteConfig);
 
-    emptyLine();
+    let pages: Page[] = [];
 
-    // SSR bundle
-    const { viteConfig, serviteConfig, outDir, pages } = await this.ssrBuild();
+    if (!serviteConfig.spa) {
+      emptyLine();
+      // SSR bundle
+      ({ pages } = await this.ssrBuild());
+    }
 
     emptyLine();
 
     const nitro = await initNitro({
       serviteConfig,
-      viteConfig: {
-        ...viteConfig,
-        build: {
-          ...viteConfig.build,
-          // SSR bundle will overwrite outDir, here we need to restore the original outDir
-          outDir,
-        },
-      },
+      viteConfig,
       nitroConfig: {
         dev: false,
         prerender: {
-          routes: getPrerenderRoutes(pages, serviteConfig.ssg),
+          routes: getPrerenderRoutes(pages, serviteConfig),
         },
       },
     });
 
     await prepare(nitro);
-    await copyServerAssets(viteConfig, outDir);
+    await copyServerAssets(viteConfig);
     await copyPublicAssets(nitro);
 
-    // Prerender
-    await this.prerender(nitro, clientEntryUrl);
-
-    emptyLine();
+    if (serviteConfig.spa) {
+      await copySpaHtml(viteConfig, nitro);
+    } else {
+      // Prerender
+      await this.prerender(nitro, clientEntryUrl);
+      emptyLine();
+    }
 
     // Build nitro output
     await nitroBuild(nitro);
@@ -329,8 +286,8 @@ function getEntryUrl(rollupOutput: RollupOutput, viteConfig: ResolvedConfig) {
   return path.join(viteConfig.base || '/', rollupOutput.output[0].fileName);
 }
 
-function getPrerenderRoutes(pages: Page[], ssg: ServiteConfig['ssg']) {
-  if (!ssg || (Array.isArray(ssg) && !ssg.length)) {
+function getPrerenderRoutes(pages: Page[], { ssg, spa }: ServiteConfig) {
+  if (spa || !ssg || (Array.isArray(ssg) && !ssg.length)) {
     return [];
   }
 
@@ -343,16 +300,28 @@ function getPrerenderRoutes(pages: Page[], ssg: ServiteConfig['ssg']) {
   return mm(allRoutes, ssg);
 }
 
+async function copySpaHtml(viteConfig: ResolvedConfig, nitro: Nitro) {
+  await fs.copy(
+    path.resolve(viteConfig.root, viteConfig.build.outDir, 'index.html'),
+    path.resolve(nitro.options.output.publicDir, 'index.html')
+  );
+}
+
 /**
  * Copy some client bundle result to '.output/server-assets'.
  * Renderer will read server-assets by useStorage().getItem('/assets/servite/...')
  */
-async function copyServerAssets(viteConfig: ResolvedConfig, outDir: string) {
+async function copyServerAssets(viteConfig: ResolvedConfig) {
   await Promise.all(
     ['index.html', 'ssr-manifest.json'].map(filePath =>
       fs.copy(
-        path.resolve(viteConfig.root, outDir, filePath),
-        path.resolve(viteConfig.root, outDir, '.output/server-assets', filePath)
+        path.resolve(viteConfig.root, viteConfig.build.outDir, filePath),
+        path.resolve(
+          viteConfig.root,
+          viteConfig.build.outDir,
+          '.output/server-assets',
+          filePath
+        )
       )
     )
   );

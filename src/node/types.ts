@@ -20,12 +20,10 @@ export interface UserServiteConfig {
    */
   ssg?: boolean | string[];
   /**
-   * Use HashRouter instead of BrowserRouter
-   *
-   * NOT IMPLEMENT
+   * Switch to SPA (Single page application)
    * @default false
    */
-  hashRouter?: boolean;
+  spa?: boolean;
   /**
    * Nitro config
    * @see https://github.com/unjs/nitro
@@ -38,9 +36,6 @@ type PartialRequired<T, K extends keyof T> = T & {
 };
 
 export interface ServiteConfig
-  extends PartialRequired<
-    UserServiteConfig,
-    'pagesDirs' | 'ssg' | 'hashRouter'
-  > {
+  extends PartialRequired<UserServiteConfig, 'pagesDirs' | 'ssg' | 'spa'> {
   serverRenderFile?: string;
 }

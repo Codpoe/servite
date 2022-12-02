@@ -1,8 +1,7 @@
 import { createRoot, hydrateRoot } from 'react-dom/client';
-import { BrowserRouter, HashRouter } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 import { createApp } from './main.js';
 
-const Router = __HASH_ROUTER__ ? HashRouter : BrowserRouter;
 const basename = import.meta.env.BASE_URL?.replace(/\/$/, '');
 const pathname = window.location.pathname;
 const pagePath = basename ? pathname.substring(basename.length) : pathname;
@@ -17,9 +16,9 @@ async function bootstrap() {
   const App = await createApp({ pagePath });
 
   const element = (
-    <Router basename={basename}>
+    <BrowserRouter basename={basename}>
       <App />
-    </Router>
+    </BrowserRouter>
   );
 
   if (container.dataset.serverRendered === 'true') {
