@@ -24,7 +24,9 @@
   "exports": {
     ".": "./dist/node/index.js",
     "./server": "./dist/server/index.js",
-    "./client": "./dist/client/index.js"
+    "./client": "./dist/client/index.js",
+    "./jsx-runtime": "./dist/jsx/jsx-runtime.js",
+    "./jsx-dev-runtime": "./dist/jsx/jsx-dev-runtime.js"
   },
   "bin": {
     "servite": "bin/servite.js"

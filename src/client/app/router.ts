@@ -35,7 +35,7 @@ function warn(api: string, extraMsg?: string) {
  */
 export const useHref: typeof _useHref = to => {
   if (hasIslands) {
-    warn('useHref');
+    // warn('useHref');
     // eslint-disable-next-line react-hooks/rules-of-hooks
     return useMemo(() => {
       const { pathname, search, hash } = resolvePath(
@@ -57,7 +57,7 @@ export const useHref: typeof _useHref = to => {
  */
 export const useLocation: typeof _useLocation = () => {
   if (hasIslands) {
-    warn('useLocation', 'It will always return `window.location`');
+    // warn('useLocation', 'It will always return `window.location`');
     // eslint-disable-next-line react-hooks/rules-of-hooks
     return useMemo(() => ({ ...window.location, state: null, key: '' }), []);
   }
@@ -73,7 +73,7 @@ export const useLocation: typeof _useLocation = () => {
  */
 export const useMatch: typeof _useMatch = pattern => {
   if (hasIslands) {
-    warn('useMatch', 'It will run matchPath() with `window.location.pathname`');
+    // warn('useMatch', 'It will run matchPath() with `window.location.pathname`');
     // eslint-disable-next-line react-hooks/rules-of-hooks
     return useMemo(
       () => matchPath(pattern, window.location.pathname),

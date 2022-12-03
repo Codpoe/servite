@@ -5,6 +5,8 @@ import { ISLANDS_MODULE_ID_PREFIX, ISLAND_SPLITTER } from '../constants.js';
 import { babelJsxIsland } from './babel.js';
 
 export function serviteJsx(): PluginOption[] {
+  const islands = new Set<string>();
+
   return [
     {
       name: 'servite:jsx',
@@ -28,7 +30,7 @@ export function serviteJsx(): PluginOption[] {
       // so we should set enforce: 'pre' here
       // to resolve 'virtual:servite/islands/xxx' before vite:resolve
       enforce: 'pre',
-      resolveId(source) {
+      async resolveId(source) {
         if (source.startsWith(ISLANDS_MODULE_ID_PREFIX)) {
           return source;
         }
@@ -36,7 +38,14 @@ export function serviteJsx(): PluginOption[] {
         if (source.includes(ISLAND_SPLITTER)) {
           // eg. ./Comp.tsx__ISLAND__/Users/foo/projects/bar
           const [importee, importer] = source.split(ISLAND_SPLITTER);
-          return this.resolve(importee, importer, { skipSelf: true });
+          const resolved = await this.resolve(importee, importer, {
+            skipSelf: true,
+          });
+
+          if (resolved?.id) {
+            islands.add(resolved.id);
+          }
+          return resolved;
         }
       },
       async load(id) {
@@ -50,9 +59,21 @@ export function serviteJsx(): PluginOption[] {
         }
       },
     },
+    {
+      name: 'servite:islands-hmr',
+      enforce: 'post',
+      handleHotUpdate(ctx) {
+        if (islands.has(ctx.file)) {
+          ctx.server.ws.send({
+            type: 'full-reload',
+          });
+          return [];
+        }
+      },
+    },
     ...viteReact({
       jsxRuntime: 'automatic',
-      jsxImportSource: 'virtual:servite-dist/jsx', // virtual:servite-dist/jsx/jsx-runtime
+      jsxImportSource: 'virtual:servite-dist/jsx', // servite/jsx-runtime
       babel(_id, opts) {
         return opts.ssr ? { plugins: [babelJsxIsland] } : {};
       },
