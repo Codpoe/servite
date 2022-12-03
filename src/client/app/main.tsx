@@ -135,6 +135,7 @@ async function waitForPageReady({
       context.appState = {
         pagePath,
         pageData,
+        pageModule,
         loaderData,
       };
     }

@@ -49,7 +49,10 @@ export interface SSREntryRenderContext {
   helmetContext: Partial<FilledContext>;
   routeMatches?: RouteMatch[];
   islands?: Island[];
-  appState?: Pick<AppState, 'pagePath' | 'pageData' | 'loaderData'>;
+  appState?: Pick<
+    AppState,
+    'pagePath' | 'pageData' | 'pageModule' | 'loaderData'
+  >;
 }
 
 export interface SSREntryRenderResult {
