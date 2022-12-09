@@ -13,6 +13,7 @@ import ora from 'ora';
 import colors from 'picocolors';
 import { gzipSizeSync } from 'gzip-size';
 import { RollupOutput } from 'rollup';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
 import { Page } from '../../shared/types.js';
 import { unwrapViteId } from '../../shared/utils.js';
 import { initNitro } from '../nitro/init.js';
@@ -55,7 +56,17 @@ class Builder {
           name: 'servite:build:base',
           enforce: 'post',
           config() {
-            return extraConfig;
+            return {
+              ...extraConfig,
+              build: {
+                ...extraConfig?.build,
+                rollupOptions: {
+                  ...extraConfig?.build?.rollupOptions,
+                  // add `nodeResolve` to fix resolve `chalk` package.json imports
+                  plugins: [nodeResolve() as any],
+                },
+              },
+            };
           },
           async configResolved(config) {
             viteConfig = config;

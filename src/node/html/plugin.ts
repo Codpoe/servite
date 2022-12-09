@@ -16,15 +16,18 @@ export function serviteHtml({
   return {
     name: 'servite:html',
     enforce: 'post',
-    async config(config) {
-      const root = path.resolve(config.root || '');
+    async config(config, { command }) {
+      if (command === 'build' && !isClientBuild) {
+        return;
+      }
 
+      const root = path.resolve(config.root || '');
       const target = path.resolve(root, 'node_modules/.servite/index.html');
       const customHtmlFile = path.resolve(root, 'src/index.html');
 
       if (fs.existsSync(customHtmlFile)) {
         if (fs.existsSync(target)) {
-          await fs.unlink(target);
+          await fs.rm(target);
         }
         await fs.link(customHtmlFile, target);
       } else {

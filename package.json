@@ -75,12 +75,13 @@
     "rollup": "^2.77.0",
     "tsx": "^3.11.0",
     "typescript": "^4.7.4",
-    "vite": "^3.2.4"
+    "vite": "^3.2.5"
   },
   "dependencies": {
     "@babel/core": "^7.19.6",
     "@babel/helper-plugin-utils": "^7.19.0",
     "@babel/preset-react": "^7.18.6",
+    "@rollup/plugin-node-resolve": "^15.0.1",
     "@vitejs/plugin-react": "^2.2.0",
     "cac": "^6.7.12",
     "connect-history-api-fallback": "^2.0.0",
@@ -93,7 +94,6 @@
     "jest-docblock": "^28.1.1",
     "lz-string": "^1.4.4",
     "micromatch": "^4.0.5",
-    "mlly": "^0.5.16",
     "nitropack": "^1.0.0",
     "nprogress": "^0.2.0",
     "ora": "^6.1.2",

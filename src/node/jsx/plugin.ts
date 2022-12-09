@@ -1,7 +1,11 @@
 import { PluginOption } from 'vite';
 import viteReact from '@vitejs/plugin-react';
 import LZString from 'lz-string';
-import { ISLANDS_MODULE_ID_PREFIX, ISLAND_SPLITTER } from '../constants.js';
+import {
+  ISLANDS_MODULE_ID_PREFIX,
+  ISLAND_SPLITTER,
+  JSX_DIR,
+} from '../constants.js';
 import { babelJsxIsland } from './babel.js';
 
 export function serviteJsx(): PluginOption[] {
@@ -73,7 +77,7 @@ export function serviteJsx(): PluginOption[] {
     },
     ...viteReact({
       jsxRuntime: 'automatic',
-      jsxImportSource: 'virtual:servite-dist/jsx', // servite/jsx-runtime
+      jsxImportSource: JSX_DIR,
       babel(_id, opts) {
         return opts.ssr ? { plugins: [babelJsxIsland] } : {};
       },

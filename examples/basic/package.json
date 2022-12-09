@@ -17,6 +17,6 @@
     "@types/react-dom": "^18.0.6",
     "servite": "workspace:*",
     "typescript": "^4.6.4",
-    "vite": "^3.2.4"
+    "vite": "^3.2.5"
   }
 }

@@ -3,6 +3,7 @@ import path from 'upath';
 
 export const PKG_DIR = path.resolve(fileURLToPath(import.meta.url), '../../..');
 export const DIST_DIR = path.resolve(PKG_DIR, 'dist');
+export const JSX_DIR = path.resolve(DIST_DIR, 'jsx');
 export const SERVER_DIR = path.resolve(DIST_DIR, 'server');
 export const CLIENT_DIR = path.resolve(DIST_DIR, 'client');
 export const APP_DIR = path.resolve(CLIENT_DIR, 'app');

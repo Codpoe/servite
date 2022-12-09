@@ -42,6 +42,19 @@ export function servite(userServiteConfig?: UserServiteConfig): PluginOption[] {
               'ufo',
             ],
           },
+          build: {
+            commonjsOptions: {
+              include: [
+                /react/,
+                /react-dom/,
+                /scheduler/,
+                /prop-types/,
+                /shallowequal/,
+                /invariant/,
+                /nprogress/,
+              ],
+            },
+          },
         };
       },
       async configureServer(server) {
