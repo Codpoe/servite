@@ -1,11 +1,6 @@
 import React, { useTransition } from 'react';
-import {
-  matchRoutes,
-  resolvePath,
-  To,
-  useLinkClickHandler,
-} from 'react-router-dom';
-import { useHref, useLocation } from '../router';
+import { matchRoutes, resolvePath, To } from 'react-router-dom';
+import { useHref, useLocation, useLinkClickHandler } from '../router';
 import { hasIslands } from '../constants.js';
 import { useAppState } from '../context.js';
 import { useNProgress } from '../hooks/useNProgress.js';

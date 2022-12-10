@@ -47,7 +47,6 @@ export {
   BrowserRouterProps,
   HashRouter,
   HashRouterProps,
-  useLinkClickHandler,
   useSearchParams,
   ParamKeyValuePair,
   URLSearchParamsInit,
@@ -57,7 +56,13 @@ export {
 export { Helmet } from 'react-helmet-async';
 
 export { isBrowser, ssrData } from './app/constants.js';
-export { useHref, useLocation, useMatch, useNavigate } from './app/router.js';
+export {
+  useHref,
+  useLocation,
+  useMatch,
+  useNavigate,
+  useLinkClickHandler,
+} from './app/router.js';
 export { useAppState, useLoaderData } from './app/context.js';
 export * from './app/types.js';
 export * from './app/components/Link.js';

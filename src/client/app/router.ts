@@ -1,15 +1,19 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   useHref as _useHref,
   useLocation as _useLocation,
   useMatch as _useMatch,
   useNavigate as _useNavigate,
+  useLinkClickHandler as _useLinkClickHandler,
   NavigateFunction,
   matchPath,
   resolvePath,
 } from 'react-router-dom';
-import { resolveURL } from 'ufo';
+import { resolveURL, withoutBase } from 'ufo';
 import { hasIslands, isBrowser } from './constants.js';
+
+const basename = import.meta.env.BASE_URL;
 
 function warn(api: string, extraMsg?: string) {
   if (!import.meta.env.PROD && isBrowser) {
@@ -36,13 +40,12 @@ function warn(api: string, extraMsg?: string) {
 export const useHref: typeof _useHref = to => {
   if (hasIslands) {
     // warn('useHref');
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     return useMemo(() => {
       const { pathname, search, hash } = resolvePath(
         to,
         window.location.pathname
       );
-      return new URL(resolveURL(pathname, search, hash)).href;
+      return resolveURL(basename, pathname, search, hash);
     }, [to]);
   }
 
@@ -58,8 +61,15 @@ export const useHref: typeof _useHref = to => {
 export const useLocation: typeof _useLocation = () => {
   if (hasIslands) {
     // warn('useLocation', 'It will always return `window.location`');
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    return useMemo(() => ({ ...window.location, state: null, key: '' }), []);
+    return useMemo(
+      () => ({
+        ...window.location,
+        pathname: withoutBase(window.location.pathname, basename),
+        state: null,
+        key: '',
+      }),
+      []
+    );
   }
   return _useLocation();
 };
@@ -74,9 +84,8 @@ export const useLocation: typeof _useLocation = () => {
 export const useMatch: typeof _useMatch = pattern => {
   if (hasIslands) {
     // warn('useMatch', 'It will run matchPath() with `window.location.pathname`');
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     return useMemo(
-      () => matchPath(pattern, window.location.pathname),
+      () => matchPath(pattern, withoutBase(window.location.pathname, basename)),
       [pattern]
     );
   }
@@ -97,7 +106,7 @@ export const useNavigate: typeof _useNavigate = () => {
   });
 
   if (hasIslands) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks, react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     return useCallback(
       ((to, options) => {
         if (!activeRef.current) {
@@ -111,7 +120,7 @@ export const useNavigate: typeof _useNavigate = () => {
 
         const { pathname, search, hash } = resolvePath(
           to,
-          window.location.pathname
+          withoutBase(window.location.pathname, basename)
         );
 
         (options?.replace
@@ -119,7 +128,7 @@ export const useNavigate: typeof _useNavigate = () => {
           : window.history.pushState)(
           options?.state,
           '',
-          resolveURL(pathname, search, hash)
+          resolveURL(basename, pathname, search, hash)
         );
       }) as NavigateFunction,
       []
@@ -128,3 +137,38 @@ export const useNavigate: typeof _useNavigate = () => {
 
   return _useNavigate();
 };
+
+export const useLinkClickHandler: typeof _useLinkClickHandler = (
+  to,
+  options
+) => {
+  if (hasIslands) {
+    const { target, replace, state } = options || {};
+    const navigate = useNavigate();
+
+    return useCallback(
+      event => {
+        if (
+          event.button === 0 && // Ignore everything but left clicks
+          (!target || target === '_self') && // Let browser handle "target=_blank" etc.
+          !isModifiedEvent(event) // Ignore clicks with modifier keys
+        ) {
+          event.preventDefault(); // If the URL hasn't changed, a regular <a> will do a replace instead of
+          // a push, so do the same here.
+
+          navigate(to, {
+            replace,
+            state,
+          });
+        }
+      },
+      [navigate, target, replace, state, to]
+    );
+  }
+
+  return _useLinkClickHandler(to, options);
+};
+
+function isModifiedEvent(event: any) {
+  return !!(event.metaKey || event.altKey || event.ctrlKey || event.shiftKey);
+}
