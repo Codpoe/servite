@@ -1,0 +1,41 @@
+{
+  "name": "docs",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && servite build"
+  },
+  "dependencies": {
+    "@docsearch/css": "^3.3.0",
+    "@docsearch/react": "^3.3.0",
+    "@mdx-js/react": "^2.1.5",
+    "lodash-es": "^4.17.21",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-transition-group": "^4.4.5",
+    "servite": "workspace:*",
+    "tailwindcss": "^3.2.4"
+  },
+  "devDependencies": {
+    "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
+    "@iconify-json/carbon": "^1.1.11",
+    "@iconify-json/twemoji": "^1.1.6",
+    "@iconify-json/uiw": "^1.1.3",
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "@svgr/core": "^6.5.1",
+    "@types/lodash-es": "^4.17.6",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "@types/react-transition-group": "^4.4.5",
+    "autoprefixer": "^10.4.13",
+    "postcss-import": "^15.0.0",
+    "tailwind-typography": "^0.1.0",
+    "typescript": "^4.6.3",
+    "unplugin-icons": "^0.14.14",
+    "vite": "^3.2.5",
+    "vite-plugin-mdx-plus": "^0.1.2",
+    "vite-plugin-ts-alias": "^0.1.1"
+  }
+}

@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  svg {
+    display: inline-block;
+  }
+
+  button:focus {
+    outline: none;
+  }
+}
+
+html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  background-color: var(--c-bg-0);
+  color: var(--c-text-1);
+  font-size: 16px;
+  scroll-behavior: smooth;
+  scroll-padding-top: 96px;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+}
+
+html.dark .code-theme-light {
+  display: none;
+}
+
+html:not(.dark) .code-theme-dark {
+  display: none;
+}

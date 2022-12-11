@@ -1,0 +1,88 @@
+/* Based on VuePress theme */
+:root {
+  /* brand colors */
+  --c-brand: #21b8a3;
+  --c-brand-light: #41c6b0;
+  --c-brand-dark: #149684;
+
+  /* background colors */
+  --c-bg-0: #ffffff;
+  --c-bg-1: theme('colors.gray.100');
+  --c-bg-2: theme('colors.gray.200');
+
+  /* text colors */
+  --c-text-0: theme('colors.gray.800');
+  --c-text-1: theme('colors.gray.700');
+  --c-text-2: theme('colors.gray.500');
+  --c-text-3: theme('colors.gray.400');
+
+  /* border colors */
+  --c-border-0: theme('colors.gray.100');
+  --c-border-1: theme('colors.gray.200');
+  --c-border-2: theme('colors.gray.300');
+
+  --c-callout-tip: theme('colors.emerald.600');
+  --c-callout-info: theme('colors.sky.600');
+  --c-callout-warning: theme('colors.amber.600');
+  --c-callout-danger: theme('colors.red.600');
+
+  /* size */
+  --header-height: 56px;
+  --banner-height: 24px;
+  --sidebar-indicator-height: 36px;
+  --left-aside-width: 256px;
+  --right-aside-width: 256px;
+
+  /* z-index */
+  --z-index-sidebar: 10;
+  --z-index-sidebar-indicator: 10;
+  --z-index-header: 20;
+  --z-index-nav-screen: 20;
+  --z-index-sidebar-mask: 30;
+  --z-index-sidebar-drawer: 40;
+  --z-index-nprogress: 1000;
+}
+
+.DocSearch {
+  --docsearch-primary-color: var(--c-brand);
+  --docsearch-text-color: var(--c-text-1);
+  --docsearch-highlight-color: var(--c-brand);
+  --docsearch-muted-color: var(--c-text-2);
+  --docsearch-container-background: rgba(9, 10, 17, 0.8);
+  --docsearch-modal-background: var(--c-bg-2);
+  --docsearch-searchbox-background: var(--c-bg-0);
+  --docsearch-searchbox-focus-background: var(--c-bg-0);
+  --docsearch-searchbox-shadow: inset 0 0 0 2px var(--c-brand);
+  --docsearch-hit-color: var(--c-text-1);
+  --docsearch-hit-active-color: var(--c-bg-0);
+  --docsearch-hit-background: var(--c-bg-0);
+  --docsearch-footer-background: var(--c-bg-0);
+}
+
+html.dark {
+  /* background colors */
+  --c-bg-0: #22272e;
+  --c-bg-1: #2d333b;
+  --c-bg-2: #343a43;
+
+  /* text colors */
+  --c-text-0: theme('colors.gray.200');
+  --c-text-1: theme('colors.gray.300');
+  --c-text-2: theme('colors.gray.400');
+  --c-text-3: theme('colors.gray.500');
+
+  /* border colors */
+  --c-border-0: theme('colors.gray.800');
+  --c-border-1: theme('colors.gray.700');
+  --c-border-2: theme('colors.gray.600');
+}
+
+html.dark .DocSearch {
+  --docsearch-logo-color: var(--c-text);
+  --docsearch-modal-shadow: inset 1px 1px 0 0 #2c2e40, 0 3px 8px 0 #000309;
+  --docsearch-key-shadow: inset 0 -2px 0 0 #282d55, inset 0 0 1px 1px #51577d,
+    0 2px 2px 0 rgba(3, 4, 9, 0.3);
+  --docsearch-key-gradient: linear-gradient(-225deg, #444950, #1c1e21);
+  --docsearch-footer-shadow: inset 0 1px 0 0 rgba(73, 76, 106, 0.5),
+    0 -4px 8px 0 rgba(0, 0, 0, 0.2);
+}

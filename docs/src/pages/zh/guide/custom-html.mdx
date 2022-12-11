@@ -1,0 +1,28 @@
+# 自定义 HTML
+
+默认情况下，servite 会使用内置的 HTML 模板：
+
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <body>
+    <noscript>
+      We're sorry but react app doesn't work properly without JavaScript
+      enabled. Please enable it to continue.
+    </noscript>
+  </body>
+</html>
+```
+
+如果想自定义 HTML，可以在 `src` 目录下新建 `index.html` 文件，这样 servite 就会使用该文件作为渲染的基础 HTML 模板和构建入口了。
+
+:::tip
+
+- 在 HTML 中并不需要写应用的挂载点，因为 servite 会自动生成一个 id 为 "root" 的元素作为挂载点。
+- 对于 SSR 应用，可以从 `servite/client` 中导出 `Helmet` 组件，使用该组件就可以
+  定制 HTML head 的内容，所以很多情况下可能并不需要自定义 HTML 文件。
+  :::

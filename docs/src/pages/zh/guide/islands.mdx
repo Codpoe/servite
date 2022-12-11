@@ -1,0 +1,42 @@
+# islands - 孤岛架构
+
+## 介绍
+
+Islands Architecture（孤岛架构）的概念最初在 2019 年被 [Katie Sylor-Miller](https://twitter.com/ksylor) 提出，
+然后在 2020 年被 Preact 作者 Jason Miller 在[一篇文章](https://jasonformat.com/islands-architecture/)中进行了推广。
+简单来说，孤岛架构将我们的 Web 应用划分为静态和动态部分。其中的**动态孤岛**可以独立进行水合，以实现它的交互能力。
+
+servite 实现了 SSG 时的孤岛架构能力。相比单纯的 SSG，孤岛架构更进一步地提高了应用性能，
+因为它只需对部分孤岛组件进行水合，也就只需下载部分组件的脚本代码，甚至能做到 `0 JS`。
+你现在看到的 servite 文档就使用了 SSG + 孤岛架构 👀。
+
+## 使用
+
+### 开启 SSG
+
+再次，servite 的孤岛架构能力依赖于 SSG，所以需要先设置 `ssg: true`，
+或者对那些需要使用孤岛架构的页面开启 SSG，例如假设只有 `/guide` 要用孤岛架构，则设置：`ssg: ['/guide']`。
+
+### 标记孤岛
+
+请把你的整个 Web 应用想象成一片静态的汪洋大海，然后从中找出需要交互能力的组件，即动态的孤岛，
+接着对这些孤岛进行标记。例如当前你看到的 servite 文档里，整个站点基本都是静态的，而右上角的切换主题按钮由于需要响应用户点击事件进行切换主题，
+它就可以被认为是一个孤岛。
+
+我们在代码里可以使用双下划线开头的 `__island` 属性来把这个组件标记为孤岛组件：
+
+```ts
+<ThemeModeSwitch __island="load" />
+```
+
+这样当页面加载时只会下载这一个组件的代码，其他组件直出 HTML。
+
+### 孤岛水合时机
+
+上面 `__island="load"` 的 `load` 表示在页面加载时立即水合该组件，
+除此之外 servite 还支持了其他的水合时机：
+
+- `__island="idle"` 表示在浏览器空闲时才下载并水合该组件。
+  内部的实现使用了浏览器的 requestIdleCallback 方法。
+- `__island="visible"` 表示在组件可见时才下载并水合。内部的实现使用了 IntersectionObserver。
+- `__island="media" __islandOpts="(max-width: 600px)"` 表示当浏览器宽度 ≤ 600px 时才下载并水合该组件。

@@ -1,0 +1,56 @@
+.callout {
+  position: relative;
+}
+
+.callout-bg {
+  opacity: 0.1;
+  z-index: -1;
+}
+
+.callout-tip {
+  & .callout-bg {
+    background-color: var(--c-callout-tip);
+  }
+
+  & .callout-header {
+    color: var(--c-callout-tip);
+  }
+}
+
+.callout-info {
+  & .callout-bg {
+    background-color: var(--c-callout-info);
+  }
+
+  & .callout-header {
+    color: var(--c-callout-info);
+  }
+}
+
+.callout-warning {
+  & .callout-bg {
+    background-color: var(--c-callout-warning);
+  }
+
+  & .callout-header {
+    color: var(--c-callout-warning);
+  }
+}
+
+.callout-danger {
+  & .callout-bg {
+    background-color: var(--c-callout-danger);
+  }
+
+  & .callout-header {
+    color: var(--c-callout-danger);
+  }
+}
+
+.callout-content > *:first-child {
+  margin-top: 0 !important;
+}
+
+.callout-content > *:last-child {
+  margin-bottom: 0 !important;
+}

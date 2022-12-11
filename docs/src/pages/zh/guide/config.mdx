@@ -1,0 +1,67 @@
+# 配置
+
+用户配置的 TS 类型如下:
+
+```ts
+interface UserServiteConfig {
+  /**
+   * Directory for finding pages
+   * @default [{ dir: 'src/pages' }]
+   */
+  pagesDirs?: PagesDir[];
+  /**
+   * Prerender routes (Static Site Generate)
+   *
+   * supports glob patterns
+   * @default false
+   */
+  ssg?: boolean | string[];
+  /**
+   * Switch to CSR (Client Side Rendering)
+   * @default false
+   */
+  csr?: boolean;
+  /**
+   * Nitro config
+   * @see https://github.com/unjs/nitro
+   */
+  nitro?: NitroConfig;
+}
+```
+
+## pagesDirs
+
+`pagesDirs?: PagesDir[]`。
+
+```ts
+interface PagesDir {
+  base?: string;
+  dir: string;
+  ignore?: string[];
+}
+```
+
+配置页面目录，默认值是 `[{ dir: 'src/pages' }]`，即在默认情况下插件会将 `src/pages` 作为页面目录。
+
+- 如果想设置特定的路由前缀，可设置 `base` 属性。
+- 如果想忽略特定的目录/文件，可设置 `ignore` 属性（glob 格式）。
+
+## ssg
+
+`ssg?: boolean | string[]`。
+
+配置 SSG（静态页面生成），默认值是 `false`，即不开启 SSG。
+
+- 设置 `ssg: true`，开启全部路由的 SSG。
+- 如果只想开启部分路由的 SSG，可传递路由数组（glob 格式）。
+  例如开启根页面 `/` 和 `/docs` 下页面的 ssg，可以这么设置：`ssg: ['/', '/docs/**/*']`。
+
+## csr
+
+`csr?: boolean`。
+
+配置是否开启 CSR（客户端渲染），默认值是 `false`，即不开启 CSR。
+
+## nitro
+
+配置 [Nitro](https://github.com/unjs/nitro)。

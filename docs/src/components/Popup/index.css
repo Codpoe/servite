@@ -1,0 +1,21 @@
+.anim-popup-enter {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+.anim-popup-enter-active {
+  opacity: 1;
+  transform: translateY(0px);
+  transition: all 0.2s;
+}
+
+.anim-popup-exit {
+  transform: translateY(0px);
+  opacity: 1;
+}
+
+.anim-popup-exit-active {
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: all 0.2s;
+}

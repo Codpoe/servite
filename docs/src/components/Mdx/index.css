@@ -1,0 +1,356 @@
+.markdown-body > *:first-child {
+  margin-top: 0 !important;
+}
+
+.markdown-body > *:last-child {
+  margin-bottom: 0 !important;
+}
+
+.markdown-body > .code-theme-light:nth-last-child(2) {
+  margin-bottom: 0;
+}
+
+.markdown-body .header-anchor {
+  float: left;
+  margin-left: -0.87em;
+  padding-right: 0.23em;
+  font-weight: 500;
+  opacity: 0;
+  transition: color 0.25s, opacity 0.25s;
+}
+
+.markdown-body h1:hover .header-anchor,
+.markdown-body h1 .header-anchor:focus,
+.markdown-body h2:hover .header-anchor,
+.markdown-body h2 .header-anchor:focus,
+.markdown-body h3:hover .header-anchor,
+.markdown-body h3 .header-anchor:focus,
+.markdown-body h4:hover .header-anchor,
+.markdown-body h4 .header-anchor:focus {
+  opacity: 1;
+}
+
+.prose pre code:not([class~='not-prose'] *) {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+  padding: 0.86em 1.14em;
+}
+
+.prose h3 + .code-theme-light + .code-theme-dark:not([class~="not-prose"] *) {
+  margin-top: 0;
+}
+
+.prose .sv-table-wrapper:not([class~="not-prose"] *) {
+  margin-top: 2em;
+  margin-bottom: 2em;
+  overflow-x: auto;
+}
+
+.prose table:not([class~="not-prose"] *) {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.prose thead th:not([class~="not-prose"] *) {
+  white-space: nowrap;
+}
+
+/*
+  https://github.com/vuejs/theme/blob/main/src/core/styles/vt-doc-base.css
+*/
+/*
+.markdown-body {
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--c-text-1);
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  position: relative;
+  font-weight: 600;
+  line-height: 1.5;
+  outline: none;
+  color: var(--c-text-0);
+}
+
+.markdown-body h1 {
+  margin: 0 0 3rem;
+  font-size: 38px;
+  line-height: 1.4;
+  letter-spacing: -0.02em;
+}
+
+.markdown-body h2 {
+  margin: 4rem 0 1.8rem;
+  border-top: 1px solid var(--c-border-1);
+  padding-top: 1.8rem;
+  font-size: 24px;
+  letter-spacing: -0.02em;
+}
+
+@media (max-width: 768px) {
+  .markdown-body h1 {
+    font-size: 32px;
+    margin-bottom: 1.8rem;
+  }
+  .markdown-body h1 + h2 {
+    margin-top: 36px;
+  }
+}
+
+.markdown-body h3 {
+  font-size: 19px;
+  letter-spacing: -0.01em;
+  margin: 3rem 0 1.25rem;
+}
+
+.markdown-body h2 + h3 {
+  margin-top: 0;
+}
+
+.markdown-body h4 {
+  font-size: 17px;
+  margin: 1.8rem 0 1rem;
+}
+
+.markdown-body .header-anchor {
+  float: left;
+  margin-left: -0.87em;
+  padding-right: 0.23em;
+  font-weight: 500;
+  opacity: 0;
+  transition: color 0.25s, opacity 0.25s;
+}
+
+.markdown-body h1:hover .header-anchor,
+.markdown-body h1 .header-anchor:focus,
+.markdown-body h2:hover .header-anchor,
+.markdown-body h2 .header-anchor:focus,
+.markdown-body h3:hover .header-anchor,
+.markdown-body h3 .header-anchor:focus,
+.markdown-body h4:hover .header-anchor,
+.markdown-body h4 .header-anchor:focus,
+.markdown-body h5:hover .header-anchor,
+.markdown-body h5 .header-anchor:focus,
+.markdown-body h6:hover .header-anchor,
+.markdown-body h6 .header-anchor:focus {
+  opacity: 1;
+}
+
+.markdown-body hr {
+  border: none;
+  border-top: 1px solid var(--c-border-1);
+  margin: 1.8rem 0;
+}
+
+.markdown-body p,
+.markdown-body ul,
+.markdown-body ol,
+.markdown-body summary {
+  margin-bottom: 1.2em;
+}
+
+.markdown-body a {
+  font-weight: 500;
+  color: var(--c-brand);
+  transition: color 0.25s;
+  text-decoration-style: dotted;
+}
+
+.markdown-body a:hover {
+  color: var(--c-brand-dark);
+}
+
+.markdown-body strong {
+  font-weight: 600;
+}
+
+.markdown-body table {
+  display: block;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  overflow-x: auto;
+}
+
+.markdown-body tr {
+  border-top: 1px solid var(--c-border-1);
+  transition: background-color 0.5s;
+}
+
+.markdown-body tr:nth-child(2n) {
+  background-color: var(--c-bg-1);
+}
+
+.markdown-body th,
+.markdown-body td {
+  border: 1px solid var(--c-border-1);
+  padding: 0.6em 1em;
+}
+
+.markdown-body blockquote {
+  margin: 1rem 0;
+  border-left: 0.2rem solid var(--c-brand);
+  padding-left: 1rem;
+}
+
+.markdown-body blockquote > p {
+  margin: 0;
+  font-size: 16px;
+  color: var(--c-text-2);
+}
+
+.markdown-body figure {
+  margin: 0;
+}
+
+.markdown-body img {
+  max-width: 100%;
+}
+
+.markdown-body p > img {
+  margin: 28px auto;
+}
+
+.markdown-body ol {
+  counter-reset: item;
+}
+.markdown-body ol[start='2'] {
+  counter-reset: item 1;
+}
+.markdown-body ol[start='3'] {
+  counter-reset: item 2;
+}
+.markdown-body ol[start='4'] {
+  counter-reset: item 3;
+}
+.markdown-body ol[start='5'] {
+  counter-reset: item 4;
+}
+.markdown-body ol[start='6'] {
+  counter-reset: item 5;
+}
+.markdown-body ol[start='7'] {
+  counter-reset: item 6;
+}
+.markdown-body ol[start='8'] {
+  counter-reset: item 7;
+}
+.markdown-body ol[start='9'] {
+  counter-reset: item 8;
+}
+.markdown-body ol[start='10'] {
+  counter-reset: item 9;
+}
+
+.markdown-body ol > li {
+  counter-increment: item;
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.markdown-body ol > li:before {
+  position: absolute;
+  left: 2px;
+  top: 1px;
+  font-weight: bold;
+  font-size: 14px;
+  color: var(--c-text-2);
+  content: counter(item) '.';
+}
+
+@media (min-width: 768px) {
+  .markdown-body ol > li:before {
+    top: 2px;
+  }
+}
+
+.markdown-body li {
+  position: relative;
+  margin: 1px 0;
+}
+
+.markdown-body ul {
+  padding-left: 1.25rem;
+}
+
+.markdown-body ul > li:before {
+  content: '';
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: var(--c-text-2);
+  transition: background-color 0.5s;
+  left: -1.25rem;
+  top: 0.75rem;
+}
+
+.markdown-body .video::before {
+  display: block;
+  content: '';
+  padding-top: 56.25%;
+}
+
+.markdown-body .video {
+  overflow: hidden;
+  width: calc(100% + 48px);
+  min-width: 415px;
+  position: relative;
+  margin: 0 -24px 18px;
+}
+
+.markdown-body .video-content {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+@media (min-width: 640px) {
+  .markdown-body .video {
+    border-radius: 8px;
+  }
+}
+
+@media (max-width: 463px) {
+  .markdown-body .video {
+    width: 100%;
+    margin: 0 calc((100vw - 463px) / 2) 18px;
+  }
+}
+*/
+
+/* inline code */
+/*
+.markdown-body :not(pre) > code {
+  padding: 0.15em 0.5em;
+  border-radius: 4px;
+  color: var(--c-text-0);
+  opacity: 0.8;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.markdown-body a > code {
+  color: var(--c-brand-dark);
+}
+
+.markdown-body :not(pre, h1, h2, h3, h4, h5, h6) > code {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  .vt-doc :not(pre) > code {
+    white-space: nowrap;
+  }
+}
+*/
