@@ -1,12 +1,6 @@
 import { useState } from 'react';
 import './Counter.css';
 
-declare module 'react' {
-  interface Attributes {
-    __island?: 'load' | 'idle' | 'visible' | 'media';
-  }
-}
-
 export function Counter({
   children,
   initialCount = 0,

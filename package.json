@@ -24,16 +24,14 @@
     "dist",
     "server.d.ts",
     "client.d.ts",
-    "types.d.ts"
+    "global.d.ts"
   ],
   "main": "dist/node/index.js",
   "types": "dist/node/index.d.ts",
   "exports": {
     ".": "./dist/node/index.js",
     "./server": "./dist/server/index.js",
-    "./client": "./dist/client/index.js",
-    "./jsx-runtime": "./dist/jsx/jsx-runtime.js",
-    "./jsx-dev-runtime": "./dist/jsx/jsx-dev-runtime.js"
+    "./client": "./dist/client/index.js"
   },
   "bin": {
     "servite": "bin/servite.js"
