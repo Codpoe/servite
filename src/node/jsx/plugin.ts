@@ -6,27 +6,23 @@ import {
   ISLAND_SPLITTER,
   JSX_DIR,
 } from '../constants.js';
+import { ServiteConfig } from '../types.js';
 import { babelJsxIsland } from './babel.js';
 
-export function serviteJsx(): PluginOption[] {
+export interface ServiteJsxPluginConfig {
+  serviteConfig: ServiteConfig;
+}
+
+export function serviteJsx({
+  serviteConfig,
+}: ServiteJsxPluginConfig): PluginOption[] {
+  const babel = serviteConfig.react?.babel;
   const islands = new Set<string>();
 
   return [
-    {
-      name: 'servite:jsx',
-      transform(code, id, opts) {
-        // @vitejs/plugin-react do not compile files in node_modules,
-        // so we should compile them here.
-        if (
-          opts?.ssr &&
-          id.includes('/node_modules/') &&
-          id.includes('/servite/') &&
-          /\.tsx?$/.test(id)
-        ) {
-          // TODO
-        }
-      },
-    },
+    // {
+    //   name: 'servite:jsx',
+    // },
     {
       name: 'servite:islands',
       // If the module name is too long,
@@ -76,10 +72,19 @@ export function serviteJsx(): PluginOption[] {
       },
     },
     ...viteReact({
+      ...serviteConfig.react,
       jsxRuntime: 'automatic',
       jsxImportSource: JSX_DIR,
-      babel(_id, opts) {
-        return opts.ssr ? { plugins: [babelJsxIsland] } : {};
+      babel(id, opts) {
+        const babelOptions =
+          typeof babel === 'function' ? babel(id, opts) : babel || {};
+
+        return opts.ssr
+          ? {
+              ...babelOptions,
+              plugins: [babelJsxIsland, ...(babelOptions?.plugins || [])],
+            }
+          : babelOptions;
       },
     }),
   ];

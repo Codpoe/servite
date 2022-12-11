@@ -16,11 +16,13 @@ declare module 'virtual:servite/custom-server-render' {
   import { ReactElement } from 'react';
   import { SSREntryRenderResult } from '../shared/types';
 
-  export const render:
+  const render:
     | ((
         element: ReactElement
       ) => SSREntryRenderResult | Promise<SSREntryRenderResult>)
     | undefined;
+
+  export default render;
 }
 
 declare const __HASH_ROUTER__: boolean;

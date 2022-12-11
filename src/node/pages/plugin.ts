@@ -128,9 +128,9 @@ export function servitePages({
         const customServerRenderFile = findServerRender(viteConfig.root);
 
         if (customServerRenderFile) {
-          return `export { render } from '/@fs/${customServerRenderFile}';`;
+          return `import render from '/@fs/${customServerRenderFile}';\nexport default render;`;
         }
-        return `export const render = undefined;`;
+        return `export default undefined;`;
       }
     },
     async transform(code, id) {

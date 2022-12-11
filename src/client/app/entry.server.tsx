@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import { StaticRouter } from 'react-router-dom/server.js';
 import { withoutBase, withoutTrailingSlash } from 'ufo';
-import { render as customRender } from 'virtual:servite/custom-server-render';
+import customRender from 'virtual:servite/custom-server-render';
 import { islands } from 'virtual:servite-dist/jsx/jsx-runtime';
 import { islands as devIslands } from 'virtual:servite-dist/jsx/jsx-dev-runtime';
 import type {
