@@ -11,6 +11,13 @@
   ],
   "author": "Codpoe <codpoe.me@gmail.com>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Codpoe/servite.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Codpoe/servite/issues"
+  },
   "type": "module",
   "files": [
     "bin",
