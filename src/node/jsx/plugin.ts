@@ -63,7 +63,7 @@ export function serviteJsx({
       name: 'servite:islands-hmr',
       enforce: 'post',
       handleHotUpdate(ctx) {
-        if (islands.has(ctx.file)) {
+        if (islands.size && !islands.has(ctx.file)) {
           ctx.server.ws.send({
             type: 'full-reload',
           });
