@@ -50,8 +50,12 @@
       "commitMessage": "chore: release v${version}"
     },
     "hooks": {
-      "before:init": ["npm run lint"],
-      "after:bump": ["npm run build"]
+      "before:init": [
+        "npm run lint"
+      ],
+      "after:bump": [
+        "npm run build"
+      ]
     },
     "plugins": {
       "@release-it/conventional-changelog": {
