@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet } from 'servite/client';
 import './layout.css';
 
 export default function Layout() {

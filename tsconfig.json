@@ -4,19 +4,10 @@
     "module": "ESNext",
     "moduleResolution": "Node",
     "lib": ["ESNext", "DOM"],
-    "types": ["vite/client"],
     "jsx": "react-jsx",
     "declaration": true,
     "esModuleInterop": true,
     "strict": true,
-    "skipLibCheck": true,
-    "outDir": "dist",
-    "baseUrl": ".",
-    "paths": {
-      "#internal/nitro": ["./node_modules/nitropack/dist/runtime"],
-      "virtual:servite/*": ["./src/server/virtual/*"],
-      "virtual:servite-dist/*": ["./src/*"]
-    }
-  },
-  "include": ["src"]
+    "skipLibCheck": true
+  }
 }

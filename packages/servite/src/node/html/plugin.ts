@@ -5,19 +5,17 @@ import { ServiteConfig } from '../types.js';
 import { APP_HTML_FILE, FS_PREFIX_CLIENT_ENTRY } from '../constants.js';
 
 export interface ServiteHtmlPluginConfig {
-  serviteConfig?: ServiteConfig;
-  isClientBuild?: boolean;
+  serviteConfig: ServiteConfig;
 }
 
 export function serviteHtml({
   serviteConfig,
-  isClientBuild,
 }: ServiteHtmlPluginConfig): Plugin {
   return {
     name: 'servite:html',
     enforce: 'post',
-    async config(config, { command }) {
-      if (command === 'build' && !isClientBuild) {
+    async config(config) {
+      if (process.env.SERVITE_SSR_BUILD || process.env.SERVITE_ISLANDS_BUILD) {
         return;
       }
 
@@ -29,24 +27,22 @@ export function serviteHtml({
         if (fs.existsSync(target)) {
           await fs.rm(target);
         }
-        await fs.link(customHtmlFile, target);
+        await fs.ensureLink(customHtmlFile, target);
       } else {
         await fs.copy(APP_HTML_FILE, target);
       }
 
-      if (serviteConfig?.csr || isClientBuild) {
-        return {
-          build: {
-            rollupOptions: {
-              input: target,
-            },
+      return {
+        build: {
+          rollupOptions: {
+            input: target,
           },
-        };
-      }
+        },
+      };
     },
     transformIndexHtml: {
-      enforce: 'pre',
-      transform(html) {
+      order: 'pre',
+      handler(html) {
         const htmlTags: HtmlTagDescriptor[] = [];
 
         // inject div#root
@@ -61,7 +57,7 @@ export function serviteHtml({
         }
 
         // inject client entry
-        if (serviteConfig?.csr || isClientBuild) {
+        if (serviteConfig?.csr || process.env.SERVITE_CLIENT_BUILD) {
           htmlTags.push({
             tag: 'script',
             attrs: {
@@ -75,7 +71,7 @@ export function serviteHtml({
         return htmlTags;
       },
     },
-    ...((serviteConfig?.csr || isClientBuild) && {
+    ...((serviteConfig?.csr || process.env.SERVITE_CLIENT_BUILD) && {
       async generateBundle(_options, bundle) {
         Object.values(bundle).forEach(chunk => {
           if (

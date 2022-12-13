@@ -42,4 +42,5 @@ To check out docs, visit https://servite.vercel.app.
 - [x] default 404 page
 - [x] support custom html template
 - [x] islands hot reload
-- [ ] upgrade to vite@4
+- [x] upgrade to vite@4
+- [ ] create-servite

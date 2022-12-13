@@ -38,9 +38,20 @@ export function servite(userServiteConfig?: UserServiteConfig): PluginOption[] {
               'react/jsx-dev-runtime',
               'react-dom',
               'react-dom/client',
-              'nprogress',
-              'ufo',
+              'servite > nprogress',
             ],
+          },
+          ssr: {
+            optimizeDeps: {
+              disabled: 'build',
+              include: [
+                'servite > react-helmet-async > prop-types',
+                'servite > react-helmet-async > react-fast-compare',
+                'servite > react-helmet-async > invariant',
+                'servite > react-helmet-async > shallowequal',
+                'servite > nprogress',
+              ],
+            },
           },
           build: {
             commonjsOptions: {
@@ -51,6 +62,7 @@ export function servite(userServiteConfig?: UserServiteConfig): PluginOption[] {
                 /prop-types/,
                 /shallowequal/,
                 /invariant/,
+                /object-assign/,
                 /nprogress/,
               ],
             },

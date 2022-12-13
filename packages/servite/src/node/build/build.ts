@@ -19,7 +19,6 @@ import { unwrapViteId } from '../../shared/utils.js';
 import { initNitro } from '../nitro/init.js';
 import { SSR_ENTRY_FILE } from '../constants.js';
 import { ServiteConfig } from '../types.js';
-import { serviteHtml } from '../html/plugin.js';
 
 export async function build(inlineConfig: InlineConfig) {
   return new Builder(inlineConfig).build();
@@ -102,19 +101,19 @@ class Builder {
   };
 
   clientBuild = async () => {
+    process.env.SERVITE_CLIENT_BUILD = '1';
+
     return this.baseBuild({
       build: {
         ssrManifest: true, // generate ssr manifest while client bundle
       },
-      plugins: [serviteHtml({ isClientBuild: true })],
     });
   };
 
   ssrBuild = async () => {
+    process.env.SERVITE_SSR_BUILD = '1';
+
     return this.baseBuild({
-      ssr: {
-        noExternal: ['servite'],
-      },
       build: {
         outDir: 'ssr',
         ssr: SSR_ENTRY_FILE,
@@ -123,6 +122,8 @@ class Builder {
   };
 
   islandsBuild = async (nitro: Nitro, input: string) => {
+    process.env.SERVITE_ISLANDS_BUILD = '1';
+
     return this.baseBuild({
       logLevel: 'warn',
       build: {
@@ -358,6 +359,6 @@ function printAsset(
   process.stdout.write(
     `  ${colors.gray(`${prefixChar} ${path.join(outDir, '/')}`)}${colors.cyan(
       fileName.padEnd(maxLength + 3)
-    )}${sizeColor(`${kb.toFixed(2)} KiB / gzip: ${gzipKb.toFixed(2)} KiB`)}\n`
+    )}${sizeColor(`${kb.toFixed(2)} KiB | gzip: ${gzipKb.toFixed(2)} KiB`)}\n`
   );
 }

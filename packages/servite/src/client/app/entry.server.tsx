@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import { renderToString } from 'react-dom/server';
-import { StaticRouter } from 'react-router-dom/server.js';
+import { StaticRouter } from 'react-router-dom/server';
 import { withoutBase, withoutTrailingSlash } from 'ufo';
 import customRender from 'virtual:servite/custom-server-render';
 import { islands } from 'virtual:servite-dist/jsx/jsx-runtime';

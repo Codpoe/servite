@@ -1,14 +1,7 @@
 {
-  "name": "servite",
-  "version": "0.1.1",
-  "description": "A vite plugin for React SSR / SSG / CSR",
-  "keywords": [
-    "vite-plugin",
-    "ssr",
-    "ssg",
-    "csr",
-    "islands"
-  ],
+  "name": "servite-monorepo",
+  "private": true,
+  "version": "0.1.0",
   "author": "Codpoe <codpoe.me@gmail.com>",
   "license": "MIT",
   "repository": {
@@ -19,119 +12,29 @@
     "url": "https://github.com/Codpoe/servite/issues"
   },
   "type": "module",
-  "files": [
-    "bin",
-    "dist",
-    "server.d.ts",
-    "client.d.ts",
-    "global.d.ts"
-  ],
-  "main": "dist/node/index.js",
-  "types": "dist/node/index.d.ts",
-  "exports": {
-    ".": "./dist/node/index.js",
-    "./server": "./dist/server/index.js",
-    "./client": "./dist/client/index.js"
-  },
-  "bin": {
-    "servite": "bin/servite.js"
-  },
   "scripts": {
     "prepare": "husky install",
-    "dev": "pnpm run prebuild && rimraf dist && pnpm run copy && tsc -w",
-    "prebuild": "tsx scripts/prebuild src/prebuild/*",
-    "build": "pnpm run prebuild && rimraf dist && pnpm run copy && tsc",
-    "copy": "tsx scripts/copy-client",
     "ci:docs": "pnpm run build && pnpm --filter servite-docs run build",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx src",
-    "release": "release-it",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "pnpm --filter servite dev",
+    "dev:docs": "pnpm --filter docs dev",
+    "build": "pnpm --filter servite build"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": "eslint --fix"
   },
-  "release-it": {
-    "git": {
-      "commitMessage": "chore: release v${version}"
-    },
-    "hooks": {
-      "before:init": [
-        "npm run lint"
-      ],
-      "after:bump": [
-        "npm run build"
-      ]
-    },
-    "plugins": {
-      "@release-it/conventional-changelog": {
-        "preset": "angular",
-        "infile": "CHANGELOG.md",
-        "header": "# Changelog"
-      }
-    }
-  },
   "devDependencies": {
-    "@codpoe/eslint-config": "^0.1.3",
+    "@codpoe/eslint-config": "^0.1.4",
     "@release-it/conventional-changelog": "^5.1.1",
-    "@types/babel__core": "^7.1.19",
-    "@types/babel__helper-plugin-utils": "^7.10.0",
-    "@types/babel__traverse": "^7.18.2",
-    "@types/connect-history-api-fallback": "^1.3.5",
-    "@types/express": "^4.17.13",
-    "@types/fs-extra": "^9.0.13",
-    "@types/lz-string": "^1.3.34",
-    "@types/micromatch": "^4.0.2",
     "@types/node": "^18.0.3",
-    "@types/nprogress": "^0.2.0",
-    "@types/react": "^18.0.0",
-    "@types/react-dom": "^18.0.0",
-    "chokidar": "^3.5.3",
-    "cpy": "^9.0.1",
-    "esbuild": "^0.15.14",
     "eslint": "^8.19.0",
     "husky": "^8.0.1",
     "lint-staged": "^13.0.3",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.7.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
     "release-it": "^15.5.1",
     "rimraf": "^3.0.2",
-    "rollup": "^2.77.0",
     "tsx": "^3.11.0",
-    "typescript": "^4.7.4",
-    "vite": "^3.2.5"
-  },
-  "dependencies": {
-    "@babel/core": "^7.19.6",
-    "@babel/helper-plugin-utils": "^7.19.0",
-    "@babel/preset-react": "^7.18.6",
-    "@rollup/plugin-node-resolve": "^15.0.1",
-    "@vitejs/plugin-react": "^2.2.0",
-    "cac": "^6.7.12",
-    "connect-history-api-fallback": "^2.0.0",
-    "defu": "^6.1.0",
-    "fast-glob": "^3.2.12",
-    "fs-extra": "^10.1.0",
-    "gray-matter": "^4.0.3",
-    "gzip-size": "^7.0.0",
-    "h3": "^1.0.1",
-    "jest-docblock": "^28.1.1",
-    "lz-string": "^1.4.4",
-    "micromatch": "^4.0.5",
-    "nitropack": "^1.0.0",
-    "nprogress": "^0.2.0",
-    "ora": "^6.1.2",
-    "perfect-debounce": "^0.1.3",
-    "picocolors": "^1.0.0",
-    "react-helmet-async": "^1.3.0",
-    "react-router-dom": "^6.3.0",
-    "react-ssr-prepass": "^1.5.0",
-    "ufo": "^1.0.0",
-    "upath": "^2.0.1"
-  },
-  "peerDependencies": {
-    "react": ">=18.0.0",
-    "react-dom": ">=18.0.0"
+    "typescript": "^4.7.4"
   }
 }
