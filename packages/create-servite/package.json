@@ -1,0 +1,60 @@
+{
+  "name": "create-servite",
+  "version": "0.1.0",
+  "type": "module",
+  "author": "Codpoe <codpoe.me@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Codpoe/servite.git",
+    "directory": "packages/create-servite"
+  },
+  "bugs": {
+    "url": "https://github.com/Codpoe/servite/issues"
+  },
+  "homepage": "https://github.com/Codpoe/servite/tree/main/packages/create-servite#readme",
+  "engines": {
+    "node": "^14.18.0 || >=16.0.0"
+  },
+  "files": [
+    "dist",
+    "index.js"
+  ],
+  "main": "index.js",
+  "bin": {
+    "create-servite": "index.js"
+  },
+  "scripts": {
+    "dev": "tsc -w",
+    "build": "rimraf dist && tsc",
+    "release": "release-it"
+  },
+  "release-it": {
+    "git": {
+      "commitMessage": "chore: release v${version}"
+    },
+    "hooks": {
+      "before:init": [
+        "npm run lint"
+      ],
+      "after:bump": [
+        "npm run build"
+      ]
+    },
+    "plugins": {
+      "@release-it/conventional-changelog": {
+        "preset": "angular",
+        "infile": "CHANGELOG.md",
+        "header": "# Changelog"
+      }
+    }
+  },
+  "dependencies": {
+    "execa": "^6.1.0",
+    "minimist": "^1.2.7",
+    "prompts": "^2.4.2"
+  },
+  "devDependencies": {
+    "@types/minimist": "^1.2.2"
+  }
+}
