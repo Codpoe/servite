@@ -12,7 +12,7 @@
   "bugs": {
     "url": "https://github.com/Codpoe/servite/issues"
   },
-  "homepage": "https://github.com/Codpoe/servite/tree/main/packages/create-servite#readme",
+  "homepage": "https://github.com/Codpoe/servite/tree/master/packages/create-servite#readme",
   "engines": {
     "node": "^14.18.0 || >=16.0.0"
   },
