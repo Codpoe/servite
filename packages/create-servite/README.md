@@ -7,10 +7,10 @@
 $ npm create servite
 
 # yarn
-$ yarn create vite
+$ yarn create servite
 
 # pnpm
-$ pnpm create vite
+$ pnpm create servite
 ```
 
 It is strongly recommended to use typescript！run:
@@ -23,10 +23,10 @@ $ npm create servite my-app --ts
 $ npm create servite -- my-app --ts
 
 # yarn
-$ yarn create vite my-app --ts
+$ yarn create servite my-app --ts
 
 # pnpm
-$ pnpm create vite my-app --ts
+$ pnpm create servite my-app --ts
 ```
 
 You can use `.` for the project name to scaffold in the current directory.
