@@ -2,66 +2,33 @@
 
 `servite` 是一个可用于 React SSR、SSG、CSR 的 Vite 插件，并且在开启 SSG 后支持使用 `孤岛架构` 以获得更好的页面性能。
 
-## 搭建项目
-
-### 1. 初始化项目
-
-servite 其实只是一个 Vite 插件，所以可以通过 Vite 官方的方法来初始化一个项目：
+## 1. 快速搭建项目
 
 ```shell
-# npm
-npm create vite@latest
+# npm 6.x
+npm create servite my-app --ts
+
+# npm 7+, extra double-dash is needed:
+npm create servite -- my-app --ts
 
 # yarn
-yarn create vite
+yarn create servite my-app --ts
 
 # pnpm（后续操作均以 pnpm 作为示例）
-pnpm create vite
+pnpm create servite my-app --ts
 ```
 
-然后按照提示操作选择 `React` 框架，并且推荐选上 `TypeScript`。完成提示操作后，等待片刻即可得到一个非常基础的 Vite React 项目。
+执行上面的命令会在目录 `my-app` 里用 Vite 的 `react-ts` 模板来初始化项目。你也可以把上面的 `my-app` 替换成 `.`，这样项目就会在当前目录进行初始化了。
 
-:::info[项目调整]
-目前这个项目里还有一些地方需要调整一下：
+尽管我推荐新项目都是用 TypeScript，但如果你还是不想用的话，可以去掉上面命令里的 `--ts`，这样就会改为使用 Vite `react` 模板来初始化项目了。
 
-- 删除 `index.html`。servite 内置了一个基础的 html 文件，所以可以删掉 Vite 项目里自带的 `index.html`。
-- 清空 `src` 目录大部分文件，仅保留 `vite-env.d.ts` 即可。
-- 修改 `package.json` 的 `scripts`，把其中的 `build` 改成：`tsc && servite build`
+## 2. 启动本地开发服务器
 
-:::
+经过第一步后，可以 `cd my-app` 进入项目目录，然后执行下面的命令安装依赖：
 
-### 2. 安装 servite
-
-执行以下命令安装 servite：
-
+```shell
+pnpm i
 ```
-pnpm i servite
-```
-
-在 `vite.config.ts` 配置文件中使用 servite 插件：
-
-```ts
-// https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [servite()],
-});
-```
-
-:::tip
-servite 已内置 `@vitejs/plugin-react` 插件，所以可以删掉原本配置中与该插件相关的代码。
-:::
-
-### 3. 开始写代码
-
-创建首页文件 `src/pages/index/page.tsx`，默认导出一个 React 组件作为页面内容：
-
-```tsx
-export default function IndexPage() {
-  return <div>Hello World</div>;
-}
-```
-
-### 3. 启动本地开发服务器
 
 通过如下命令启动 Vite 的 dev server：
 
@@ -71,7 +38,7 @@ pnpm dev
 
 这样 Vite 将在 http://127.0.0.1:5173/ 启动开发服务。
 
-### 4. 构建生产环境产物
+## 3. 构建生产环境产物
 
 通过以下命令构建生产环境的产物：
 
@@ -82,7 +49,7 @@ pnpm build
 默认情况下产物会被打包到 `dist` 目录。
 其中的 `dist/.output` 是 Nitro 的产物目录，你可以将这个目录直接部署到服务器上运行。
 
-### 5. 本地预览
+## 4. 本地预览
 
 在上面的生产构建命令运行完成后，控制台最后会输出一句提示：
 
@@ -95,8 +62,3 @@ pnpm build
 ```shell
 node dist/.output/server/index.mjs
 ```
-
-## 从模板创建项目
-
-:::info[TODO]
-:::
