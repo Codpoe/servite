@@ -15,7 +15,6 @@
   "scripts": {
     "prepare": "husky install",
     "ci:docs": "pnpm run build && pnpm --filter servite-docs run build",
-    "lint": "eslint --ext .js,.jsx,.ts,.tsx src",
     "dev": "pnpm --filter servite dev",
     "dev:docs": "pnpm --filter docs dev",
     "build": "pnpm --filter servite build"
