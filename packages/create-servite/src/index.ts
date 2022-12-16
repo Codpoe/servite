@@ -11,7 +11,7 @@ const argv = minimist<{ ts?: boolean }>(process.argv.slice(2), {
 
 const cwd = process.cwd();
 
-const serviteVersion = '^0.1.1';
+const serviteVersion = '^0.1.3';
 
 const viteConfigContent = `import { defineConfig } from 'vite';
 import { servite } from 'servite';
@@ -131,7 +131,7 @@ async function init() {
   const pagesPath = path.resolve(src, 'pages');
   await fs.mkdir(pagesPath);
   await fs.writeFile(
-    path.resolve(pagesPath, `index.${argv.ts ? 'tsx' : 'jsx'}`),
+    path.resolve(pagesPath, `page.${argv.ts ? 'tsx' : 'jsx'}`),
     demoPageContent,
     'utf-8'
   );
