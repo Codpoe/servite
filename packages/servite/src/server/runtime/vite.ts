@@ -8,8 +8,8 @@ import { useRuntimeConfig } from '#internal/nitro';
 const crawlFileUrlRE = /\.(js|jsx|ts|tsx|md|mdx)($|\?)/;
 const styleUrlRE = /\.(css|less|sass|scss|styl|stylus|pcss|postcss)($|\?)/;
 
-export const getViteDevServer = lazyCachedFn(() => {
-  return createServer({
+export const getViteDevServer = lazyCachedFn(async () => {
+  const viteDevServer = await createServer({
     ...useRuntimeConfig()?.viteDevServerConfig,
     appType: 'custom',
     server: {
@@ -20,6 +20,8 @@ export const getViteDevServer = lazyCachedFn(() => {
       disabled: true,
     },
   });
+
+  return viteDevServer;
 });
 
 export interface CollectedStyle {
