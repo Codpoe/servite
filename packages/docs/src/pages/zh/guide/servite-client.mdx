@@ -1,0 +1,62 @@
+# 使用 servite/client
+
+为了便于开发，我们统一通过 `servite/client` 导出了一些常用的组件、hooks、类型等。下文将介绍几个常见的使用场景。
+
+:::tip
+可以在[这个文件](https://github.com/Codpoe/servite/blob/master/packages/servite/src/client/index.ts)看到 `servite/client` 的所有导出。
+:::
+
+## 使用 react-router-dom
+
+servite 内置了路由库：**react-router-dom**，并且在日常开发中我们会经常用到一些路由方法和 hooks，
+所以 servite 导出了 react-router-dom 的大部分 API，使用示例：
+
+```tsx
+import { useLocation, Link, Outlet } from 'servite/client';
+
+export function Component() {
+  const { pathname } = useLocation();
+
+  return (
+    <div className="layout">
+      <h1>You are here: {pathname}</h1>
+      <ul>
+        <li>
+          <Link to="/">Home</Link>
+        </li>
+        <li>
+          <Link to="/settings">Settings</Link>
+        </li>
+      </ul>
+      <Outlet />
+    </div>
+  );
+}
+```
+
+## 使用 Helmet 组件修改 HTML head
+
+```tsx
+import { Helmet } from 'servite/client';
+
+export function Component() {
+  return (
+    <Helemt>
+      <title>My App</title>
+      <meta name="description" content="A app powered by servite " />
+      <meta name="viewport" content="width=device-width" />
+    </Helemt>
+  );
+}
+```
+
+## 获取当前的应用状态
+
+```tsx
+import { useAppState } from 'servite/client';
+
+export function Component() {
+  const appState = useAppState();
+  // ...
+}
+```

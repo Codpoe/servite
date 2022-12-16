@@ -76,16 +76,20 @@ export const LOCALE_TO_SIDEBAR: Record<string, SidebarItem[]> = {
       text: '进阶',
       items: [
         {
+          text: 'SPA vs MPA',
+          link: '/zh/guide/spa-vs-mpa',
+        },
+        {
+          text: '使用 servite/client',
+          link: '/zh/guide/servite-client',
+        },
+        {
           text: '自定义 HTML',
           link: '/zh/guide/custom-html',
         },
         {
           text: '自定义服务端渲染',
           link: '/zh/guide/custom-server-render',
-        },
-        {
-          text: 'SPA vs MPA',
-          link: '/zh/guide/spa-vs-mpa',
         },
       ],
     },
