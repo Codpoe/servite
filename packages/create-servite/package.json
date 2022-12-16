@@ -31,7 +31,7 @@
   },
   "release-it": {
     "git": {
-      "commitMessage": "chore: release v${version}"
+      "commitMessage": "chore(create-servite): release v${version}"
     },
     "hooks": {
       "after:bump": [
