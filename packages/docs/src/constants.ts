@@ -109,7 +109,7 @@ export const LOCALE_TO_SIDEBAR: Record<string, SidebarItem[]> = {
 export const DOCS_REPO_INFO: DocsRepoInfo = {
   repo: 'codpoe/servite',
   branch: 'master',
-  dir: 'docs',
+  dir: 'packages/docs',
 };
 
 export const ALGOLIA_CONFIG: DocSearchProps = {
