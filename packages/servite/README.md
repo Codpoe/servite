@@ -2,7 +2,8 @@
 
 A vite plugin for React SSR / SSG / CSR / Islands. Powered by [nitro](https://github.com/unjs/nitro).
 
-To check out docs, visit https://servite.vercel.app.
+- To check out docs, visit https://servite.vercel.app.
+- [Online Stackblitz playground](https://stackblitz.com/edit/servite-t37smj?file=src/pages/page.tsx)
 
 ## Features
 

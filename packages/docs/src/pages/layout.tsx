@@ -1,7 +1,7 @@
 import './layout.css';
 
 import { useMemo } from 'react';
-import { useAppState, Helmet } from 'servite/client';
+import { useAppState, Helmet, Outlet } from 'servite/client';
 import { createSiteState, siteContext } from '@/context';
 import { SITE_DESCRIPTION, SITE_TITLE } from '@/constants';
 import { useScrollToTop } from '@/hooks/useScrollToTop';
@@ -33,8 +33,10 @@ export default function Layout() {
         <Header />
         {pageData.routePath === currentLocale.localePath ? (
           <HomeLayout />
-        ) : (
+        ) : /\.mdx?$/.test(pageData.filePath) ? (
           <DocLayout />
+        ) : (
+          <Outlet />
         )}
       </siteContext.Provider>
     </>

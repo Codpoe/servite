@@ -1,8 +1,9 @@
 import React from 'react';
-import { Link, Outlet, useAppState } from 'servite/client';
+import { Outlet, useAppState } from 'servite/client';
 import { Mdx } from '../Mdx';
 import { Footer } from '../Footer';
 import { Button } from '../Button';
+import { Link } from '../Link';
 
 interface HomePageMeta {
   heroImage?: string;
@@ -49,7 +50,7 @@ export function HomeLayout() {
           {actions && (
             <div className="mt-8 flex justify-center space-x-4 md:space-x-5">
               {actions.map((action, index) => (
-                <Link key={index} to={action.link}>
+                <Link key={index} to={action.link} color={false}>
                   <Button type={index === 0 ? 'primary' : 'secondary'}>
                     {action.text}
                   </Button>

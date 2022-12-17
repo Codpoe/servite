@@ -22,10 +22,20 @@ export const LOCALES: LocaleConfig[] = [
 ].sort((a, b) => b.localePath.length - a.localePath.length);
 
 export const LOCALE_TO_NAV: Record<string, NavItem[]> = {
+  en: [
+    {
+      text: 'Playground',
+      link: 'https://stackblitz.com/edit/servite-t37smj?file=src/pages/page.tsx',
+    },
+  ],
   zh: [
     {
       text: '文档',
       link: '/zh/guide',
+    },
+    {
+      text: '在线示例',
+      link: 'https://stackblitz.com/edit/servite-t37smj?file=src/pages/page.tsx',
     },
     {
       icon: IconGitHub,
