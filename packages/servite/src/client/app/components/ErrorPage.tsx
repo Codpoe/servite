@@ -12,22 +12,28 @@ export const ErrorPage: React.FC<ErrorPageProps> = ({ error }) => {
       <style>{`
 body {
   margin: 0;
-  color: #000;
   background: #fff;
 }
 
 .servite-error-h1 {
-  border-right: 1px solid rgba(0, 0, 0, .3);
+  color: rgb(229, 231, 235);
+}
+
+.servite-error-p {
+  color: rgb(107, 114, 128);
 }
 
 @media (prefers-color-scheme: dark) {
   body {
-    color: #fff;
-    background: #000;
+    background: rgb(17, 24, 39);
   }
 
   .servite-error-h1 {
-    border-right: 1px solid rgba(255, 255, 255, .3);
+    color: rgb(55, 65, 81);
+  }
+
+  .servite-error-p {
+    color: rgb(156, 163, 175);
   }
 }
       `}</style>
@@ -40,24 +46,27 @@ body {
           left: '50%',
           transform: 'translate(-50%, -50%)',
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
         }}
       >
         <h1
           className="servite-error-h1"
           style={{
-            margin: '0 20px 0 0',
-            paddingRight: '23px',
-            fontSize: '24px',
-            fontWeight: '500',
-            lineHeight: '49px',
+            margin: 0,
+            fontSize: '128px',
+            fontWeight: 900,
+            lineHeight: 1,
           }}
         >
           {title}
         </h1>
-        <div style={{ fontSize: '14px', lineHeight: '49px' }}>
+        <p
+          className="servite-error-p"
+          style={{ marginTop: '16px', fontSize: '16px', lineHeight: 1.5 }}
+        >
           {error.message}
-        </div>
+        </p>
       </div>
     </>
   );
