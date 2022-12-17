@@ -14,10 +14,10 @@
   "type": "module",
   "scripts": {
     "prepare": "husky install",
-    "ci:docs": "pnpm run build && pnpm --filter servite-docs run build",
     "dev": "pnpm --filter servite dev",
     "dev:docs": "pnpm --filter docs dev",
-    "build": "pnpm --filter servite build"
+    "build": "pnpm --filter servite build",
+    "ci:docs": "pnpm build && pnpm --filter docs build"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": "eslint --fix"
