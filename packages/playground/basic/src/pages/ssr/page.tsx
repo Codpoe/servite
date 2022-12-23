@@ -1,5 +1,23 @@
+import { useEffect, useState } from 'react';
+import getA, { Result } from '../../server/api/a';
 import styles from './page.module.css';
 
 export default function Page() {
-  return <div className={styles.ssr}>SSR: Server Side Render</div>;
+  const [apiResult, setApiResult] = useState<Result>();
+
+  useEffect(() => {
+    (async () => {
+      const res = await getA({ foo: 'qwe', bar: 'asd' });
+      setApiResult(res);
+    })();
+  }, []);
+
+  return (
+    <div className={styles.ssr}>
+      SSR: Server Side Render
+      <pre className={styles['api-result']}>
+        {JSON.stringify(apiResult, null, 2)}
+      </pre>
+    </div>
+  );
 }

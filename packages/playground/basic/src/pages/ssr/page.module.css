@@ -1,3 +1,7 @@
 .ssr {
-  color: gold;
+  color: yellowgreen;
+}
+
+.api-result {
+  text-align: left;
 }

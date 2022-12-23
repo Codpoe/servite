@@ -25,7 +25,7 @@ function warn(api: string, extraMsg?: string) {
 
     try {
       throw new Error(
-        'This error is thrown so that you can more easily find the source of the above warning'
+        '[servite] This error is thrown so that you can more easily find the source of the above warning'
       );
       // eslint-disable-next-line no-empty
     } catch (e) {}

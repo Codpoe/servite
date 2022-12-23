@@ -1,8 +1,10 @@
 import { isMainThread } from 'worker_threads';
+import path from 'upath';
+import fs from 'fs-extra';
 import { build, createDevServer, Nitro, prepare } from 'nitropack';
 import { H3Event } from 'h3';
 import { Plugin, ResolvedConfig } from 'vite';
-import { ServiteConfig } from '../types.js';
+import { ApiHandler, ServiteConfig } from '../types.js';
 import { initNitro } from './init.js';
 
 export interface ServiteNitroPluginConfig {
@@ -18,18 +20,20 @@ export function serviteNitro({
   return {
     name: 'servite:nitro',
     enforce: 'post',
-    // Only apply in main thread, not worker thread
-    apply: () => isMainThread,
-    configResolved(config) {
+    async configResolved(config) {
       viteConfig = config;
-    },
-    async configureServer(server) {
+
       nitro = await initNitro({
         serviteConfig,
         viteConfig,
-        viteDevServer: server,
-        nitroConfig: { dev: true, logLevel: 2 },
+        nitroConfig: { dev: config.command === 'serve', logLevel: 2 },
       });
+    },
+    async configureServer(server) {
+      // Only configure server in main thread, not worker thread
+      if (!isMainThread) {
+        return;
+      }
 
       const nitroDevServer = createDevServer(nitro);
       // Prepare directories
@@ -85,8 +89,105 @@ export function serviteNitro({
         // });
       };
     },
+    async load(id) {
+      if (id.startsWith(nitro.options.srcDir)) {
+        const serverRoute = id.substring(nitro.options.srcDir.length);
+        const relPath = path.relative(viteConfig.root, id);
+
+        if (
+          !/^\/(api|routes)\//.test(serverRoute) ||
+          !/\.(js|cjs|mjs|ts)$/.test(id)
+        ) {
+          throw new Error(
+            `[servite] This module is not an api endpoint: ${relPath}`
+          );
+        }
+
+        if (!(await hasApiHandlerCode(id))) {
+          throw new Error(
+            `[servite] Please use "defineApiHandler" or "apiHandler" to define the api endpoint: ${relPath}`
+          );
+        }
+
+        if (/\[.*?\]/.test(id)) {
+          throw new Error(
+            `[servite] Currently api endpoint does not support dynamic route: ${relPath}`
+          );
+        }
+
+        const handler = getHandler(serverRoute);
+        const { generateCode, fetchImportSource } = serviteConfig.api || {};
+
+        if (generateCode) {
+          return generateCode(handler);
+        }
+
+        const apiName = getApiName(handler);
+        const url = path.join(nitro.options.baseURL, handler.route);
+        const method = (handler.method || 'get').toLowerCase();
+
+        return `${
+          fetchImportSource
+            ? `import _fetch from '${fetchImportSource}';`
+            : `import { ofetch as _fetch } from 'servite/client';`
+        }
+
+export default function ${apiName}(args, options) {
+  return _fetch('${url}', {
+    method: '${method}',
+    ${method === 'get' ? 'query: args' : 'body: args'},
+    ...options,
+  });
+}
+`;
+      }
+    },
     async closeBundle() {
       await nitro?.close();
     },
   };
+}
+
+async function hasApiHandlerCode(id: string) {
+  const content = await fs.readFile(id, 'utf-8');
+  return (
+    content.includes('defineApiHandler') ||
+    content.includes('apiHandler') ||
+    content.includes('defineCachedApiHandler') ||
+    content.includes('cachedApiHandler')
+  );
+}
+
+const httpMethodRegex =
+  /\.(connect|delete|get|head|options|patch|post|put|trace)/;
+
+function getHandler(id: string): ApiHandler {
+  let method = 'get';
+  let route = path.trimExt(id.replace(/^\/routes/, ''));
+
+  const methodMatch = route.match(httpMethodRegex);
+
+  if (methodMatch) {
+    route = route.slice(0, Math.max(0, methodMatch.index!));
+    method = methodMatch[1];
+  }
+
+  route = route.replace(/\/index$/, '') || '/';
+
+  return {
+    method,
+    route,
+  };
+}
+
+// / -> <method>Index
+// /foo/bar -> <method>FooBar
+function getApiName({ method = 'get', route = '/' }: ApiHandler) {
+  let name = method.toLowerCase();
+
+  name += (route.match(/[A-Za-z0-9]+/g) || ['index'])
+    .map(x => x[0].toUpperCase() + x.substring(1))
+    .join('');
+
+  return name;
 }

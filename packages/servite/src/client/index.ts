@@ -55,6 +55,8 @@ export {
 
 export { Helmet } from 'react-helmet-async';
 
+export * from 'ofetch';
+
 export { isBrowser, ssrData } from './app/constants.js';
 export {
   useHref,

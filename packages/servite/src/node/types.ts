@@ -7,6 +7,11 @@ export interface PagesDir {
   ignore?: string[];
 }
 
+export interface ApiHandler {
+  method: string;
+  route: string;
+}
+
 export interface UserServiteConfig {
   /**
    * Directory for finding pages
@@ -25,6 +30,16 @@ export interface UserServiteConfig {
    * @default false
    */
   csr?: boolean;
+  api?: {
+    /**
+     * eg. `'@/utils/fetch'` -> `import _fetch from '@/utils/fetch'`
+     */
+    fetchImportSource?: string;
+    /**
+     * Fully custom API code for client
+     */
+    generateCode?: (handler: ApiHandler) => string;
+  };
   /**
    * Options of @vitejs/plugin-react
    */

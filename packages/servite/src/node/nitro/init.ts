@@ -5,7 +5,7 @@ import {
   PublicAssetDir,
   ServerAssetDir,
 } from 'nitropack';
-import type { InlineConfig, ResolvedConfig, ViteDevServer } from 'vite';
+import type { InlineConfig, ResolvedConfig } from 'vite';
 import { defu } from 'defu';
 import { DIST_DIR } from '../constants.js';
 import { ServiteConfig } from '../types.js';
@@ -13,7 +13,6 @@ import { ServiteConfig } from '../types.js';
 export interface CreateServiteNitroConfig {
   serviteConfig: ServiteConfig;
   viteConfig: ResolvedConfig;
-  viteDevServer?: ViteDevServer;
   nitroConfig?: NitroConfig;
 }
 
@@ -29,7 +28,7 @@ export async function initNitro({
       {
         baseURL: viteConfig.base,
         rootDir: viteConfig.root,
-        srcDir: 'src/server',
+        srcDir: path.resolve(viteConfig.root, 'src/server'),
         buildDir: path.resolve(viteConfig.root, 'node_modules/.servite'),
         output: {
           dir: path.resolve(
