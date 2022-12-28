@@ -21,6 +21,20 @@ interface UserServiteConfig {
    * @default false
    */
   csr?: boolean;
+  api?: {
+    /**
+     * eg. `'@/utils/fetch'` -> `import _fetch from '@/utils/fetch'`
+     */
+    fetchImportSource?: string;
+    /**
+     * Fully custom API code for client
+     */
+    generateCode?: (handler: ApiHandler, originalCode: string) => string;
+  };
+  /**
+   * Options of @vitejs/plugin-react
+   */
+  react?: ReactOptions;
   /**
    * Nitro config
    * @see https://github.com/unjs/nitro
@@ -61,6 +75,22 @@ interface PagesDir {
 `csr?: boolean`。
 
 配置是否开启 CSR（客户端渲染），默认值是 `false`，即不开启 CSR。
+
+## api
+
+[一体化 API 调用](/zh/guide/integrate-api-call)的配置项。
+
+### fetchImportSource
+
+自定义 fetch 方法的导入来源。例如当设置 `fetchImportSource: '@/utils/http'`，那么最终会 import 该方法来请求接口。
+
+### generateCode
+
+如果 `fetchImportSource` 不能满足需求，可以通过 `generateCode` 来完全自定义生成的 API 调用方法。
+
+## react
+
+配置 [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react)。
 
 ## nitro
 

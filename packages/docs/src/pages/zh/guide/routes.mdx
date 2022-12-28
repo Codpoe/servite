@@ -82,3 +82,37 @@ const routes = [
 ## API 路由
 
 servite 的 API 功能是由 Nitro 驱动的，完整的 API 路由文档请查看 [Nitro Route Handling](https://nitro.unjs.io/guide/introduction/routing)。
+
+举个例子：
+
+文件 `<root>/src/server/api/todo.get.ts` 有如下内容：
+
+```ts
+import { eventHandler } from 'servite/server';
+export default eventHandler(async event => {
+  // ...
+  return {
+    code: 0,
+    msg: 'ok',
+    data: 'This is ok',
+  };
+});
+```
+
+由此你就得到了一个 `GET /api/todo` 的 HTTP 接口，这里面有几个点：
+
+- 文件路径会直观地映射为接口请求路径：`/api/todo`
+- 文件名 `todo.get.ts` 中的 `get` 会被映射为 HTTP GET 方法。同理，你可以这么定义一个 POST 请求：`todo.post.ts`
+- 需要从 `servite/server` 导出 `eventHandler` 方法来定义请求处理器
+
+定义完接口后，在前端就可以通过原生 `fetch` 或 `axios` 等请求库来调用此接口。
+而为了便于快速开发，Servite 内置了 [ofetch](https://github.com/unjs/ofetch) 请求库，你可以通过 `servite/client` 导入 `ofetch` 的相关方法：
+
+```ts
+import { ofetch } from 'servite/client';
+ofetch('/api/todo');
+```
+
+:::tip[进阶]
+Servite 支持[一体化 API 调用](/zh/guide/integrate-api-call)，能提供更好的开发体验。
+:::

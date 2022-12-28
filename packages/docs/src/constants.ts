@@ -94,6 +94,10 @@ export const LOCALE_TO_SIDEBAR: Record<string, SidebarItem[]> = {
           link: '/zh/guide/servite-client',
         },
         {
+          text: '一体化 API 调用',
+          link: '/zh/guide/integrate-api-call',
+        },
+        {
           text: '自定义 HTML',
           link: '/zh/guide/custom-html',
         },
