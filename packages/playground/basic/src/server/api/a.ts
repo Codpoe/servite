@@ -1,8 +1,13 @@
 import { apiHandler } from 'servite/server';
 
+export enum Bar {
+  Great,
+  Cool,
+}
+
 export interface Args {
   foo: string;
-  bar?: string;
+  bar?: Bar;
 }
 
 export interface Result {

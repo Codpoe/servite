@@ -38,7 +38,7 @@ export interface UserServiteConfig {
     /**
      * Fully custom API code for client
      */
-    generateCode?: (handler: ApiHandler) => string;
+    generateCode?: (handler: ApiHandler, originalCode: string) => string;
   };
   /**
    * Options of @vitejs/plugin-react

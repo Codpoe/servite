@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import getA, { Result } from '../../server/api/a';
+import getA, { Bar, Result } from '../../server/api/a';
 import styles from './page.module.css';
 
 export default function Page() {
@@ -7,7 +7,7 @@ export default function Page() {
 
   useEffect(() => {
     (async () => {
-      const res = await getA({ foo: 'qwe', bar: 'asd' });
+      const res = await getA({ foo: 'qwe', bar: Bar.Great });
       setApiResult(res);
     })();
   }, []);

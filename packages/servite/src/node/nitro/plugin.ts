@@ -103,15 +103,17 @@ export function serviteNitro({
           );
         }
 
-        if (!(await hasApiHandlerCode(id))) {
-          throw new Error(
-            `[servite] Please use "defineApiHandler" or "apiHandler" to define the api endpoint: ${relPath}`
-          );
-        }
-
         if (/\[.*?\]/.test(id)) {
           throw new Error(
             `[servite] Currently api endpoint does not support dynamic route: ${relPath}`
+          );
+        }
+
+        const originalCode = await fs.readFile(id, 'utf-8');
+
+        if (!hasApiHandlerCode(originalCode)) {
+          throw new Error(
+            `[servite] Please use "defineApiHandler" or "apiHandler" to define the api endpoint: ${relPath}`
           );
         }
 
@@ -119,7 +121,7 @@ export function serviteNitro({
         const { generateCode, fetchImportSource } = serviteConfig.api || {};
 
         if (generateCode) {
-          return generateCode(handler);
+          return generateCode(handler, originalCode);
         }
 
         const apiName = getApiName(handler);
@@ -131,6 +133,8 @@ export function serviteNitro({
             ? `import _fetch from '${fetchImportSource}';`
             : `import { ofetch as _fetch } from 'servite/client';`
         }
+
+${getExportEnumCode(originalCode)}
 
 export default function ${apiName}(args, options) {
   return _fetch('${url}', {
@@ -148,13 +152,12 @@ export default function ${apiName}(args, options) {
   };
 }
 
-async function hasApiHandlerCode(id: string) {
-  const content = await fs.readFile(id, 'utf-8');
+function hasApiHandlerCode(code: string) {
   return (
-    content.includes('defineApiHandler') ||
-    content.includes('apiHandler') ||
-    content.includes('defineCachedApiHandler') ||
-    content.includes('cachedApiHandler')
+    code.includes('defineApiHandler') ||
+    code.includes('apiHandler') ||
+    code.includes('defineCachedApiHandler') ||
+    code.includes('cachedApiHandler')
   );
 }
 
@@ -190,4 +193,8 @@ function getApiName({ method = 'get', route = '/' }: ApiHandler) {
     .join('');
 
   return name;
+}
+
+function getExportEnumCode(code: string) {
+  return code.match(/^export\s+enum.*?\{[\s\S]*?\}/m)?.[0] || '';
 }
