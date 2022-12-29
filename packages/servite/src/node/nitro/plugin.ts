@@ -13,126 +13,126 @@ export interface ServiteNitroPluginConfig {
 
 export function serviteNitro({
   serviteConfig,
-}: ServiteNitroPluginConfig): Plugin {
+}: ServiteNitroPluginConfig): Plugin[] {
   let viteConfig: ResolvedConfig;
   let nitro: Nitro;
 
-  return {
-    name: 'servite:nitro',
-    enforce: 'post',
-    async configResolved(config) {
-      viteConfig = config;
+  return [
+    {
+      name: 'servite:nitro-server',
+      enforce: 'post',
+      async configResolved(config) {
+        viteConfig = config;
 
-      nitro = await initNitro({
-        serviteConfig,
-        viteConfig,
-        nitroConfig: { dev: config.command === 'serve', logLevel: 2 },
-      });
-    },
-    async configureServer(server) {
-      // Only configure server in main thread, not worker thread
-      if (!isMainThread) {
-        return;
-      }
-
-      const nitroDevServer = createDevServer(nitro);
-      // Prepare directories
-      await prepare(nitro);
-      // Build dev server
-      const buildPromise = build(nitro);
-
-      return () => {
-        server.middlewares.use(async (req, res, next) => {
-          if (res.writableEnded) {
-            return next();
-          }
-
-          // Set url for custom server
-          if (req.originalUrl) {
-            req.url = req.originalUrl;
-          }
-
-          await buildPromise;
-
-          try {
-            await nitroDevServer.app.handler(new H3Event(req, res));
-          } catch (err) {
-            res.statusCode = 500;
-
-            if (err instanceof Error) {
-              res.end(err.stack || err.message);
-            } else {
-              res.end('Unknown error');
-            }
-          }
+        nitro = await initNitro({
+          serviteConfig,
+          viteConfig,
+          nitroConfig: { dev: config.command === 'serve', logLevel: 2 },
         });
+      },
+      async configureServer(server) {
+        // Only configure server in main thread, not worker thread
+        if (!isMainThread) {
+          return;
+        }
 
-        // const historyMiddleware = history({
-        //   htmlAcceptHeaders: ['text/html', 'application/xhtml+xml'],
-        //   index: FS_PREFIX_APP_HTML,
-        // }) as Connect.NextHandleFunction;
+        const nitroDevServer = createDevServer(nitro);
+        // Prepare directories
+        await prepare(nitro);
+        // Build dev server
+        const buildPromise = build(nitro);
 
-        // server.middlewares.use((req, res, next) => {
-        //   // The path of virtual module usually starts with @, we shouldn't rewrite it
-        //   if (!req.url || req.url.startsWith('/@')) {
-        //     return next();
-        //   }
+        return () => {
+          server.middlewares.use(async (req, res, next) => {
+            if (res.writableEnded) {
+              return next();
+            }
 
-        //   const ext = path.extname(cleanUrl(req.url));
+            // Set url for custom server
+            if (req.originalUrl) {
+              req.url = req.originalUrl;
+            }
 
-        //   // Do not rewrite paths with non-html ext
-        //   if (ext && ext !== '.html') {
-        //     return next();
-        //   }
+            await buildPromise;
 
-        //   return historyMiddleware(req, res, next);
-        // });
-      };
+            try {
+              await nitroDevServer.app.handler(new H3Event(req, res));
+            } catch (err) {
+              res.statusCode = 500;
+
+              if (err instanceof Error) {
+                res.end(err.stack || err.message);
+              } else {
+                res.end('Unknown error');
+              }
+            }
+          });
+        };
+      },
+      async closeBundle() {
+        await nitro?.close();
+      },
     },
-    async load(id) {
-      if (id.startsWith(nitro.options.srcDir)) {
-        const serverRoute = id.substring(nitro.options.srcDir.length);
-        const relPath = path.relative(viteConfig.root, id);
+    {
+      name: 'servite:nitro-integrate-api-call',
+      enforce: 'pre',
+      resolveId(source, importer, opts) {
+        if (opts?.custom?.depScan) {
+          const id = path.resolve(importer || '', source);
 
-        if (
-          !/^\/(api|routes)\//.test(serverRoute) ||
-          !/\.(js|cjs|mjs|ts)$/.test(id)
-        ) {
-          throw new Error(
-            `[servite] This module is not an api endpoint: ${relPath}`
-          );
+          // Skip optimize server file
+          if (id.startsWith(nitro.options.srcDir)) {
+            return {
+              id,
+              external: true,
+            };
+          }
         }
+      },
+      async load(id) {
+        if (id.startsWith(nitro.options.srcDir)) {
+          const serverRoute = id.substring(nitro.options.srcDir.length);
+          const relPath = path.relative(viteConfig.root, id);
 
-        if (/\[.*?\]/.test(id)) {
-          throw new Error(
-            `[servite] Currently api endpoint does not support dynamic route: ${relPath}`
-          );
-        }
+          if (
+            !/^\/(api|routes)\//.test(serverRoute) ||
+            !/\.(js|cjs|mjs|ts)$/.test(id)
+          ) {
+            throw new Error(
+              `[servite] This module is not an api endpoint: ${relPath}`
+            );
+          }
 
-        const originalCode = await fs.readFile(id, 'utf-8');
+          if (/\[.*?\]/.test(id)) {
+            throw new Error(
+              `[servite] Currently api endpoint does not support dynamic route: ${relPath}`
+            );
+          }
 
-        if (!hasApiHandlerCode(originalCode)) {
-          throw new Error(
-            `[servite] Please use "defineApiHandler" or "apiHandler" to define the api endpoint: ${relPath}`
-          );
-        }
+          const originalCode = await fs.readFile(id, 'utf-8');
 
-        const handler = getHandler(serverRoute);
-        const { generateCode, fetchImportSource } = serviteConfig.api || {};
+          if (!hasApiHandlerCode(originalCode)) {
+            throw new Error(
+              `[servite] Please use "defineApiHandler" or "apiHandler" to define the api endpoint: ${relPath}`
+            );
+          }
 
-        if (generateCode) {
-          return generateCode(handler, originalCode);
-        }
+          const handler = getHandler(serverRoute);
+          const { generateCode, fetchImportSource } = serviteConfig.api || {};
 
-        const apiName = getApiName(handler);
-        const url = path.join(nitro.options.baseURL, handler.route);
-        const method = (handler.method || 'get').toLowerCase();
+          if (generateCode) {
+            return generateCode(handler, originalCode);
+          }
 
-        return `${
-          fetchImportSource
-            ? `import _fetch from '${fetchImportSource}';`
-            : `import { ofetch as _fetch } from 'servite/client';`
-        }
+          const apiName = getApiName(handler);
+          const url = path.join(nitro.options.baseURL, handler.route);
+          const method = (handler.method || 'get').toLowerCase();
+
+          return `${
+            fetchImportSource
+              ? `import _fetch from '${fetchImportSource}';`
+              : `import { ofetch as _fetch } from 'servite/client';`
+          }
 
 ${getExportEnumCode(originalCode)}
 
@@ -144,12 +144,10 @@ export default function ${apiName}(args, options) {
   });
 }
 `;
-      }
+        }
+      },
     },
-    async closeBundle() {
-      await nitro?.close();
-    },
-  };
+  ];
 }
 
 function hasApiHandlerCode(code: string) {

@@ -96,7 +96,7 @@ export function servite(userServiteConfig?: UserServiteConfig): PluginOption[] {
     serviteHtml({ serviteConfig }),
     ...serviteJsx({ serviteConfig }),
     servitePages({ serviteConfig }),
-    serviteNitro({ serviteConfig }),
+    ...serviteNitro({ serviteConfig }),
   ];
 
   return plugins;
