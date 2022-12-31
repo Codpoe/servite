@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.5](https://github.com/Codpoe/servite/compare/0.1.4...0.1.5) (2022-12-31)
+
+
+### Bug Fixes
+
+* avoid optimize server file ([f2cecf2](https://github.com/Codpoe/servite/commit/f2cecf2bc832b7b17c122a4f4894dc37d55a89d8))
+
 ## [0.1.4](https://github.com/Codpoe/servite/compare/0.1.3...0.1.4) (2022-12-29)
 
 

@@ -1,6 +1,6 @@
 {
   "name": "servite",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "A vite plugin for React SSR / SSG / CSR",
   "keywords": [
     "vite-plugin",
