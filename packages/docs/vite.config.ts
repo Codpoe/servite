@@ -6,6 +6,7 @@ import icons from 'unplugin-icons/vite';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: process.env.GH_PAGES ? '/servite/' : '/',
   ssr: {
     noExternal: ['@docsearch/react'],
   },
