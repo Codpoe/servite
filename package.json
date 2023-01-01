@@ -17,6 +17,7 @@
     "dev": "pnpm --filter servite dev",
     "dev:docs": "pnpm --filter docs dev",
     "build": "pnpm --filter servite build",
+    "build-docs": "pnpm build && pnpm --filter docs build",
     "ci:docs": "pnpm build && pnpm --filter docs run deploy"
   },
   "lint-staged": {
