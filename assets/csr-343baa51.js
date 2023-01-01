@@ -1,4 +1,4 @@
-import{u as t,j as n,a as r,F as c}from"./index-a1360d88.js";const h=void 0,s=[{id:"介绍",text:"介绍",depth:2},{id:"使用",text:"使用",depth:2}];function i(a){const e=Object.assign({h1:"h1",a:"a",h2:"h2",p:"p",ul:"ul",li:"li"},t(),a.components);return r(c,{children:[r(e.h1,{id:"csr---客户端渲染",children:[n(e.a,{className:"header-anchor","aria-hidden":"true",tabIndex:"-1",href:"#csr---客户端渲染",children:"#"}),"CSR - 客户端渲染"]}),`
+import{u as t,j as n,a as r,F as c}from"./index-34016108.js";const h=void 0,s=[{id:"介绍",text:"介绍",depth:2},{id:"使用",text:"使用",depth:2}];function i(a){const e=Object.assign({h1:"h1",a:"a",h2:"h2",p:"p",ul:"ul",li:"li"},t(),a.components);return r(c,{children:[r(e.h1,{id:"csr---客户端渲染",children:[n(e.a,{className:"header-anchor","aria-hidden":"true",tabIndex:"-1",href:"#csr---客户端渲染",children:"#"}),"CSR - 客户端渲染"]}),`
 `,r(e.h2,{id:"介绍",children:[n(e.a,{className:"header-anchor","aria-hidden":"true",tabIndex:"-1",href:"#介绍",children:"#"}),"介绍"]}),`
 `,n(e.p,{children:`CSR（Client-Side Rendering 客户端渲染）是指在浏览器中渲染 Web 应用。
 与 SSR / SSG 相比，CSR 会有一些缺点：`}),`

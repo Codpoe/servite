@@ -1,4 +1,4 @@
-import{u as a,j as n,a as i,F as c}from"./index-a1360d88.js";const o=void 0,s=[{id:"介绍",text:"介绍",depth:2},{id:"使用",text:"使用",depth:2}];function d(r){const e=Object.assign({h1:"h1",a:"a",h2:"h2",p:"p",ul:"ul",li:"li"},a(),r.components),{Callout:t}=e;return t||h("Callout",!0),i(c,{children:[i(e.h1,{id:"ssr---服务端渲染",children:[n(e.a,{className:"header-anchor","aria-hidden":"true",tabIndex:"-1",href:"#ssr---服务端渲染",children:"#"}),"SSR - 服务端渲染"]}),`
+import{u as a,j as n,a as i,F as c}from"./index-34016108.js";const o=void 0,s=[{id:"介绍",text:"介绍",depth:2},{id:"使用",text:"使用",depth:2}];function d(r){const e=Object.assign({h1:"h1",a:"a",h2:"h2",p:"p",ul:"ul",li:"li"},a(),r.components),{Callout:t}=e;return t||h("Callout",!0),i(c,{children:[i(e.h1,{id:"ssr---服务端渲染",children:[n(e.a,{className:"header-anchor","aria-hidden":"true",tabIndex:"-1",href:"#ssr---服务端渲染",children:"#"}),"SSR - 服务端渲染"]}),`
 `,i(e.h2,{id:"介绍",children:[n(e.a,{className:"header-anchor","aria-hidden":"true",tabIndex:"-1",href:"#介绍",children:"#"}),"介绍"]}),`
 `,n(e.p,{children:`SSR（Server-Side Rendering 服务端渲染）是一种在请求时在服务器上而不是在浏览器中渲染 Web 页面的技术，
 这允许 Web 页面在服务器上呈现并作为静态 HTML 发送到客户端。SSR 有很多好处：`}),`

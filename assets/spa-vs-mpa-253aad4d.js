@@ -1,4 +1,4 @@
-import{u as r,j as e,a,F as t}from"./index-a1360d88.js";const s=void 0,l=[{id:"介绍",text:"介绍",depth:2},{id:"对比",text:"对比",depth:2},{id:"islands-孤岛架构",text:"Islands 孤岛架构",depth:2}];function d(i){const n=Object.assign({h1:"h1",a:"a",h2:"h2",p:"p",ul:"ul",li:"li"},r(),i.components);return a(t,{children:[a(n.h1,{id:"spa-vs-mpa",children:[e(n.a,{className:"header-anchor","aria-hidden":"true",tabIndex:"-1",href:"#spa-vs-mpa",children:"#"}),"SPA vs MPA"]}),`
+import{u as r,j as e,a,F as t}from"./index-34016108.js";const s=void 0,l=[{id:"介绍",text:"介绍",depth:2},{id:"对比",text:"对比",depth:2},{id:"islands-孤岛架构",text:"Islands 孤岛架构",depth:2}];function d(i){const n=Object.assign({h1:"h1",a:"a",h2:"h2",p:"p",ul:"ul",li:"li"},r(),i.components);return a(t,{children:[a(n.h1,{id:"spa-vs-mpa",children:[e(n.a,{className:"header-anchor","aria-hidden":"true",tabIndex:"-1",href:"#spa-vs-mpa",children:"#"}),"SPA vs MPA"]}),`
 `,a(n.h2,{id:"介绍",children:[e(n.a,{className:"header-anchor","aria-hidden":"true",tabIndex:"-1",href:"#介绍",children:"#"}),"介绍"]}),`
 `,e(n.p,{children:"Web 应用中的 SPA（Single Page Application）和 MPA（Multiple Page Application）是两种常用的应用架构。"}),`
 `,a(n.ul,{children:[`

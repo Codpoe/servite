@@ -1,4 +1,4 @@
-import{u as c,j as e,a as n,F as o}from"./index-a1360d88.js";const i=void 0;function r(s){const l=Object.assign({h1:"h1",a:"a",p:"p",code:"code",pre:"pre",span:"span",ul:"ul",li:"li"},c(),s.components);return n(o,{children:[n(l.h1,{id:"自定义服务端渲染",children:[e(l.a,{className:"header-anchor","aria-hidden":"true",tabIndex:"-1",href:"#自定义服务端渲染",children:"#"}),"自定义服务端渲染"]}),`
+import{u as c,j as e,a as n,F as o}from"./index-34016108.js";const i=void 0;function r(s){const l=Object.assign({h1:"h1",a:"a",p:"p",code:"code",pre:"pre",span:"span",ul:"ul",li:"li"},c(),s.components);return n(o,{children:[n(l.h1,{id:"自定义服务端渲染",children:[e(l.a,{className:"header-anchor","aria-hidden":"true",tabIndex:"-1",href:"#自定义服务端渲染",children:"#"}),"自定义服务端渲染"]}),`
 `,n(l.p,{children:["默认情况下，servite 会直接调用 React 的 ",e(l.code,{children:"renderToString"}),` 方法来渲染应用，
 这已经能适配很多场景了。然而如果你使用了 `,e(l.code,{children:"styled-jsx"})," 或 ",e(l.code,{children:"styled-components"}),` 之类的
 CSS-in-JS 样式方案，一般这些方案都会提供特定的工具让你在 SSR 时收集样式，然后将这些样式
