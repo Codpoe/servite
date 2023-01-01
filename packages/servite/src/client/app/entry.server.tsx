@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import { StaticRouter } from 'react-router-dom/server';
-import { withoutBase, withoutTrailingSlash } from 'ufo';
+import { withBase, withoutBase, withoutTrailingSlash } from 'ufo';
 import customRender from 'virtual:servite/custom-server-render';
 import { islands } from 'virtual:servite-dist/jsx/jsx-runtime';
 import { islands as devIslands } from 'virtual:servite-dist/jsx/jsx-dev-runtime';
@@ -23,11 +23,10 @@ export async function render(
   devIslands.length = 0;
 
   const { pathname } = context.ssrContext;
-  const pagePath = withoutBase(pathname, basename);
-  const App = await createApp({ pagePath, context });
+  const App = await createApp({ pagePath: pathname, context });
 
   const element = (
-    <StaticRouter basename={basename} location={pathname}>
+    <StaticRouter basename={basename} location={withBase(pathname, basename)}>
       <App />
     </StaticRouter>
   );
