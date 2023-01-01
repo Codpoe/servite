@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.6](https://github.com/Codpoe/servite/compare/0.1.5...0.1.6) (2023-01-01)
+
+
+### Bug Fixes
+
+* fix error rendering while setting base ([005759e](https://github.com/Codpoe/servite/commit/005759e886d9471773b21091fcf671e3aa9a1b51))
+
 ## [0.1.5](https://github.com/Codpoe/servite/compare/0.1.4...0.1.5) (2022-12-31)
 
 
