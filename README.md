@@ -45,4 +45,4 @@ To check out docs, visit https://codpoe.github.io/servite/ or https://servite.ve
 - [x] upgrade to vite@4
 - [x] create-servite
 - [ ] Use changeset
-- [ ] Optimize the performance of page rendering
+- [x] Optimize the performance of page rendering
