@@ -99,7 +99,7 @@ async function loadSSREntry() {
     }
 
     // Ensure refresh module for hydrate correctly
-    viteDevServer.moduleGraph.invalidateAll();
+    // viteDevServer.moduleGraph.invalidateAll();
 
     return (await viteDevServer.ssrLoadModule(resolved.id)) as SSREntry;
   }

@@ -44,6 +44,7 @@ export function servite(userServiteConfig?: UserServiteConfig): PluginOption[] {
               'react-dom/client',
               'servite > react-router-dom',
               'servite > react-helmet-async',
+              'servite > ofetch',
               ...commonOptimizeDeps,
             ],
             exclude: [
