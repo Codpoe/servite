@@ -24,6 +24,7 @@
     "*.{js,jsx,ts,tsx}": "eslint --fix"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.26.0",
     "@codpoe/eslint-config": "^0.1.4",
     "@release-it/conventional-changelog": "^5.1.1",
     "@types/node": "^18.0.3",
