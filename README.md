@@ -44,5 +44,5 @@ To check out docs, visit https://codpoe.github.io/servite/ or https://servite.ve
 - [x] islands hot reload
 - [x] upgrade to vite@4
 - [x] create-servite
-- [ ] Use changeset
+- [x] Use changeset
 - [x] Optimize the performance of page rendering

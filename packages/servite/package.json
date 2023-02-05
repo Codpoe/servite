@@ -42,24 +42,7 @@
     "prebuild": "tsx scripts/prebuild src/prebuild/*",
     "build": "pnpm run prebuild && rimraf dist && pnpm run copy && tsc",
     "copy": "tsx scripts/copy-client",
-    "release": "release-it"
-  },
-  "release-it": {
-    "git": {
-      "commitMessage": "chore(servite): release v${version}"
-    },
-    "hooks": {
-      "after:bump": [
-        "npm run build"
-      ]
-    },
-    "plugins": {
-      "@release-it/conventional-changelog": {
-        "preset": "angular",
-        "infile": "CHANGELOG.md",
-        "header": "# Changelog"
-      }
-    }
+    "release": "pnpm run build && changeset publish"
   },
   "devDependencies": {
     "@types/babel__core": "^7.20.0",

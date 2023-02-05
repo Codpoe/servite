@@ -27,24 +27,7 @@
   "scripts": {
     "dev": "tsc -w",
     "build": "rimraf dist && tsc",
-    "release": "release-it"
-  },
-  "release-it": {
-    "git": {
-      "commitMessage": "chore(create-servite): release v${version}"
-    },
-    "hooks": {
-      "after:bump": [
-        "npm run build"
-      ]
-    },
-    "plugins": {
-      "@release-it/conventional-changelog": {
-        "preset": "angular",
-        "infile": "CHANGELOG.md",
-        "header": "# Changelog"
-      }
-    }
+    "release": "pnpm run build && changeset publish"
   },
   "dependencies": {
     "execa": "^6.1.0",
