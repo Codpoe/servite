@@ -1,9 +1,8 @@
-import { Outlet } from 'servite/client';
-
-export default function Layout() {
+/* eslint-disable react/no-unknown-property */
+export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="layout">
-      <Outlet />
+      {children}
       <style jsx global>{`
         :root {
           font-family: Inter, Avenir, Helvetica, Arial, sans-serif;

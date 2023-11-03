@@ -1,10 +1,5 @@
-import { Outlet } from 'servite/client';
 import './layout.css';
 
-export default function Layout() {
-  return (
-    <div className="layout">
-      <Outlet />
-    </div>
-  );
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return <div className="layout">{children}</div>;
 }

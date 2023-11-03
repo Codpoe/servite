@@ -70,11 +70,12 @@ export default pages;
         }
 
         return `${space}"component": ${localName},
-${space}"element": React.createElement(${localName}.component)`;
+${space}"element": React.createElement(${localName}.component, null, React.createElement(Outlet))`;
       }
     );
 
     routesCode = `import React from 'react';
+  import { Outlet } from 'servite/client';
   ${generateEnhanceCode(this.viteConfig!)}
   ${importsCode}
   export const routes = ${routesCode};
