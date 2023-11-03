@@ -90,7 +90,10 @@ export function serviteNitro({
         }
       },
       async load(id) {
-        if (id.startsWith(nitro.options.srcDir)) {
+        if (
+          id.startsWith(nitro.options.srcDir) &&
+          !id.endsWith('server-render.tsx')
+        ) {
           const serverRoute = id.substring(nitro.options.srcDir.length);
           const relPath = path.relative(viteConfig.root, id);
 
@@ -99,13 +102,13 @@ export function serviteNitro({
             !/\.(js|cjs|mjs|ts)$/.test(id)
           ) {
             throw new Error(
-              `[servite] This module is not an api endpoint: ${relPath}`
+              `[servite] This module is not an api endpoint: ${relPath}`,
             );
           }
 
           if (/\[.*?\]/.test(id)) {
             throw new Error(
-              `[servite] Currently api endpoint does not support dynamic route: ${relPath}`
+              `[servite] Currently api endpoint does not support dynamic route: ${relPath}`,
             );
           }
 
@@ -113,7 +116,7 @@ export function serviteNitro({
 
           if (!hasApiHandlerCode(originalCode)) {
             throw new Error(
-              `[servite] Please use "defineApiHandler" or "apiHandler" to define the api endpoint: ${relPath}`
+              `[servite] Please use "defineApiHandler" or "apiHandler" to define the api endpoint: ${relPath}`,
             );
           }
 
