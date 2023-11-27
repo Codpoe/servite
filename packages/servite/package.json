@@ -32,7 +32,18 @@
   "exports": {
     ".": "./dist/node/index.js",
     "./server": "./dist/server/index.js",
-    "./client": "./dist/client/index.js"
+    "./client": {
+      "types": "./dist/client/index.d.ts",
+      "default": "./dist/client/index.js"
+    },
+    "./head": {
+      "types": "./dist/client/head.d.ts",
+      "default": "./dist/client/head.js"
+    },
+    "./router": {
+      "types": "./dist/client/router.d.ts",
+      "default": "./dist/client/router.js"
+    }
   },
   "bin": {
     "servite": "bin/servite.js"

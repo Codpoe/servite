@@ -1,0 +1,34 @@
+---
+layout: home
+title: Home
+heroText: Servite
+tagline: A Vite plugin for React SSR / SSG / CSR / Islands.
+actions:
+  - text: zh docs
+    link: /zh/guide
+  - text: Playground
+    link: https://stackblitz.com/edit/servite-t37smj?file=src/pages/page.tsx
+features:
+  - title: ✨ SSR
+    details: enabled by default for SSR, but also supports SSG and CSR.
+  - title: ⚡️ SSG
+    details: If most of the site's content is static, it can easily switch to SSG.
+  - title: 🖥 CSR
+    details: When server-side rendering does not meet the requirements, you can also switch to CSR for pure browser-side rendering.
+  - title: 🏝 Islands
+    details: Supports the Islands architecture, which is further ahead than SSG and has better performance.
+  - title: 💡 Nitro
+    details: Servite is powered by Nitro. Nitro enables the implementation of APIs and middleware.
+  - title: And, uh..
+footer: Copyright © 2022-present Codpoe. Built with Vite & Servite.
+---
+
+### Start quickly
+
+```bash
+# Scaffolding your servite project with typescript
+$ pnpm create servite my-app --ts
+
+# Start dev
+$ cd my-app && pnpm i && pnpm dev
+```

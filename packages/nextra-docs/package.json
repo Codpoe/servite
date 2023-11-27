@@ -1,0 +1,35 @@
+{
+  "name": "nextra-docs",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && servite build",
+    "deploy": "GH_PAGES=1 pnpm build && gh-pages -d dist/.output/public"
+  },
+  "dependencies": {
+    "@mdx-js/react": "^2.1.5",
+    "nextra": "^2.2.14",
+    "nextra-theme-docs": "^2.2.14",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "6.3.0",
+    "servite": "workspace:*",
+    "tailwindcss": "^3.2.4",
+    "ufo": "^1.0.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "autoprefixer": "^10.4.13",
+    "fast-glob": "^3.2.12",
+    "gh-pages": "^4.0.0",
+    "postcss-import": "^15.0.0",
+    "typescript": "^4.6.3",
+    "upath": "^2.0.1",
+    "vite": "^4.1.1",
+      "vite-plugin-mdx-plus": "^0.1.2",
+      "vite-plugin-ts-alias": "^0.1.1"
+  }
+}

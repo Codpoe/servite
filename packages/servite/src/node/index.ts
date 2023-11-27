@@ -7,7 +7,9 @@ import { serviteJsx } from './jsx/plugin.js';
 import { servitePages } from './pages/plugin.js';
 import { serviteNitro } from './nitro/plugin.js';
 import { resolveServiteConfig } from './config.js';
-import { UserServiteConfig } from './types.js';
+import { UserServiteConfig, ServiteConfig, PagesDir } from './types.js';
+
+export { UserServiteConfig, ServiteConfig, PagesDir };
 
 const commonOptimizeDeps: string[] = [
   'servite > react-helmet-async > prop-types',

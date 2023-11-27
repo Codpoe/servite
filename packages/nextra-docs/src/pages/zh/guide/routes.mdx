@@ -1,0 +1,118 @@
+# 路由
+
+servite 使用约定式路由（文件系统路由），文件路径会被简单地映射为路由路径，这会使整个项目的路由变得非常直观。
+
+由于 servite 同时支持写页面和 API 借口而，路由系统也就分成了两个部分：
+
+- 页面路由
+- API 路由
+
+## 页面路由
+
+servite 会收集 [pagesDirs](/zh/guide/config#pagesdirs) 指定目录下的文件作为页面：
+
+- `page.{js,jsx,ts,tsx}` 会作为普通页面组件
+- 以 `.md` 或 `.mdx` 结尾的文件也会被作为普通页面组件
+- `layout.{js,jsx,ts,tsx}` 会作为布局组件
+
+:::tip
+
+- 不管是 `.md` 还是 `.mdx`，servite 都会统一使用 MDX 来解析 Markdown 文件内容。
+- 如果是 `.js`、`.jsx`、`.ts`、`.tsx` 页面文件，这些文件模块需要默认导出一个组件。
+  :::
+
+举个例子，假设你的项目 src/pages 目录有如下文件结构：
+
+```shell
+src/pages
+  ├─ dashboard
+  │  ├─ analytics
+  │  │  └─ page.tsx
+  │  │
+  │  ├─ settings
+  │  │  └─ page.tsx
+  │  │
+  │  └─ layout.tsx
+  │
+  ├─ layout.tsx
+  └─ page.tsx
+```
+
+实际得到的路由映射是：
+
+| 文件路径                        | 路由路径               | 是否布局组件 |
+| ------------------------------- | ---------------------- | ------------ |
+| `/layout.tsx`                   | `/*`                   | 是           |
+| `/page.tsx`                     | `/`                    | 否           |
+| `/dashboard/layout.tsx`         | `/dashboard/*`         | 是           |
+| `/dashboard/analytics/page.tsx` | `/dashboard/analytics` | 否           |
+| `/dashboard/settings/page.tsx`  | `/dashboard/settings`  | 否           |
+
+对应的 React Router 配置对象类似于：
+
+```tsx
+const routes = [
+  {
+    path: '/*',
+    element: <Layout />,
+    children: [
+      {
+        path: '/',
+        element: <Index />,
+      },
+      {
+        path: '/dashboard/*',
+        element: <DashboardLayout />,
+        children: [
+          {
+            path: '/dashboard/analytics',
+            element: <Analytics />,
+          },
+          {
+            path: '/dashboard/settings',
+            element: <Settings />,
+          },
+        ],
+      },
+    ],
+  },
+];
+```
+
+## API 路由
+
+servite 的 API 功能是由 Nitro 驱动的，完整的 API 路由文档请查看 [Nitro Route Handling](https://nitro.unjs.io/guide/introduction/routing)。
+
+举个例子：
+
+文件 `<root>/src/server/api/todo.get.ts` 有如下内容：
+
+```ts
+import { eventHandler } from 'servite/server';
+export default eventHandler(async event => {
+  // ...
+  return {
+    code: 0,
+    msg: 'ok',
+    data: 'This is ok',
+  };
+});
+```
+
+由此你就得到了一个 `GET /api/todo` 的 HTTP 接口，这里面有几个点：
+
+- 文件路径会直观地映射为接口请求路径：`/api/todo`
+- 文件名 `todo.get.ts` 中的 `get` 会被映射为 HTTP GET 方法。同理，你可以这么定义一个 POST 请求：`todo.post.ts`
+- 需要从 `servite/server` 导出 `eventHandler` 方法来定义请求处理器
+
+定义完接口后，在前端就可以通过原生 `fetch` 或 `axios` 等请求库来调用此接口。
+而为了便于快速开发，Servite 内置了 [ofetch](https://github.com/unjs/ofetch) 请求库，你可以通过 `servite/client` 导入 `ofetch` 的相关方法：
+
+```ts
+import { ofetch } from 'servite/client';
+ofetch('/api/todo');
+```
+
+:::tip[进阶]
+Servite 支持[一体化 API 调用](/zh/guide/integrate-api-call)，能提供更好的开发体验。
+:::
