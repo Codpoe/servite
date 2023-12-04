@@ -1,6 +1,6 @@
 import { extname } from 'path';
 import type { HtmlTagDescriptor } from 'vite';
-import { Island } from '../../shared/types.js';
+import type { Island } from '../../shared/types.js';
 
 export function lazyCachedFn<T>(fn: () => Promise<T>): () => Promise<T> {
   let res: Promise<T> | null = null;

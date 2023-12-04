@@ -17,7 +17,7 @@ export const loader = () => {
 };
 
 export default function Page() {
-  const loaderData = useLoaderData<LoaderData>();
+  const loaderData = useLoaderData() as LoaderData;
 
   return (
     <div className="App">

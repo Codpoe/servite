@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { ServiteConfig, UserServiteConfig } from './types.js';
+import type { ServiteConfig, UserServiteConfig } from './types.js';
 
 export function resolveServiteConfig(
   userServiteConfig: UserServiteConfig = {}

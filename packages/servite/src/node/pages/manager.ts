@@ -7,7 +7,6 @@ import { extract, parse } from 'jest-docblock';
 import { debounce } from 'perfect-debounce';
 import type { ResolvedConfig } from 'vite';
 import type { Page, Route } from '../../shared/types.js';
-import enhanceRouteCode from '../../prebuild/enhance-route.prebuilt.js';
 import { isMarkdown } from '../utils.js';
 import type { PagesDir, ServiteConfig } from '../types.js';
 import { PAGES_IGNORE_PATTERN, PAGES_PATTERN } from '../constants.js';
@@ -52,34 +51,41 @@ export default pages;
     const rootLayout = routes[0]?.children ? routes[0] : null;
 
     let importsCode = '';
-    let componentIndex = 0;
 
     let routesCode = JSON.stringify(routes, null, 2).replace(
-      /( *)"component":\s"(.*?)"/g,
-      (_str: string, space: string, component: string) => {
-        const localName = `__Route__${componentIndex++}`;
-        const localNameStar = `${localName}__star`;
-
-        if (rootLayout && component === rootLayout.component) {
-          importsCode += [
-            `import * as ${localNameStar} from '${component}';`,
-            `const ${localName} = enhance(${localNameStar})\n`,
-          ].join('\n');
-        } else {
-          importsCode += `const ${localName} = enhance(() => import('${component}'));\n`;
+      /( *)"__LAZY_PLACEHOLDER__":\s"(.*?)"/g,
+      (_str: string, space: string, filePath: string) => {
+        if (rootLayout && filePath === rootLayout.filePath) {
+          importsCode += `import * as rootLayoutModule from '/${filePath}';`;
+          return `${space}"lazy": lazyFactory(rootLayoutModule)`;
         }
 
-        return `${space}"component": ${localName},
-${space}"element": React.createElement(${localName}.component)`;
+        return `${space}"lazy": lazyFactory(() => import('/${filePath}'))`;
       }
     );
 
     routesCode = `import React from 'react';
-  ${generateEnhanceCode(this.viteConfig!)}
-  ${importsCode}
-  export const routes = ${routesCode};
-  export default routes;
-  `;
+${importsCode}
+
+function lazyFactory(moduleOrFunction) {
+  return async function lazy() {
+    const m = typeof moduleOrFunction === 'function' ? await moduleOrFunction() : moduleOrFunction;
+
+    return {
+      ...m,
+      Component: m.default,
+      handle: {
+        filePath: this?.filePath,
+        meta: this?.meta,
+        module: m,
+      },
+    };
+  }
+}
+
+export const routes = ${routesCode};
+export default routes;
+`;
 
     if (write) {
       await writeFile(this.viteConfig!, 'pages-routes.js', routesCode);
@@ -164,7 +170,10 @@ async function scanPages(
   return (await Promise.all(serviteConfig.pagesDirs.map(scan)))
     .flat()
     .sort((a, b) => {
-      const compareRes = a.routePath.localeCompare(b.routePath);
+      const compareRes = path
+        .dirname(a.filePath)
+        .localeCompare(path.dirname(b.filePath));
+
       // layout first
       if (compareRes === 0) {
         if (a.isLayout && b.isLayout) {
@@ -172,6 +181,7 @@ async function scanPages(
         }
         return b.isLayout ? 0 : -1;
       }
+
       return compareRes;
     });
 }
@@ -190,7 +200,8 @@ function resolveRoutePath(base: string, pageFile: string) {
   routePath = routePath
     .replace(/\/404$/, '/*') // transform '/404' to '/*' so this route acts like a catch-all for URLs that we don't have explicit routes for
     .replace(/\/\[\.{3}.*?\]$/, '/*') // transform '/post/[...]' to '/post/*'
-    .replace(/\/\[(.*?)\]/g, '/:$1'); // transform '/user/[id]' to '/user/:id'
+    .replace(/\/\[(.*?)\]/g, '/:$1') // transform '/user/[id]' to '/user/:id'
+    .replace(/\/\(.*?\)/g, ''); // transform '/(marketing)/about' to '/about'
 
   return routePath || '/';
 }
@@ -221,24 +232,27 @@ function createRoutes(pages: Page[]): Route[] {
   const layoutRouteStack: Route[] = [];
 
   for (const page of pages) {
-    const route = {
+    const route: Route = {
       path: page.routePath,
       filePath: page.filePath,
-      component: path.join('/', page.filePath),
       children: page.isLayout ? [] : undefined,
       meta: page.meta,
-    } as Route;
+      __LAZY_PLACEHOLDER__: page.filePath,
+    };
+
+    const routeDir = path.dirname(route.filePath);
 
     while (layoutRouteStack.length) {
       const layout = layoutRouteStack[layoutRouteStack.length - 1];
+      const layoutDir = path.dirname(layout.filePath);
 
       // - root layout
       // - same level layout
       // - sub level layout
       if (
-        layout.path === '/' ||
-        layout.path === route.path ||
-        route.path.startsWith(layout.path + '/')
+        layoutDir === '.' ||
+        layoutDir === routeDir ||
+        routeDir.startsWith(layoutDir + '/')
       ) {
         layout.children?.push(route);
         break;
@@ -257,13 +271,6 @@ function createRoutes(pages: Page[]): Route[] {
   }
 
   return routes;
-}
-
-function generateEnhanceCode(viteConfig: ResolvedConfig) {
-  return `const seen = {};
-const base = '${viteConfig.base}';
-const assetsDir = '${viteConfig.build.assetsDir}';
-${enhanceRouteCode}`;
 }
 
 async function writeFile(

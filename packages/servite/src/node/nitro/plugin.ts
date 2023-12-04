@@ -1,10 +1,11 @@
 import { isMainThread } from 'worker_threads';
 import path from 'upath';
 import fs from 'fs-extra';
-import { build, createDevServer, Nitro, prepare } from 'nitropack';
+import { build, createDevServer, type Nitro, prepare } from 'nitropack';
 import { H3Event } from 'h3';
-import { Plugin, ResolvedConfig } from 'vite';
-import { ApiHandler, ServiteConfig } from '../types.js';
+import { withTrailingSlash } from 'ufo';
+import type { Plugin, ResolvedConfig } from 'vite';
+import type { ApiHandler, ServiteConfig } from '../types.js';
 import { initNitro } from './init.js';
 
 export interface ServiteNitroPluginConfig {
@@ -81,7 +82,7 @@ export function serviteNitro({
           const id = path.resolve(importer || '', source);
 
           // Skip optimize server file
-          if (id.startsWith(nitro.options.srcDir)) {
+          if (id.startsWith(withTrailingSlash(nitro.options.srcDir))) {
             return {
               id,
               external: true,
@@ -90,7 +91,7 @@ export function serviteNitro({
         }
       },
       async load(id) {
-        if (id.startsWith(nitro.options.srcDir)) {
+        if (id.startsWith(withTrailingSlash(nitro.options.srcDir))) {
           const serverRoute = id.substring(nitro.options.srcDir.length);
           const relPath = path.relative(viteConfig.root, id);
 

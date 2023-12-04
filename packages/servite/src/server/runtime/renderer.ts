@@ -1,8 +1,8 @@
-import { H3Event, EventHandler, getHeader, getQuery } from 'h3';
+import { H3Event, type EventHandler, getHeader, getQuery } from 'h3';
 import { parseURL } from 'ufo';
-import { RouteMatch } from 'react-router-dom';
+import type { RouteMatch } from 'react-router-dom';
 import LZString from 'lz-string';
-import {
+import type {
   Island,
   Route,
   SSRContext,
@@ -49,10 +49,21 @@ export default <EventHandler>defineRenderHandler(async event => {
     ssrEntry
   );
 
+  // If react-router loader redirect or return Response,
+  // `renderResult` here will be undefined,
+  // we can skip the process
+  if (!renderResult) {
+    return {};
+  }
+
   const fullHtml = await renderFullHtml(ssrContext, {
     renderResult,
     renderContext,
   });
+
+  if (!fullHtml) {
+    return {};
+  }
 
   return {
     body: fullHtml,
@@ -99,15 +110,17 @@ async function loadSSREntry() {
     }
 
     // Ensure refresh module for hydrate correctly
-    // viteDevServer.moduleGraph.invalidateAll();
+    const ssrEntryModule = viteDevServer.moduleGraph.getModuleById(resolved.id);
+
+    if (ssrEntryModule) {
+      viteDevServer.moduleGraph.invalidateModule(ssrEntryModule);
+    }
 
     return (await viteDevServer.ssrLoadModule(resolved.id)) as SSREntry;
   }
 
   return import('virtual:servite/prod-ssr-entry');
 }
-
-let _prodAppHtml: string | undefined;
 
 async function loadTemplate(ssrContext: SSRContext) {
   let template = '';
@@ -117,21 +130,20 @@ async function loadTemplate(ssrContext: SSRContext) {
 
     template = await viteDevServer.transformIndexHtml(
       '/node_modules/.servite/index.html',
-      await storage.getItem('root/node_modules/.servite/index.html'),
+      // Nitro will mount `root` fs storage in dev,
+      // so we can get files from `root`
+      (await storage.getItem<string>('root/node_modules/.servite/index.html'))!,
       ssrContext.url
     );
   } else {
-    if (!_prodAppHtml) {
-      _prodAppHtml = await storage.getItem('/assets/servite/index.html');
-    }
-    template = _prodAppHtml!;
+    template ||= (await storage.getItem<string>('assets/servite/index.html'))!;
   }
 
   return template;
 }
 
 interface RenderAppHtmlResult {
-  renderResult: SSREntryRenderResult;
+  renderResult?: SSREntryRenderResult;
   renderContext?: SSREntryRenderContext;
 }
 
@@ -147,7 +159,7 @@ async function renderAppHtml(
 
   const renderContext: SSREntryRenderContext = {
     ssrContext,
-    helmetContext: {},
+    helmetContext: {} as any,
   };
 
   // Disable console while rendering in production
@@ -244,11 +256,11 @@ async function renderAssets(
     return devAssets.filter(Boolean).join('\n    ');
   }
 
-  if (!_ssrManifestJson) {
-    _ssrManifestJson = await storage.getItem(
-      '/assets/servite/ssr-manifest.json'
-    );
-  }
+  // We mounted server assets `servite` in src/node/nitro/init.ts,
+  // so we can get files from `assets/servite` here.
+  _ssrManifestJson ||= (await storage.getItem<Record<string, string[]>>(
+    'assets/servite/.vite/ssr-manifest.json'
+  ))!;
 
   return routeMatches
     .flatMap(m => {
@@ -287,7 +299,7 @@ async function renderFullHtml(
   ssrContext: SSRContext,
   { renderResult, renderContext }: RenderAppHtmlResult
 ) {
-  const routeMatches = renderContext?.routeMatches || [];
+  const routeMatches = renderContext?.routerContext?.matches || [];
   let template = await loadTemplate(ssrContext);
 
   const {
@@ -329,7 +341,7 @@ async function renderFullHtml(
     style,
     assets,
     islandsScript,
-    renderResult.headTags,
+    renderResult?.headTags,
   ]
     .map(x => x?.toString())
     .filter(Boolean)
@@ -345,16 +357,15 @@ async function renderFullHtml(
       pathname: ssrContext.pathname,
       noSSR: ssrContext.noSSR,
     },
-    serverRendered: Boolean(renderResult.appHtml),
+    serverRendered: Boolean(renderResult?.appHtml),
     hasIslands,
-    appState: renderContext?.appState,
   };
 
   template = template.replace(
     '<div id="root"></div>',
     `<script>window.__SERVITE__ssrData = ${JSON.stringify(ssrData)}</script>
     <div id="root" data-server-rendered="${ssrData.serverRendered}">${
-      renderResult.appHtml
+      renderResult?.appHtml || ''
     }</div>`
   );
 

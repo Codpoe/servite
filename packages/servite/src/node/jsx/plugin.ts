@@ -1,4 +1,4 @@
-import { PluginOption } from 'vite';
+import type { PluginOption } from 'vite';
 import viteReact from '@vitejs/plugin-react';
 import LZString from 'lz-string';
 import {
@@ -6,7 +6,7 @@ import {
   ISLAND_SPLITTER,
   JSX_DIR,
 } from '../constants.js';
-import { ServiteConfig } from '../types.js';
+import type { ServiteConfig } from '../types.js';
 import { babelJsxIsland } from './babel.js';
 
 export interface ServiteJsxPluginConfig {

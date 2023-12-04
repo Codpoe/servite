@@ -1,37 +1,63 @@
 import type { ReactElement } from 'react';
 import { renderToString } from 'react-dom/server';
-import { StaticRouter } from 'react-router-dom/server';
-import { withBase, withoutBase, withoutTrailingSlash } from 'ufo';
+import {
+  createStaticHandler,
+  createStaticRouter,
+  StaticRouterProvider,
+} from 'react-router-dom/server';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
+import { sendRedirect, sendWebResponse, toWebRequest } from 'h3';
 import customRender from 'virtual:servite/custom-server-render';
 import { islands } from 'virtual:servite-dist/jsx/jsx-runtime';
 import { islands as devIslands } from 'virtual:servite-dist/jsx/jsx-dev-runtime';
 import type {
-  SSREntryRenderContext,
+  SSREntryRender,
   SSREntryRenderResult,
 } from '../../shared/types.js';
-// import ssrPrepass from 'react-ssr-prepass';
-import { createApp } from './main.js';
+import { routes } from './routes.js';
+import { isBrowser } from './constants.js';
 
-const basename = withoutTrailingSlash(import.meta.env.BASE_URL);
+export { routes };
 
-export async function render(
-  context: SSREntryRenderContext
-): Promise<SSREntryRenderResult> {
+const routerHandler = createStaticHandler(routes);
+
+export const render: SSREntryRender = async context => {
   // We need to reset the array before rendering
   // to avoid confusion of the array from the previous render
   islands.length = 0;
   devIslands.length = 0;
 
-  const { pathname } = context.ssrContext;
-  const App = await createApp({ pagePath: pathname, context });
+  const { event } = context.ssrContext;
+
+  // Load data by executing all of the matched route loaders
+  const routerContext = await routerHandler.query(toWebRequest(event));
+
+  if (routerContext instanceof Response) {
+    if ([301, 302, 303, 307, 308].includes(routerContext.status)) {
+      await sendRedirect(
+        event,
+        routerContext.headers.get('Location')!,
+        routerContext.status
+      );
+      return;
+    }
+
+    await sendWebResponse(event, routerContext);
+    return;
+  }
+
+  const router = createStaticRouter(routerHandler.dataRoutes, routerContext);
 
   const element = (
-    <StaticRouter basename={basename} location={withBase(pathname, basename)}>
-      <App />
-    </StaticRouter>
+    <HelmetProvider context={context?.helmetContext}>
+      <Helmet defaultTitle={(isBrowser && document.title) || 'Servite App'} />
+      <StaticRouterProvider router={router} context={routerContext} />
+    </HelmetProvider>
   );
 
   const { appHtml, headTags } = await (customRender || fallbackRender)(element);
+
+  context.routerContext = routerContext;
 
   // `islandComponents` are filled during rendering.
   // add islandComponents in context
@@ -39,10 +65,9 @@ export async function render(
   context.islands = islands.concat(devIslands);
 
   return { appHtml, headTags };
-}
+};
 
 export { pages } from 'virtual:servite/pages';
-export { routes } from 'virtual:servite/pages-routes';
 
 function fallbackRender(element: ReactElement): SSREntryRenderResult {
   return {

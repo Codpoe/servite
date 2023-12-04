@@ -1,6 +1,7 @@
 import type { H3Event } from 'h3';
-import type { FilledContext } from 'react-helmet-async';
-import type { RouteMatch } from 'react-router-dom';
+import type { HelmetServerState } from 'react-helmet-async';
+import type { RouteObject, LazyRouteFunction } from 'react-router-dom';
+import type { StaticHandlerContext } from 'react-router-dom/server';
 
 export interface Page {
   routePath: string;
@@ -13,10 +14,11 @@ export interface Page {
 export interface Route {
   path: string;
   filePath: string;
-  component: any;
-  element: any;
+  module?: Record<string, any>;
+  lazy?: LazyRouteFunction<RouteObject>;
   children?: Route[];
   meta?: Record<string, any>;
+  __LAZY_PLACEHOLDER__?: string;
 }
 
 export interface SSRContext {
@@ -33,26 +35,13 @@ export interface Island {
 
 export type IslandType = 'load' | 'idle' | 'visible' | 'media';
 
-export interface AppState {
-  routes: Route[];
-  pages: Page[];
-  pagePath?: string;
-  pageData?: Page;
-  pageModule?: any;
-  pageLoading: boolean;
-  pageError: Error | null;
-  loaderData?: Record<string, any>;
-}
-
 export interface SSREntryRenderContext {
   ssrContext: SSRContext;
-  helmetContext: Partial<FilledContext>;
-  routeMatches?: RouteMatch[];
+  helmetContext?: {
+    helmet: HelmetServerState;
+  };
+  routerContext?: StaticHandlerContext;
   islands?: Island[];
-  appState?: Pick<
-    AppState,
-    'pagePath' | 'pageData' | 'pageModule' | 'loaderData'
-  >;
 }
 
 export interface SSREntryRenderResult {
@@ -62,7 +51,7 @@ export interface SSREntryRenderResult {
 
 export type SSREntryRender = (
   context: SSREntryRenderContext
-) => Promise<SSREntryRenderResult>;
+) => Promise<SSREntryRenderResult | undefined>;
 
 export interface SSREntry {
   render: SSREntryRender;
@@ -74,7 +63,6 @@ export interface SSRData {
   context: Omit<SSRContext, 'event'>;
   serverRendered: boolean;
   hasIslands: boolean;
-  appState?: SSREntryRenderContext['appState'];
 }
 
 export interface LoaderBaseContext {

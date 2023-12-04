@@ -103,9 +103,7 @@ async function init() {
   // 4. Clean src
   // =====================================
   await Promise.all(
-    (
-      await fs.readdir(src)
-    ).map(async file => {
+    (await fs.readdir(src)).map(async file => {
       // Keep some files as needed
       if (file === 'vite-env.d.ts') {
         return;

@@ -1,5 +1,5 @@
-import { Options as ReactOptions } from '@vitejs/plugin-react';
-import { NitroConfig } from 'nitropack';
+import type { Options as ReactOptions } from '@vitejs/plugin-react';
+import type { NitroConfig } from 'nitropack';
 
 export interface PagesDir {
   base?: string;

@@ -1,10 +1,11 @@
 import { createRoot, hydrateRoot } from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
-import { createApp } from './main.js';
-
-const basename = import.meta.env.BASE_URL?.replace(/\/$/, '');
-const pathname = window.location.pathname;
-const pagePath = basename ? pathname.substring(basename.length) : pathname;
+import {
+  RouterProvider,
+  createBrowserRouter,
+  matchRoutes,
+} from 'react-router-dom';
+import { routes } from './routes';
+import { NProgress } from './components/NProgress';
 
 async function bootstrap() {
   const container = document.getElementById('root');
@@ -13,15 +14,36 @@ async function bootstrap() {
     throw new Error('[servite] Cannot find an element with id "root"');
   }
 
-  const App = await createApp({ pagePath });
+  const serverRendered = container.dataset.serverRendered === 'true';
+
+  if (serverRendered) {
+    // Determine if any of the initial routes are lazy
+    const lazyMatches = matchRoutes(routes, window.location)?.filter(
+      m => m.route.lazy
+    );
+
+    // Load the lazy matches and update the routes before creating router
+    // so we can hydrate the SSR-rendered content synchronously
+    if (lazyMatches?.length) {
+      await Promise.all(
+        lazyMatches.map(async ({ route }) => {
+          const m = await route.lazy!();
+          Object.assign(route, {
+            ...m,
+            lazy: undefined,
+          });
+        })
+      );
+    }
+  }
+
+  const router = createBrowserRouter(routes);
 
   const element = (
-    <BrowserRouter basename={basename}>
-      <App />
-    </BrowserRouter>
+    <RouterProvider router={router} fallbackElement={<NProgress />} />
   );
 
-  if (container.dataset.serverRendered === 'true') {
+  if (serverRendered) {
     // ssr hydrate
     hydrateRoot(container, element);
     return;

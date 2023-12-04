@@ -1,7 +1,7 @@
 import path from 'upath';
 import fs from 'fs-extra';
-import { Plugin, HtmlTagDescriptor } from 'vite';
-import { ServiteConfig } from '../types.js';
+import type { Plugin, HtmlTagDescriptor } from 'vite';
+import type { ServiteConfig } from '../types.js';
 import { APP_HTML_FILE, FS_PREFIX_CLIENT_ENTRY } from '../constants.js';
 
 export interface ServiteHtmlPluginConfig {

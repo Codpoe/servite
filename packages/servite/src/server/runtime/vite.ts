@@ -1,7 +1,7 @@
 import path from 'upath';
 import { createServer, type ModuleNode } from 'vite';
-import { RouteMatch } from 'react-router-dom';
-import { Route } from '../../shared/types.js';
+import type { RouteMatch } from 'react-router-dom';
+import type { Route } from '../../shared/types.js';
 import { lazyCachedFn } from './utils.js';
 import { useRuntimeConfig } from '#internal/nitro';
 
@@ -64,6 +64,11 @@ export async function collectRoutesStyles(routeMatches: RouteMatch[]) {
 
   for (const m of routeMatches) {
     const route = m.route as Route;
+
+    if (!route.filePath) {
+      continue;
+    }
+
     const pageFile = path.resolve(viteDevServer.config.root, route.filePath);
 
     // call `ssrLoadModule` here to ensure moduleGraph is complete

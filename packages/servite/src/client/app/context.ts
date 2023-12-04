@@ -1,25 +1,19 @@
+import type { RouteObject } from 'react-router-dom';
 import { createContext, useContext } from 'react';
-import { ssrData } from './constants.js';
-import { AppState } from './types.js';
+import type { Page } from '../../shared/types.js';
 
-export const appContext = createContext<AppState>({
-  ...ssrData?.appState,
-  routes: [],
-  pages: [],
-  pageLoading: false,
-  pageError: null,
-});
-
-/**
- * get app state
- */
-export function useAppState() {
-  return useContext(appContext);
+export interface AppContextValue {
+  pages: Page[];
+  routes: RouteObject[];
 }
 
-/**
- * get loader data
- */
-export function useLoaderData<T = any>(): T {
-  return useAppState().loaderData as T;
+const appContext = createContext<AppContextValue>({
+  pages: [],
+  routes: [],
+});
+
+export const AppContextProvider = appContext.Provider;
+
+export function useApp() {
+  return useContext(appContext);
 }
