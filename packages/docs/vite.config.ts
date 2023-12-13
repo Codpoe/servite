@@ -8,7 +8,7 @@ import icons from 'unplugin-icons/vite';
 export default defineConfig({
   base: process.env.GH_PAGES ? '/servite/' : '/',
   ssr: {
-    noExternal: ['@docsearch/react'],
+    noExternal: ['@docsearch/react', 'algoliasearch'],
   },
   plugins: [
     servite({

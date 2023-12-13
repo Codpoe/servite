@@ -18,13 +18,23 @@ export function servite(userServiteConfig?: UserServiteConfig): PluginOption[] {
       enforce: 'pre',
       async config() {
         return {
+          appType: 'custom',
+          experimental: {
+            hmrPartialAccept: true,
+          },
           resolve: {
             alias: {
               'virtual:servite-dist': DIST_DIR,
             },
           },
           optimizeDeps: {
-            include: ['react/jsx-dev-runtime', 'react-dom/client', 'nprogress'],
+            include: [
+              'react',
+              'react/jsx-runtime',
+              'react/jsx-dev-runtime',
+              'react-dom/client',
+              'servite > nprogress',
+            ],
           },
           ssr: {
             noExternal: ['react-helmet-async'],
@@ -95,7 +105,7 @@ export function servite(userServiteConfig?: UserServiteConfig): PluginOption[] {
     },
     serviteHtml({ serviteConfig }),
     ...serviteJsx({ serviteConfig }),
-    servitePages({ serviteConfig }),
+    ...servitePages({ serviteConfig }),
     ...serviteNitro({ serviteConfig }),
   ];
 

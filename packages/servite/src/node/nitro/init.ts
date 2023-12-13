@@ -7,7 +7,7 @@ import {
 } from 'nitropack';
 import type { InlineConfig, ResolvedConfig } from 'vite';
 import { defu } from 'defu';
-import { DIST_DIR } from '../constants.js';
+import { DIST_DIR, SERVER_RENDERER_PATH } from '../constants.js';
 import type { ServiteConfig } from '../types.js';
 
 export interface CreateServiteNitroConfig {
@@ -50,7 +50,7 @@ export async function initNitro({
             server: viteConfig.server,
           },
         },
-        renderer: path.resolve(DIST_DIR, 'server/runtime/renderer'),
+        renderer: SERVER_RENDERER_PATH,
         externals: {
           inline: [DIST_DIR, 'servite/server'],
         },

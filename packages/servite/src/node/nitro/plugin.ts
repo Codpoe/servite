@@ -4,6 +4,7 @@ import fs from 'fs-extra';
 import { build, createDevServer, type Nitro, prepare } from 'nitropack';
 import { H3Event } from 'h3';
 import { withTrailingSlash } from 'ufo';
+import colors from 'picocolors';
 import type { Plugin, ResolvedConfig } from 'vite';
 import type { ApiHandler, ServiteConfig } from '../types.js';
 import { initNitro } from './init.js';
@@ -57,6 +58,10 @@ export function serviteNitro({
             await buildPromise;
 
             try {
+              server.config.logger.info(
+                colors.green('nitro handle request ') + colors.dim(req.url),
+                { timestamp: true }
+              );
               await nitroDevServer.app.handler(new H3Event(req, res));
             } catch (err) {
               res.statusCode = 500;

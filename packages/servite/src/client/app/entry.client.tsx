@@ -1,5 +1,6 @@
 import { createRoot, hydrateRoot } from 'react-dom/client';
 import {
+  RouteObject,
   RouterProvider,
   createBrowserRouter,
   matchRoutes,
@@ -38,6 +39,41 @@ async function bootstrap() {
   }
 
   const router = createBrowserRouter(routes);
+
+  // for router hmr
+  if (import.meta.hot) {
+    const traverseRoutes = (
+      routes: RouteObject[],
+      visitor: (route: RouteObject) => RouteObject
+    ): RouteObject[] => {
+      return routes.map(route => {
+        const { children } = route;
+        route = visitor(route) ?? route;
+
+        if (children?.length) {
+          route.children = traverseRoutes(children, visitor);
+        }
+
+        return route;
+      });
+    };
+
+    window.__SERVITE_mapRoutes__ = fn => {
+      const newRoutes = traverseRoutes(router.routes, fn);
+      router._internalSetRoutes(newRoutes);
+
+      return new Promise<RouteObject[]>(resolve => {
+        const unsubscribe = router.subscribe(state => {
+          if (state.revalidation === 'idle') {
+            unsubscribe();
+            // Ensure RouterProvider setState has flushed before re-rendering
+            resolve(newRoutes);
+          }
+        });
+        router.revalidate();
+      });
+    };
+  }
 
   const element = (
     <RouterProvider router={router} fallbackElement={<NProgress />} />

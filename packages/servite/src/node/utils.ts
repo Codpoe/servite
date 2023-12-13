@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import path from 'upath';
+import type { Plugin, ResolvedConfig } from 'vite';
 import { MARKDOWN_EXTS } from './constants.js';
 
 export function cleanUrl(url: string): string {
@@ -28,4 +29,15 @@ export function shallowCompare(
       key => Object.prototype.hasOwnProperty.call(a, key) && a[key] === b[key]
     )
   );
+}
+
+export function findVitePlugin(
+  viteConfig: ResolvedConfig,
+  pluginName: string
+): Plugin {
+  const plugin = viteConfig.plugins.find(p => p.name === pluginName);
+  if (!plugin) {
+    throw new Error(`[servite] vite plugin "${name}" not found`);
+  }
+  return plugin;
 }

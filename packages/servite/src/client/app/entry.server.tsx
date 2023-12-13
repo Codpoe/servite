@@ -11,6 +11,7 @@ import customRender from 'virtual:servite/custom-server-render';
 import { islands } from 'virtual:servite-dist/jsx/jsx-runtime';
 import { islands as devIslands } from 'virtual:servite-dist/jsx/jsx-dev-runtime';
 import type {
+  SSREntry,
   SSREntryRender,
   SSREntryRenderResult,
 } from '../../shared/types.js';
@@ -19,7 +20,8 @@ import { isBrowser } from './constants.js';
 
 export { routes };
 
-const routerHandler = createStaticHandler(routes);
+export const routerHandler: SSREntry['routerHandler'] =
+  createStaticHandler(routes);
 
 export const render: SSREntryRender = async context => {
   // We need to reset the array before rendering

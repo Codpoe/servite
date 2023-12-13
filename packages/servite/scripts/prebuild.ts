@@ -18,13 +18,17 @@ async function prebuild() {
     files.map(async file => {
       const relPath = path.relative(root, file);
       const ext = path.extname(file);
+      const nameWithoutExt = path.basename(file, ext);
       const outputPath = path.resolve(
         path.dirname(file),
         `${path.basename(file, ext)}.prebuilt${ext}`
       );
       const content = await fs.readFile(file, 'utf-8');
 
-      let { code } = await transform(content, { loader: 'ts', minify: true });
+      let { code } = await transform(content, {
+        loader: 'ts',
+        minify: nameWithoutExt === 'islands-hydrate',
+      });
 
       code = `/**
  * This file is prebuilt from ./${path.basename(file)}
@@ -41,10 +45,6 @@ export default ${JSON.stringify(code.trim())};
       console.log(`${colors.gray('Prebuilt:')} ${colors.cyan(relPath)}`);
     })
   );
-}
-
-function escapeTemplateLiterals(str: string) {
-  return str.replace(/`/g, '\\`').replace(/\$\{/g, '\\${');
 }
 
 prebuild();

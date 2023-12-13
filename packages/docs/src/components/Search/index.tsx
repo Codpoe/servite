@@ -3,10 +3,10 @@
  */
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Link, Helmet, useNavigate, isBrowser } from 'servite/client';
+import { PrefetchLink, Helmet, useNavigate, isBrowser } from 'servite/client';
 import { useDocSearchKeyboardEvents } from '@docsearch/react';
 import { ALGOLIA_CONFIG, IN_BROWSER, LOCALES } from '@/constants';
-import { useSiteState } from '@/context';
+import { useSite } from '@/context';
 import { removeTailSlash } from '@/utils';
 import { Search as IconSearch, Command as IconCommand } from '../Icons';
 
@@ -26,12 +26,12 @@ async function ensureDocSearchModal() {
 }
 
 function Hit({ hit, children }: { hit: any; children?: React.ReactNode }) {
-  return <Link to={hit.url}>{children}</Link>;
+  return <PrefetchLink to={hit.url}>{children}</PrefetchLink>;
 }
 
 export function Search({ iconOnly }: { iconOnly?: boolean }) {
   const routerNavigate = useNavigate();
-  const { currentLocale } = useSiteState();
+  const { currentLocale } = useSite();
   const searchButtonRef = useRef<HTMLButtonElement>(null);
   const [isOpen, setIsOpen] = useState(false);
 

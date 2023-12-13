@@ -46,3 +46,5 @@ To check out docs, visit https://codpoe.github.io/servite/ or https://servite.ve
 - [x] create-servite
 - [x] Use changeset
 - [x] Optimize the performance of page rendering
+- [ ] handle error while ssr
+- [ ] update docs

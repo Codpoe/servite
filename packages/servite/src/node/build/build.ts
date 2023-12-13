@@ -23,6 +23,7 @@ import { unwrapViteId } from '../../shared/utils.js';
 import { initNitro } from '../nitro/init.js';
 import { SSR_ENTRY_FILE } from '../constants.js';
 import type { ServiteConfig } from '../types.js';
+import { findVitePlugin } from '../utils.js';
 
 export async function build(inlineConfig: InlineConfig) {
   return new Builder(inlineConfig).build();
@@ -40,14 +41,6 @@ class Builder {
     const { outDir: extraOutDir } = extraConfig?.build || {};
 
     delete extraConfig?.build?.outDir;
-
-    const getPlugin = (name: string) => {
-      const plugin = viteConfig.plugins.find(p => p.name === name);
-      if (!plugin) {
-        throw new Error(`[servite] vite plugin "${name}" not found`);
-      }
-      return plugin;
-    };
 
     const rollupOutput = (await viteBuild({
       ...this.inlineConfig,
@@ -76,7 +69,7 @@ class Builder {
 
             // Save servite config
             serviteConfig = (
-              getPlugin('servite').api as any
+              findVitePlugin(viteConfig, 'servite').api as any
             ).getServiteConfig();
 
             // Save some config for generate bootstrap code and ssg
@@ -89,7 +82,11 @@ class Builder {
           },
           async buildEnd() {
             // Save pages to prerender
-            pages = await (getPlugin('servite:pages').api as any).getPages();
+            pages = await (
+              findVitePlugin(viteConfig, 'servite:pages').api as any
+            )
+              .getPagesManager()
+              .getPages();
           },
         },
       ],
@@ -336,7 +333,7 @@ async function copyServerAssets(viteConfig: ResolvedConfig) {
           viteConfig.root,
           viteConfig.build.outDir,
           '.output/server-assets',
-          filePath
+          path.basename(filePath)
         )
       )
     )

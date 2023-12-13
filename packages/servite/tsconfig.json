@@ -1,6 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "allowJs": true,
     "types": ["vite/client"],
     "outDir": "dist",
     "baseUrl": ".",

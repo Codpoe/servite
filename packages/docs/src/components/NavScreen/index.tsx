@@ -1,8 +1,8 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { CSSTransition } from 'react-transition-group';
-import { useAppState } from 'servite/client';
+import { useLocation } from 'servite/client';
 import { NavItem as INavItem } from '@/types';
-import { useSiteState } from '@/context';
+import { useSite } from '@/context';
 import { useActiveMatch } from '@/hooks/useActiveMatch';
 import { ChevronRight } from '../Icons';
 import { Link } from '../Link';
@@ -124,8 +124,8 @@ function SubNavItem({ item }: { item: INavItem }) {
 }
 
 export function NavScreen() {
-  const { textNav } = useSiteState();
-  const { pagePath } = useAppState();
+  const { textNav } = useSite();
+  const { pathname } = useLocation();
   const [open, setOpen] = useState(false);
 
   const toggleScreen = () => {
@@ -135,7 +135,7 @@ export function NavScreen() {
   // close nav-screen when path is changed
   useEffect(() => {
     setOpen(false);
-  }, [pagePath]);
+  }, [pathname]);
 
   return (
     <navScreenContext.Provider value={{ screenOpen: open, toggleScreen }}>

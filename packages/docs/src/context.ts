@@ -1,15 +1,14 @@
 import { createContext, useContext } from 'react';
-import { AppState, ssrData } from 'servite/client';
+import { type RouteHandle, ssrData } from 'servite/client';
+import { NavItem, SiteContextValue } from './types';
 import { LOCALES, LOCALE_TO_NAV, LOCALE_TO_SIDEBAR } from './constants';
-import { NavItem, SiteState } from './types';
 
-export function createSiteState(
-  appState?: Pick<AppState, 'pagePath' | 'pageData' | 'loaderData'>
-): SiteState {
-  const { pagePath } = appState || {};
-
+export function createSiteContextValue(
+  pathname: string | undefined,
+  routeHandle: RouteHandle | undefined
+): SiteContextValue {
   const currentLocale =
-    LOCALES.find(x => pagePath?.startsWith(x.localePath)) ||
+    LOCALES.find(x => pathname?.startsWith(x.localePath)) ||
     LOCALES[LOCALES.length - 1];
 
   const textNav: NavItem[] = [];
@@ -30,11 +29,19 @@ export function createSiteState(
     textNav,
     iconNav,
     sidebar,
+    routeHandle,
   };
 }
 
-export const siteContext = createContext<SiteState>(
-  createSiteState(ssrData?.appState)
+const routeHandles = ssrData?.routerContext?.handles || [];
+
+const siteContext = createContext<SiteContextValue>(
+  createSiteContextValue(
+    ssrData?.context.pathname,
+    routeHandles[routeHandles.length - 1]
+  )
 );
 
-export const useSiteState = () => useContext(siteContext);
+export const SiteContextProvider = siteContext.Provider;
+
+export const useSite = () => useContext(siteContext);

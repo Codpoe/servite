@@ -1,5 +1,5 @@
-import { Link } from 'servite/client';
-import { useSiteState } from '@/context';
+import { PrefetchLink } from 'servite/client';
+import { useSite } from '@/context';
 import { SITE_TITLE } from '@/constants';
 import { TextNav, IconNav } from '../Nav';
 import { Search } from '../Search';
@@ -7,7 +7,7 @@ import { ThemeModeSwitch } from '../ThemeModeSwitch';
 import { NavScreen } from '../NavScreen';
 
 export function Header() {
-  const { currentLocale } = useSiteState();
+  const { currentLocale } = useSite();
 
   return (
     <div className="sticky top-0 w-full z-[var(--z-index-header)]">
@@ -16,14 +16,14 @@ export function Header() {
       </div>
       <header className="h-[var(--header-height)] border-b border-b-c-border-1 bg-c-bg-0">
         <div className="h-full max-w-8xl mx-auto px-6 flex items-center">
-          <Link
+          <PrefetchLink
             className="h-full flex items-center space-x-2 hover:opacity-80 transition-opacity"
             to={currentLocale.localePath || ''}
           >
             <h1 className="text-lg font-medium tracking-wide text-c-text-0">
               {SITE_TITLE}
             </h1>
-          </Link>
+          </PrefetchLink>
           <div className="h-full hidden md:block">
             <Search __island={'visible'} />
           </div>

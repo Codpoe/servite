@@ -50,13 +50,13 @@ export function Component() {
 }
 ```
 
-## 获取当前的应用状态
+## 获取应用页面和路由列表
 
 ```tsx
-import { useAppState } from 'servite/client';
+import { useApp } from 'servite/client';
 
-export function Component() {
-  const appState = useAppState();
+export function useApp() {
+  const { pages, routes } = useAppState();
   // ...
 }
 ```

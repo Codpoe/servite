@@ -1,10 +1,16 @@
-import { H3Event, type EventHandler, getHeader, getQuery } from 'h3';
+import {
+  H3Event,
+  type EventHandler,
+  getHeader,
+  getQuery,
+  sendWebResponse,
+} from 'h3';
 import { parseURL } from 'ufo';
-import type { RouteMatch } from 'react-router-dom';
+import { type RouteMatch } from 'react-router-dom';
 import LZString from 'lz-string';
+import colors from 'picocolors';
 import type {
   Island,
-  Route,
   SSRContext,
   SSRData,
   SSREntry,
@@ -20,7 +26,13 @@ import {
   renderTag,
   trapConsole,
 } from './utils.js';
-import { collectRoutesStyles, getViteDevServer } from './vite.js';
+import {
+  collectRoutesStyles,
+  loadSSREntry,
+  loadTemplate,
+  viteLog,
+} from './vite.js';
+import { queryRouteData } from './remix.js';
 import {
   defineRenderHandler,
   useStorage,
@@ -42,7 +54,13 @@ export default <EventHandler>defineRenderHandler(async event => {
     pathname,
     noSSR: isNoSSR(event),
   };
+
   const ssrEntry = ssrContext.noSSR ? undefined : await loadSSREntry();
+
+  if (ssrEntry && getQuery(event)._data) {
+    sendWebResponse(event, await queryRouteData(event, ssrEntry));
+    return {};
+  }
 
   const { renderResult, renderContext } = await renderAppHtml(
     ssrContext,
@@ -61,17 +79,11 @@ export default <EventHandler>defineRenderHandler(async event => {
     renderContext,
   });
 
-  if (!fullHtml) {
-    return {};
-  }
-
   return {
     body: fullHtml,
-    statusCode: event.res.statusCode,
-    statusMessage: event.res.statusMessage,
     headers: {
       'Content-Type': 'text/html;charset=UTF-8',
-      'X-Powered-By': 'servite',
+      'X-Servite-Render': 'yes',
     },
   };
 });
@@ -92,56 +104,6 @@ function isNoSSR(event: H3Event): boolean {
   return false;
 }
 
-async function loadSSREntry() {
-  if (isDev) {
-    const viteDevServer = await getViteDevServer();
-    const resolved = await viteDevServer.pluginContainer.resolveId(
-      'virtual:servite-dist/client/app/entry.server.js',
-      undefined,
-      {
-        ssr: true,
-      }
-    );
-
-    if (!resolved) {
-      throw new Error(
-        '[servite] Failed to resolve module: virtual:servite-dist/client/app/entry.server.js'
-      );
-    }
-
-    // Ensure refresh module for hydrate correctly
-    const ssrEntryModule = viteDevServer.moduleGraph.getModuleById(resolved.id);
-
-    if (ssrEntryModule) {
-      viteDevServer.moduleGraph.invalidateModule(ssrEntryModule);
-    }
-
-    return (await viteDevServer.ssrLoadModule(resolved.id)) as SSREntry;
-  }
-
-  return import('virtual:servite/prod-ssr-entry');
-}
-
-async function loadTemplate(ssrContext: SSRContext) {
-  let template = '';
-
-  if (isDev) {
-    const viteDevServer = await getViteDevServer();
-
-    template = await viteDevServer.transformIndexHtml(
-      '/node_modules/.servite/index.html',
-      // Nitro will mount `root` fs storage in dev,
-      // so we can get files from `root`
-      (await storage.getItem<string>('root/node_modules/.servite/index.html'))!,
-      ssrContext.url
-    );
-  } else {
-    template ||= (await storage.getItem<string>('assets/servite/index.html'))!;
-  }
-
-  return template;
-}
-
 interface RenderAppHtmlResult {
   renderResult?: SSREntryRenderResult;
   renderContext?: SSREntryRenderContext;
@@ -156,6 +118,8 @@ async function renderAppHtml(
       renderResult: { appHtml: '' },
     };
   }
+
+  viteLog(colors.green('nitro ssr ') + colors.dim(ssrContext.url));
 
   const renderContext: SSREntryRenderContext = {
     ssrContext,
@@ -259,14 +223,15 @@ async function renderAssets(
   // We mounted server assets `servite` in src/node/nitro/init.ts,
   // so we can get files from `assets/servite` here.
   _ssrManifestJson ||= (await storage.getItem<Record<string, string[]>>(
-    'assets/servite/.vite/ssr-manifest.json'
+    'assets/servite/ssr-manifest.json'
   ))!;
 
   return routeMatches
     .flatMap(m => {
-      const route = m.route as Route;
-      return (_ssrManifestJson?.[route.filePath] || []).map(link =>
-        hasIslands && link.endsWith('.js') ? '' : renderPreloadLink(link)
+      const route = m.route;
+      return (_ssrManifestJson?.[(route.handle || route).filePath] || []).map(
+        link =>
+          hasIslands && link.endsWith('.js') ? '' : renderPreloadLink(link)
       );
     })
     .filter(Boolean)
@@ -299,7 +264,8 @@ async function renderFullHtml(
   ssrContext: SSRContext,
   { renderResult, renderContext }: RenderAppHtmlResult
 ) {
-  const routeMatches = renderContext?.routerContext?.matches || [];
+  const routerContext = renderContext?.routerContext;
+  const routeMatches = routerContext?.matches || [];
   let template = await loadTemplate(ssrContext);
 
   const {
@@ -359,6 +325,12 @@ async function renderFullHtml(
     },
     serverRendered: Boolean(renderResult?.appHtml),
     hasIslands,
+    routerContext: routerContext
+      ? {
+          location: routerContext.location,
+          handles: routeMatches.map(m => m.route.handle),
+        }
+      : undefined,
   };
 
   template = template.replace(

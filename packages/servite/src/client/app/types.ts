@@ -1,3 +1,3 @@
-import type { Page as PageData } from '../../shared/types.js';
+import type { Page as PageData, RouteHandle } from '../../shared/types.js';
 
-export type { PageData };
+export type { PageData, RouteHandle };

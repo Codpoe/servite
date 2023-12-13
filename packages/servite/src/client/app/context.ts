@@ -1,16 +1,15 @@
-import type { RouteObject } from 'react-router-dom';
 import { createContext, useContext } from 'react';
+import type { Router } from '@remix-run/router';
 import type { Page } from '../../shared/types.js';
 
 export interface AppContextValue {
   pages: Page[];
-  routes: RouteObject[];
+  router: Router;
 }
 
 const appContext = createContext<AppContextValue>({
   pages: [],
-  routes: [],
-});
+} as any);
 
 export const AppContextProvider = appContext.Provider;
 

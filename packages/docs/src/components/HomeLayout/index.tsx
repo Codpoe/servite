@@ -1,5 +1,6 @@
 import React from 'react';
-import { Outlet, useAppState } from 'servite/client';
+import { Outlet } from 'servite/client';
+import { useSite } from '@/context';
 import { Mdx } from '../Mdx';
 import { Footer } from '../Footer';
 import { Button } from '../Button';
@@ -15,9 +16,9 @@ interface HomePageMeta {
 }
 
 export function HomeLayout() {
-  const { pageData } = useAppState();
+  const { routeHandle } = useSite();
   const { heroImage, heroText, tagline, actions, features, footer } =
-    (pageData?.meta || {}) as HomePageMeta;
+    (routeHandle?.meta || {}) as HomePageMeta;
 
   return (
     <div className="max-w-screen-lg px-6 mx-auto h-full flex flex-col">

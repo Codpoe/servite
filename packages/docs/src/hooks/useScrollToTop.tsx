@@ -1,12 +1,12 @@
 import { useEffect, useRef } from 'react';
-import { useNavigationType, useAppState } from 'servite/client';
+import { useLocation, useNavigationType } from 'servite/client';
 import { scrollPromise } from './useScrollPromise';
 
 /**
  * scroll to top while page change
  */
 export function useScrollToTop() {
-  const { pagePath } = useAppState();
+  const { pathname } = useLocation();
   const navigationType = useNavigationType();
   const navigationTypeRef = useRef(navigationType);
 
@@ -21,5 +21,5 @@ export function useScrollToTop() {
         });
       })();
     }
-  }, [pagePath]);
+  }, [pathname]);
 }

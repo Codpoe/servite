@@ -1,6 +1,6 @@
 import React from 'react';
-import { Link, matchRoutes, resolvePath, type To } from 'react-router-dom';
-import { useLocation } from '../router';
+import { matchRoutes, resolvePath, type To } from 'react-router-dom';
+import { useHref, useLinkClickHandler, useLocation } from '../router';
 import { hasIslands } from '../constants.js';
 import { useApp } from '../context';
 
@@ -21,9 +21,26 @@ export interface PrefetchLinkProps
 export const PrefetchLink = React.forwardRef<
   HTMLAnchorElement,
   PrefetchLinkProps
->(function LinkWithRef({ to, ...rest }, ref) {
+>(function LinkWithRef(
+  { to, replace = false, state, target, reloadDocument, onClick, ...rest },
+  ref
+) {
+  const href = useHref(to);
+  const internalOnClick = useLinkClickHandler(to, { replace, state, target });
   const { pathname } = useLocation();
-  const { routes } = useApp();
+  const { router } = useApp();
+
+  const handleClick = (
+    event: React.MouseEvent<HTMLAnchorElement, MouseEvent>
+  ) => {
+    if (onClick) {
+      onClick(event);
+    }
+
+    if (!hasIslands && !event.defaultPrevented && !reloadDocument) {
+      internalOnClick(event);
+    }
+  };
 
   const handleMouseEnter = () => {
     if (
@@ -34,7 +51,7 @@ export const PrefetchLink = React.forwardRef<
       const { pathname: targetPath } = resolvePath(to, pathname);
 
       if (targetPath !== pathname) {
-        matchRoutes(routes || [], targetPath)?.forEach(m => {
+        matchRoutes(router.routes || [], targetPath)?.forEach(m => {
           m.route.lazy?.();
           // TODO: execute loader?
         });
@@ -42,5 +59,14 @@ export const PrefetchLink = React.forwardRef<
     }
   };
 
-  return <Link {...rest} to={to} ref={ref} onMouseEnter={handleMouseEnter} />;
+  return (
+    <a
+      {...rest}
+      ref={ref}
+      href={href}
+      target={target}
+      onClick={handleClick}
+      onMouseEnter={handleMouseEnter}
+    />
+  );
 });

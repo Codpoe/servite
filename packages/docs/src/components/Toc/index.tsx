@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useAppState, useLocation } from 'servite/client';
+import { useLocation } from 'servite/client';
 import { throttle, debounce } from 'lodash-es';
 import { useScroll } from '@/hooks/useScroll';
+import { useSite } from '@/context';
 import { Link } from '../Link';
 
 interface TocItem {
@@ -11,7 +12,7 @@ interface TocItem {
 }
 
 export function Toc() {
-  const toc: TocItem[] | undefined = useAppState().pageModule?.toc;
+  const toc: TocItem[] | undefined = useSite().routeHandle?.module?.toc;
 
   const [headings, setHeadings] = useState<HTMLElement[]>([]);
   const [activeIndex, setActiveIndex] = useState<number>(-1);
@@ -118,6 +119,7 @@ function getTocItemId(index: number) {
 
 let canScrollIntoView = false;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function useHeadingScrollIntoView(headings: HTMLElement[]) {
   const { hash } = useLocation();
 
