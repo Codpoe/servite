@@ -5,7 +5,7 @@ import { ErrorBoundary } from './error';
 
 export const routes: RouteObject[] = [
   {
-    id: '',
+    id: '_',
     path: '/',
     element: <App />,
     errorElement: <ErrorBoundary />,

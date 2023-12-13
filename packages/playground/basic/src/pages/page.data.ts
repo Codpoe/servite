@@ -5,8 +5,6 @@ export interface LoaderData {
   total: number;
 }
 
-export const toc = [];
-
 export const loader: LoaderFunction = (): LoaderData => {
   return {
     list: [0, 1, 2],

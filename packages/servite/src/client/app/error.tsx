@@ -12,22 +12,24 @@ export function ErrorBoundary() {
   return (
     <>
       <style>{`
-body {
-  margin: 0;
-  background: #fff;
-}
-
 .servite-error-boundary {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #fff;
   padding: 16px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  text-align: center;
 }
 
 .servite-error-title {
   margin: 0;
-  font-size: 64px;
+  font-size: 56px;
   line-height: 64px;
   font-weight: 600;
   color: #374151;
@@ -60,7 +62,7 @@ body {
 }
 
 @media (prefers-color-scheme: dark) {
-  body {
+  .servite-error-boundary {
     background: #1b1b1f;
   }
 
@@ -82,12 +84,12 @@ body {
 }
       `}</style>
       <div className="servite-error-boundary">
-        <h1 className="servite-error-title">Oops!</h1>
+        <h1 className="servite-error-title">{error.status || 'Oops!'}</h1>
         <p className="servite-error-desc">
-          Sorry, an unexpected error has occurred.
+          {error.statusText || 'Sorry, an unexpected error has occurred.'}
         </p>
         <div className="servite-error-divider"></div>
-        <p className="servite-error-msg">{error.statusText || error.message}</p>
+        <p className="servite-error-msg">{error.data || error.message}</p>
       </div>
     </>
   );
