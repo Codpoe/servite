@@ -1,5 +1,10 @@
 # 路由数据
 
+:::tip
+Servite 的路由数据功能是基于 [React Router](https://reactrouter.com) 进行开发的，
+一些使用细节可直接参考 React Router 的文档。
+:::
+
 有些数据可能会明显影响到我们的路由组件展示和用户体验，这种跟路由密切关联的数据就叫**路由数据**。例如：
 - 用户中心页面里的头像、昵称等就是路由数据
 - 商品详情页面里的商品头图、名称、价格等也应该是路由数据
@@ -9,15 +14,22 @@
 
 假如我们有这样的嵌套路由结构：
 
-<img src="../../../assets/nested-routes.png" />
+![](../../../assets/nested-routes.png)
 
 当进入 `/dashboard/settings` 时，传统 React 应用中会存在这样的瀑布流加载：
 
-`load App script` -> `render App` -> `fetch /api/app` -> `load Dashboard script` -> `render Dashboard` 
--> `fetch /api/dashboard` -> `load Settings script` -> `render Settings` -> `fetch /api/settings`
+- `load App script`
+  - `render App`
+    - `fetch /api/app`
+      - `load Dashboard script`
+        - `render Dashboard`
+          - `fetch /api/dashboard`
+            - `load Settings script`
+              - `render Settings`
+                - `fetch /api/settings`
 
-经过这样的加载后页面才最终可用，用户体验是比较差的。因此，Servite 借助 React Router v6 的 loader 和 action，
-实现了路由数据的并行加载，得到更好的性能表现和用户体验。
+为了获取更好的用户体验和性能，Servite 借助 [React Router v6](https://reactrouter.com) 的 loader 和 action，
+实现了路由数据的并行加载，以及更简单的数据流：
 
 <img src="../../../assets/loader-action.png" />
 
@@ -27,13 +39,69 @@ Servite 约定了加 `.data` 后缀的文件为对应路由的**数据文件**�
 - 如果布局路由文件是 `src/pages/layout.tsx`，那么它对应的数据文件是 `src/pages/layout.data.ts`
 - 如果页面路由文件是 `src/pages/about/page.tsx`，那么对应的数据文件是 `src/pages/about/page.data.ts`
 
-我们可以在数据文件中导出一个 `loader` 函数用于数据获取：
+我们可以在数据文件中导出一个 `loader` 函数用于数据加载：
+
+```ts
+// page.data.ts
+export interface SomeData {}
+
+export async function loader() {
+  return fakeGetSomeData();
+}
+```
+
+接着在对应的路由组件中可以通过 `useLoaderData` 这个 hook 拿到数据用于渲染：
+
+```tsx
+// page.tsx
+import { useLoaderData } from 'servite/client';
+import type { SomeData } from './page.data';
+
+export default function Page() {
+  const loaderData = useLoaderData() as SomeData;
+  // ...
+}
+```
+
+:::warning
+需要注意的是，如果需要在组件中导入 `.data` 文件定义的 TS 类型，最好使用 `import type`，而不是单纯的 `import`，
+这样能让构建工具更好地 Tree Shaking，例如上面代码中的：<br />
+`import type { SomeData } from './page.data'`
+
+尤其是当我们在 `.data` 文件中使用了一些只能在服务端运行的 API 和库时，直接使用 `import { xxx } from './page.data'` 
+可能会导致打包编译失败，或者浏览器端的构建产物中包含服务端的代码，有泄露风险。
+:::
+
+## 数据更新
+
+跟上面的 `loader` 类似，我们可以在 `.data` 文件中导出 `action` 函数用于数据变更：
 
 ```ts
 // page.data.ts
 export async function loader() {
-  return fetch('/api/some-data');
+  return fakeGetSomeData();
+}
+
+export async function action() {
+  return fakeUpdateData();
 }
 ```
 
-## 数据更新
+然后在组件中可以通过 `useSubmit` 来触发 `action`：
+
+```tsx
+// page.tsx
+export default function Page() {
+  const submit = useSubmit();
+  return (
+    <Form
+      onChange={(event) => {
+        submit(event.currentTarget);
+      }}
+    >
+      <input type="text" name="search" />
+      <button type="submit">Search</button>
+    </Form>
+  );
+}
+```

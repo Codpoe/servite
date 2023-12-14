@@ -73,6 +73,7 @@ export function serviteJsx({
     },
     ...viteReact({
       ...serviteConfig.react,
+      include: /\.([tj]s|md)x?$/,
       jsxRuntime: 'automatic',
       jsxImportSource: JSX_DIR,
       babel(id, opts) {
