@@ -18,7 +18,7 @@ interface HomePageMeta {
 export function HomeLayout() {
   const { routeHandle } = useSite();
   const { heroImage, heroText, tagline, actions, features, footer } =
-    (routeHandle?.meta || {}) as HomePageMeta;
+    (routeHandle?.module.frontmatter || {}) as HomePageMeta;
 
   return (
     <div className="max-w-screen-lg px-6 mx-auto h-full flex flex-col">

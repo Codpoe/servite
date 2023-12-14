@@ -5,6 +5,7 @@ import {
   createBrowserRouter,
   matchRoutes,
 } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import { routes } from './routes';
 import { NProgress } from './components/NProgress';
 
@@ -76,7 +77,9 @@ async function bootstrap() {
   }
 
   const element = (
-    <RouterProvider router={router} fallbackElement={<NProgress />} />
+    <HelmetProvider>
+      <RouterProvider router={router} fallbackElement={<NProgress />} />
+    </HelmetProvider>
   );
 
   if (serverRendered) {

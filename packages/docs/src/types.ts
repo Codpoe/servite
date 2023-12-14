@@ -38,6 +38,10 @@ export interface SiteContextValue {
   iconNav: NavItem[];
   sidebar: SidebarItem[];
   routeHandle?: RouteHandle;
+  /**
+   * The frontmatter of markdown
+   */
+  frontmatter?: Record<string, any>;
 }
 
 export type HtmlTagConfig =

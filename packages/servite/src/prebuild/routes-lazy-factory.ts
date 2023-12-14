@@ -11,11 +11,6 @@ function lazyFactory(moduleOrFunction: any) {
     const filePath = this?.filePath;
     const dataFilePath = this?.dataFilePath;
 
-    if (this) {
-      delete this.filePath;
-      delete this.dataFilePath;
-    }
-
     return {
       Component: module.default,
       ErrorBoundary: module.ErrorBoundary,

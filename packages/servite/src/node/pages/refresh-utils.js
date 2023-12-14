@@ -79,9 +79,8 @@ function registerExportsForReactRefresh(filename, moduleExports) {
 
 // Set acceptExports to prevent hmr boundary crossing
 const acceptExports = [
-  // servite field
-  'meta',
   // mdx fields
+  'frontmatter',
   'toc',
 ];
 
@@ -108,7 +107,7 @@ function validateRefreshBoundaryAndEnqueueUpdate(prevExports, nextExports) {
     nextExports,
     (key, value) => {
       hasExports = true;
-      // Servite can handle Servite-specific exports (e.g. `meta` and `toc`)
+      // Servite can handle Servite-specific exports (e.g. `frontmatter` and `toc`)
       if (acceptExports.includes(key)) {
         const filename = exportsToFileMap.get(prevExports);
 

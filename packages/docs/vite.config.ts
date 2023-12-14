@@ -13,6 +13,7 @@ export default defineConfig({
   plugins: [
     servite({
       ssg: ['**/*'],
+      islands: process.env.NODE_ENV === 'production',
     }),
     tsAlias(),
     mdxPlus({

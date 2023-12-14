@@ -47,7 +47,7 @@ export function SlideLayout() {
   pageRef.current = page;
 
   const { routeHandle } = useSite();
-  const { slideCount } = routeHandle?.meta || {};
+  const { slideCount } = routeHandle?.module || {};
 
   // TODO: slide modules
   const slideModule = {} as any;

@@ -30,6 +30,7 @@ export function createSiteContextValue(
     iconNav,
     sidebar,
     routeHandle,
+    frontmatter: routeHandle?.module.frontmatter,
   };
 }
 

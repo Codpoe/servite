@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { isEqual } from 'ufo';
-import { Outlet, useLocation } from 'servite/client';
+import { ClientOnly, Outlet, useLocation } from 'servite/client';
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
 import { SidebarItem } from '@/types';
 import { useSite } from '@/context';
@@ -80,7 +80,9 @@ export function DocLayout() {
               <Mdx className="mb-16">
                 <Outlet />
               </Mdx>
-              <UpdateInfo />
+              <ClientOnly>
+                <UpdateInfo />
+              </ClientOnly>
               <PrevNext />
             </div>
           </div>

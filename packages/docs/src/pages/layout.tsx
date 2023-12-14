@@ -26,18 +26,18 @@ export default function Layout() {
     );
   }, [pathname, routeMatches]);
 
-  const { currentLocale, routeHandle } = siteContextValue;
+  const { currentLocale, routeHandle, frontmatter } = siteContextValue;
 
   return (
     <>
       <Helmet titleTemplate={`%s | ${SITE_TITLE}`} defaultTitle={SITE_TITLE}>
         <html lang={currentLocale.locale} />
-        <title>{routeHandle?.meta?.title}</title>
+        <title>{frontmatter?.title}</title>
         <meta name="description" content={SITE_DESCRIPTION} />
       </Helmet>
       <SiteContextProvider value={siteContextValue}>
         <Header />
-        {routeHandle?.meta?.layout === 'home' ? (
+        {frontmatter?.layout === 'home' ? (
           <HomeLayout />
         ) : /\.mdx?$/.test(routeHandle?.filePath || '') ? (
           <DocLayout />

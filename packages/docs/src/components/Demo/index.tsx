@@ -10,7 +10,6 @@ import './index.css';
 export interface DemoProps {
   code: string;
   codeHtml: string;
-  meta?: Record<string, any>;
   language?: string;
   children?: React.ReactNode;
 }

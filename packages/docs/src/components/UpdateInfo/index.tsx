@@ -36,14 +36,14 @@ function createEditLink(
 }
 
 export function UpdateInfo() {
-  const { routeHandle } = useSite();
+  const { routeHandle, frontmatter } = useSite();
 
   const editLink = routeHandle?.filePath
     ? createEditLink(DOCS_REPO_INFO, routeHandle.filePath)
     : '';
 
-  const lastUpdated = routeHandle?.meta?.updatedTime
-    ? new Date(routeHandle.meta.updatedTime).toLocaleString()
+  const lastUpdated = frontmatter?.commitTime
+    ? new Date(frontmatter.commitTime * 1000).toLocaleString()
     : '';
 
   if (!editLink && !lastUpdated) {
