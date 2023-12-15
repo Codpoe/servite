@@ -1,8 +1,9 @@
-<!DOCTYPE html>
-<html lang="zh">
+<!doctype html>
+<html>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/servite/favicon.svg" />
     <script>
       let themeMode = window.localStorage.getItem('servite:themeMode');
 
@@ -18,106 +19,87 @@
         document.documentElement.classList.remove('dark');
       }
     </script>
-    
-    
-    <link rel="stylesheet" href="/servite/assets/index-a8d1559d.css">
-    <title data-rh="true">islands - 孤岛架构 | Servite</title>
-    <meta data-rh="true" name="description" content="A vite plugin for React SSR / SSG"/>
-    <link data-rh="true" rel="preconnect" href="https://P8DCJAPIC4-dsn.algolia.net" crossOrigin=""/>
-    <script>const StaticHtml=({name:o,html:i})=>i?window.__SERVITE__createElement("servite-slot",{name:o,suppressHydrationWarning:!0,dangerouslySetInnerHTML:{__html:i}}):null;StaticHtml.shouldComponentUpdate=()=>!1,customElements.get("servite-island")||customElements.define("servite-island",class extends HTMLElement{constructor(){super(...arguments);this.hydrate=async()=>{if(!window.__SERVITE__islands){window.addEventListener("servite:hydrate",this.hydrate,{once:!0});return}const n=Number(this.getAttribute("index")),t=JSON.parse(this.getAttribute("props")||""),e=Boolean(this.getAttribute("client"));if(this.Component??=await window.__SERVITE__islands?.[n]?.(),this.Component){this.querySelectorAll("servite-slot").forEach(a=>{const r=a.getAttribute("name");r&&(t[r]=window.__SERVITE__createElement(StaticHtml,{name:r,html:a.innerHTML}))});const s=window.__SERVITE__createElement(this.Component,t);e?window.__SERVITE__createRoot(this).render(s):window.__SERVITE__hydrateRoot(this,s)}}}async connectedCallback(){switch(this.getAttribute("type")){case"idle":{"requestIdleCallback"in window?window.requestIdleCallback(this.hydrate):setTimeout(this.hydrate,200);break}case"visible":{await this.ensureChildren();const t=new IntersectionObserver(e=>{for(const s of e)if(s.isIntersecting){t.disconnect(),this.hydrate();break}});for(let e=0;e<this.children.length;e++)t.observe(this.children[e]);break}case"media":{const t=this.getAttribute("opts");if(t){const e=matchMedia(t);e.matches?this.hydrate():e.addEventListener("change",this.hydrate,{once:!0})}break}default:this.hydrate()}}async ensureChildren(){if(!this.children.length)return new Promise(n=>{new MutationObserver((t,e)=>{this.children.length&&(e.disconnect(),n())}).observe(this,{childList:!0})})}});</script>
-<script type="module" crossorigin src="/servite/assets/islands-8d7124bb.js"></script>
+    <script type="module" crossorigin src="/servite/assets/index-qCrzsRmR.js"></script>
+    <link rel="stylesheet" crossorigin href="/servite/assets/index-V4jMUV7N.css">
+    <title data-rh="true">Servite App</title>
   </head>
   <body>
     <noscript>
       We're sorry but react app doesn't work properly without JavaScript
       enabled. Please enable it to continue.
     </noscript>
-    <script>window.__SERVITE__ssrData = {"context":{"url":"/zh/guide/islands","pathname":"/zh/guide/islands","noSSR":false},"serverRendered":true,"hasIslands":true,"appState":{"pagePath":"/zh/guide/islands","pageData":{"routePath":"/zh/guide/islands","filePath":"src/pages/zh/guide/islands.mdx","isLayout":false,"is404":false,"meta":{"title":"islands - 孤岛架构"}},"pageModule":{"toc":[{"id":"介绍","text":"介绍","depth":2},{"id":"使用","text":"使用","depth":2},{"id":"开启-ssg","text":"开启 SSG","depth":3},{"id":"标记孤岛","text":"标记孤岛","depth":3},{"id":"孤岛水合时机","text":"孤岛水合时机","depth":3}]}}}</script>
-    <div id="root" data-server-rendered="true"><!--$--><div class="sticky top-0 w-full z-[var(--z-index-header)]"><div class="h-[var(--banner-height)] px-6 bg-c-brand leading-[var(--banner-height)] text-center text-white text-xs font-semibold">This is early WIP!</div><header class="h-[var(--header-height)] border-b border-b-c-border-1 bg-c-bg-0"><div class="h-full max-w-8xl mx-auto px-6 flex items-center"><a class="h-full flex items-center space-x-2 hover:opacity-80 transition-opacity" href="/servite/zh"><h1 class="text-lg font-medium tracking-wide text-c-text-0">Servite</h1></a><div class="h-full hidden md:block"><servite-island type="visible" index="0" props="{}" style="display:contents"><button class="group flex justify-center items-center h-full ml-6" aria-label="Search"><div class="flex items-center space-x-1.5 mr-1.5 text-c-text-2 group-hover:text-c-text-0 transition-colors"><svg width="1em" height="1em" viewBox="0 0 24 24" class="text-[15px]"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="10" cy="10" r="7"></circle><path d="m21 21l-6-6"></path></g></svg><span class="text-[13px]">Search</span></div><div class="flex items-center h-4.5 px-0.5 border border-current rounded text-xs text-c-text-3 group-hover:text-c-brand transition-colors"><svg width="1em" height="1em" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 9a2 2 0 1 1 2-2v10a2 2 0 1 1-2-2h10a2 2 0 1 1-2 2V7a2 2 0 1 1 2 2H7"></path></svg>K</div></button></servite-island></div><div class="h-full ml-auto -mr-2 hidden md:flex items-center"><nav class="h-full hidden md:flex items-center text-sm text-c-text-0 -mb-0.5"><a class="h-full flex items-center px-3 border-b
-    cursor-pointer font-medium transition-colors
-     hover:text-c-brand
-        border-c-brand
-       " href="/servite/zh/guide"><span>文档</span></a><a class="h-full flex items-center px-3 border-b
-    cursor-pointer font-medium transition-colors
-     hover:text-c-brand
-        border-transparent
-       " href="https://stackblitz.com/edit/servite-t37smj?file=src/pages/page.tsx" target="_blank"><span>在线示例</span></a></nav><servite-island type="visible" index="1" props="{&quot;className&quot;:&quot;ml-4 pl-4 mr-2 border-l border-c-border-1&quot;}" style="display:contents"><div class="ml-4 pl-4 mr-2 border-l border-c-border-1"><div class="relative w-10 h-[22px] border border-c-border-2 rounded-full bg-c-bg-1 cursor-pointer hover:border-c-brand transition-[border-color]"><div class="theme-mode-switch__circle w-[18px] h-[18px] rounded-full bg-c-bg-0 text-sm absolute top-px left-px transition-transform"><svg width="1em" height="1em" viewBox="0 0 24 24" class="theme-mode-switch__sun absolute top-0.5 left-0.5 text-sm transition-all text-c-text-0"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="12" cy="12" r="4"></circle><path d="M3 12h1m8-9v1m8 8h1m-9 8v1M5.6 5.6l.7.7m12.1-.7l-.7.7m0 11.4l.7.7m-12.1-.7l-.7.7"></path></g></svg><svg width="1em" height="1em" viewBox="0 0 24 24" class="theme-mode-switch__moon absolute top-0.5 left-0.5 text-sm transition-all text-c-text-0"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3h.393a7.5 7.5 0 0 0 7.92 12.446A9 9 0 1 1 12 2.992z"></path></svg></div></div></div></servite-island><div class="undefined flex justify-start items-center flex-wrap"><a class="flex justify-center items-center text-c-text-2 transition-colors hover:text-c-brand
-              w-9 h-9 text-[17px]
-               " href="https://github.com/codpoe/servite" target="_blank"><svg viewBox="0 0 20 20" width="1.2em" height="1.2em"><path fill="currentColor" d="M20 10.25c0 2.234-.636 4.243-1.908 6.027c-1.271 1.784-2.914 3.018-4.928 3.703c-.234.045-.406.014-.514-.093a.539.539 0 0 1-.163-.4V16.67c0-.863-.226-1.495-.677-1.895a8.72 8.72 0 0 0 1.335-.24c.394-.107.802-.28 1.223-.52a3.66 3.66 0 0 0 1.055-.888c.282-.352.512-.819.69-1.402c.178-.583.267-1.252.267-2.008c0-1.077-.343-1.994-1.028-2.75c.32-.81.286-1.717-.105-2.723c-.243-.08-.594-.03-1.054.147a6.94 6.94 0 0 0-1.198.587l-.495.32a9.03 9.03 0 0 0-2.5-.346a9.03 9.03 0 0 0-2.5.347a11.52 11.52 0 0 0-.553-.36c-.23-.143-.593-.314-1.088-.514c-.494-.2-.868-.26-1.12-.18c-.381 1.005-.412 1.912-.09 2.722c-.686.756-1.03 1.673-1.03 2.75c0 .756.09 1.423.268 2.002c.178.578.406 1.045.683 1.401a3.53 3.53 0 0 0 1.048.894c.421.24.83.414 1.224.52c.395.108.84.188 1.335.241c-.347.32-.56.779-.638 1.375a2.539 2.539 0 0 1-.586.2a3.597 3.597 0 0 1-.742.067c-.287 0-.57-.096-.853-.287c-.282-.192-.523-.47-.723-.834a2.133 2.133 0 0 0-.631-.694c-.256-.178-.471-.285-.645-.32l-.26-.04c-.182 0-.308.02-.378.06c-.07.04-.09.09-.065.153a.738.738 0 0 0 .117.187a.961.961 0 0 0 .17.16l.09.066c.192.09.38.259.567.508c.187.249.324.476.41.68l.13.307c.113.338.304.612.574.821c.269.21.56.343.872.4c.312.058.614.09.905.094c.29.004.532-.011.723-.047l.299-.053c0 .338.002.734.007 1.188l.006.72c0 .16-.056.294-.17.4c-.112.108-.286.139-.52.094c-2.014-.685-3.657-1.92-4.928-3.703C.636 14.493 0 12.484 0 10.25c0-1.86.447-3.574 1.341-5.145a10.083 10.083 0 0 1 3.64-3.73A9.6 9.6 0 0 1 10 0a9.6 9.6 0 0 1 5.02 1.375a10.083 10.083 0 0 1 3.639 3.73C19.553 6.675 20 8.391 20 10.25Z"></path></svg></a></div></div><div class="h-full ml-auto -mr-4 flex md:hidden items-center"><servite-island type="visible" index="2" props="{&quot;iconOnly&quot;:true}" style="display:contents"><button class="group flex justify-center items-center h-full ml-6" aria-label="Search"><div class="flex justify-center w-12"><svg width="1em" height="1em" viewBox="0 0 24 24" class="text-xl text-c-text-0 group-hover:text-c-brand transition-colors"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="10" cy="10" r="7"></circle><path d="m21 21l-6-6"></path></g></svg></div></button></servite-island><servite-island type="visible" index="3" props="{}" style="display:contents"><button class="group w-12 h-full inline-flex justify-center items-center"><div class="relative w-4 h-3.5 overflow-hidden"><div class="w-full h-0.5 bg-c-text-0 rounded-full absolute left-0 transition-all top-0
-            group-hover:translate-x-1
-          "></div><div class="w-full h-0.5 bg-c-text-0 rounded-full absolute left-0 transition-all top-1.5 translate-x-2
-            opacity-100 group-hover:translate-x-0
-          "></div><div class="w-full h-0.5 bg-c-text-0 rounded-full absolute left-0 transition-all bottom-0 translate-x-1 group-hover:translate-x-2"></div></div></button></servite-island></div></div></header></div><div class="max-w-[90rem] w-full mx-auto lg:flex relative"><servite-island type="idle" index="4" props="{&quot;items&quot;:[{&quot;text&quot;:&quot;开始上手&quot;,&quot;link&quot;:&quot;/zh/guide&quot;},{&quot;text&quot;:&quot;配置&quot;,&quot;link&quot;:&quot;/zh/guide/config&quot;},{&quot;text&quot;:&quot;目录结构&quot;,&quot;link&quot;:&quot;/zh/guide/directory-structure&quot;},{&quot;text&quot;:&quot;路由&quot;,&quot;link&quot;:&quot;/zh/guide/routes&quot;},{&quot;text&quot;:&quot;SSR 服务端渲染&quot;,&quot;link&quot;:&quot;/zh/guide/ssr&quot;},{&quot;text&quot;:&quot;SSG 静态生成&quot;,&quot;link&quot;:&quot;/zh/guide/ssg&quot;},{&quot;text&quot;:&quot;Islands 孤岛架构&quot;,&quot;link&quot;:&quot;/zh/guide/islands&quot;},{&quot;text&quot;:&quot;CSR 客户端渲染&quot;,&quot;link&quot;:&quot;/zh/guide/csr&quot;},{&quot;text&quot;:&quot;部署&quot;,&quot;link&quot;:&quot;/zh/guide/deploy&quot;},{&quot;text&quot;:&quot;进阶&quot;,&quot;items&quot;:[{&quot;text&quot;:&quot;SPA vs MPA&quot;,&quot;link&quot;:&quot;/zh/guide/spa-vs-mpa&quot;},{&quot;text&quot;:&quot;使用 servite/client&quot;,&quot;link&quot;:&quot;/zh/guide/servite-client&quot;},{&quot;text&quot;:&quot;一体化 API 调用&quot;,&quot;link&quot;:&quot;/zh/guide/integrate-api-call&quot;},{&quot;text&quot;:&quot;自定义 HTML&quot;,&quot;link&quot;:&quot;/zh/guide/custom-html&quot;},{&quot;text&quot;:&quot;自定义服务端渲染&quot;,&quot;link&quot;:&quot;/zh/guide/custom-server-render&quot;}]}],&quot;activeItems&quot;:[{&quot;text&quot;:&quot;Islands 孤岛架构&quot;,&quot;link&quot;:&quot;/zh/guide/islands&quot;}]}" style="display:contents"><div class="sticky z-[var(--z-index-sidebar-indicator)] top-[calc(var(--header-height)+var(--banner-height))] w-full h-[var(--sidebar-indicator-height)]
-      bg-c-bg-0 border-b border-b-c-border-1
-      flex lg:hidden items-center px-6"><div class="h-full flex items-center text-xs text-c-text-1 font-medium cursor-pointer"><svg width="1em" height="1em" viewBox="0 0 24 24" class="text-lg -ml-[5px] mr-2"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 18l6-6l-6-6v12"></path></svg><div class="flex items-center"><span>Islands 孤岛架构</span></div></div></div><div class="
-        fixed z-[var(--z-index-sidebar-drawer)] top-0 right-full bottom-0 w-[75vw] max-w-[320px] px-4
-        lg:z-[var(--z-index-sidebar)] lg:top-[calc(var(--header-height)+var(--banner-height))] lg:right-auto lg:w-[var(--left-aside-width)]
-        transition-transform duration-300 pt-8 pb-24 overflow-y-auto bg-c-bg-0
-        "><a class="relative flex items-center min-h-[34px] mb-[3px] px-2 py-1.5 text-sm font-medium transition-all
-      text-c-text-1 before:opacity-0 hover:before:opacity-[0.06]
-      before:absolute before:top-0 before:bottom-0 before:left-0 before:right-0 before:rounded-md before:bg-current before:z-[-1] before:transition-opacity " href="/servite/zh/guide"><span>开始上手</span></a><a class="relative flex items-center min-h-[34px] mb-[3px] px-2 py-1.5 text-sm font-medium transition-all
-      text-c-text-1 before:opacity-0 hover:before:opacity-[0.06]
-      before:absolute before:top-0 before:bottom-0 before:left-0 before:right-0 before:rounded-md before:bg-current before:z-[-1] before:transition-opacity " href="/servite/zh/guide/config"><span>配置</span></a><a class="relative flex items-center min-h-[34px] mb-[3px] px-2 py-1.5 text-sm font-medium transition-all
-      text-c-text-1 before:opacity-0 hover:before:opacity-[0.06]
-      before:absolute before:top-0 before:bottom-0 before:left-0 before:right-0 before:rounded-md before:bg-current before:z-[-1] before:transition-opacity " href="/servite/zh/guide/directory-structure"><span>目录结构</span></a><a class="relative flex items-center min-h-[34px] mb-[3px] px-2 py-1.5 text-sm font-medium transition-all
-      text-c-text-1 before:opacity-0 hover:before:opacity-[0.06]
-      before:absolute before:top-0 before:bottom-0 before:left-0 before:right-0 before:rounded-md before:bg-current before:z-[-1] before:transition-opacity " href="/servite/zh/guide/routes"><span>路由</span></a><a class="relative flex items-center min-h-[34px] mb-[3px] px-2 py-1.5 text-sm font-medium transition-all
-      text-c-text-1 before:opacity-0 hover:before:opacity-[0.06]
-      before:absolute before:top-0 before:bottom-0 before:left-0 before:right-0 before:rounded-md before:bg-current before:z-[-1] before:transition-opacity " href="/servite/zh/guide/ssr"><span>SSR 服务端渲染</span></a><a class="relative flex items-center min-h-[34px] mb-[3px] px-2 py-1.5 text-sm font-medium transition-all
-      text-c-text-1 before:opacity-0 hover:before:opacity-[0.06]
-      before:absolute before:top-0 before:bottom-0 before:left-0 before:right-0 before:rounded-md before:bg-current before:z-[-1] before:transition-opacity " href="/servite/zh/guide/ssg"><span>SSG 静态生成</span></a><a class="relative flex items-center min-h-[34px] mb-[3px] px-2 py-1.5 text-sm font-medium transition-all
-      text-c-brand font-medium before:opacity-[0.12]
-      before:absolute before:top-0 before:bottom-0 before:left-0 before:right-0 before:rounded-md before:bg-current before:z-[-1] before:transition-opacity " href="/servite/zh/guide/islands"><span>Islands 孤岛架构</span></a><a class="relative flex items-center min-h-[34px] mb-[3px] px-2 py-1.5 text-sm font-medium transition-all
-      text-c-text-1 before:opacity-0 hover:before:opacity-[0.06]
-      before:absolute before:top-0 before:bottom-0 before:left-0 before:right-0 before:rounded-md before:bg-current before:z-[-1] before:transition-opacity " href="/servite/zh/guide/csr"><span>CSR 客户端渲染</span></a><a class="relative flex items-center min-h-[34px] mb-[3px] px-2 py-1.5 text-sm font-medium transition-all
-      text-c-text-1 before:opacity-0 hover:before:opacity-[0.06]
-      before:absolute before:top-0 before:bottom-0 before:left-0 before:right-0 before:rounded-md before:bg-current before:z-[-1] before:transition-opacity " href="/servite/zh/guide/deploy"><span>部署</span></a><div class="my-7"><h2 class="mb-2 px-2 flex items-center text-[13px] font-bold text-c-text-2"><span>进阶</span></h2><div class="ml-2 pl-[5px] border-l border-l-c-border-1"><a class="relative flex items-center min-h-[34px] mb-[3px] px-2 py-1.5 text-sm font-medium transition-all
-      text-c-text-1 before:opacity-0 hover:before:opacity-[0.06]
-      before:absolute before:top-0 before:bottom-0 before:left-0 before:right-0 before:rounded-md before:bg-current before:z-[-1] before:transition-opacity " href="/servite/zh/guide/spa-vs-mpa"><span>SPA vs MPA</span></a><a class="relative flex items-center min-h-[34px] mb-[3px] px-2 py-1.5 text-sm font-medium transition-all
-      text-c-text-1 before:opacity-0 hover:before:opacity-[0.06]
-      before:absolute before:top-0 before:bottom-0 before:left-0 before:right-0 before:rounded-md before:bg-current before:z-[-1] before:transition-opacity " href="/servite/zh/guide/servite-client"><span>使用 servite/client</span></a><a class="relative flex items-center min-h-[34px] mb-[3px] px-2 py-1.5 text-sm font-medium transition-all
-      text-c-text-1 before:opacity-0 hover:before:opacity-[0.06]
-      before:absolute before:top-0 before:bottom-0 before:left-0 before:right-0 before:rounded-md before:bg-current before:z-[-1] before:transition-opacity " href="/servite/zh/guide/integrate-api-call"><span>一体化 API 调用</span></a><a class="relative flex items-center min-h-[34px] mb-[3px] px-2 py-1.5 text-sm font-medium transition-all
-      text-c-text-1 before:opacity-0 hover:before:opacity-[0.06]
-      before:absolute before:top-0 before:bottom-0 before:left-0 before:right-0 before:rounded-md before:bg-current before:z-[-1] before:transition-opacity " href="/servite/zh/guide/custom-html"><span>自定义 HTML</span></a><a class="relative flex items-center min-h-[34px] mb-[3px] px-2 py-1.5 text-sm font-medium transition-all
-      text-c-text-1 before:opacity-0 hover:before:opacity-[0.06]
-      before:absolute before:top-0 before:bottom-0 before:left-0 before:right-0 before:rounded-md before:bg-current before:z-[-1] before:transition-opacity " href="/servite/zh/guide/custom-server-render"><span>自定义服务端渲染</span></a></div></div></div></servite-island><div class="flex-1 w-full lg:pl-[var(--left-aside-width)] xl:pr-[var(--right-aside-width)]"><div class="max-w-[850px] min-w-0 w-full mx-auto pt-8 pb-24 px-6 md:px-8"><div class="mb-16 markdown-body prose dark:prose-invert max-w-none w-full
-        prose-h2:pt-[1.25em] prose-h2:border-t prose-h2:border-[color:var(--tw-prose-hr)]
-        prose-a:no-underline prose-a:text-c-brand hover:prose-a:text-c-brand-light prose-a:transition-colors
-         prose-pre:bg-transparent prose-pre:p-0
-      "><h1 id="islands---孤岛架构"><a aria-hidden="true" tabindex="-1" class="header-anchor text-c-brand hover:text-c-brand-light transition-colors" href="#islands---孤岛架构">#</a>islands - 孤岛架构</h1>
-<h2 id="介绍"><a aria-hidden="true" tabindex="-1" class="header-anchor text-c-brand hover:text-c-brand-light transition-colors" href="#介绍">#</a>介绍</h2>
-<p>Islands Architecture（孤岛架构）的概念最初在 2019 年被 <a class=" text-c-brand hover:text-c-brand-light transition-colors" href="https://twitter.com/ksylor" target="_blank">Katie Sylor-Miller</a> 提出，
-然后在 2020 年被 Preact 作者 Jason Miller 在<a class=" text-c-brand hover:text-c-brand-light transition-colors" href="https://jasonformat.com/islands-architecture/" target="_blank">一篇文章</a>中进行了推广。
-简单来说，孤岛架构将我们的 Web 应用划分为静态和动态部分。其中的<strong>动态孤岛</strong>可以独立进行水合，以实现它的交互能力。</p>
-<p>servite 实现了 SSG 时的孤岛架构能力。相比单纯的 SSG，孤岛架构更进一步地提高了应用性能，
-因为它只需对部分孤岛组件进行水合，也就只需下载部分组件的脚本代码，甚至能做到 <code>0 JS</code>。
-你现在看到的 servite 文档就使用了 SSG + 孤岛架构 👀。</p>
-<h2 id="使用"><a aria-hidden="true" tabindex="-1" class="header-anchor text-c-brand hover:text-c-brand-light transition-colors" href="#使用">#</a>使用</h2>
-<h3 id="开启-ssg"><a aria-hidden="true" tabindex="-1" class="header-anchor text-c-brand hover:text-c-brand-light transition-colors" href="#开启-ssg">#</a>开启 SSG</h3>
-<p>再次，servite 的孤岛架构能力依赖于 SSG，所以需要先设置 <code>ssg: true</code>，
-或者对那些需要使用孤岛架构的页面开启 SSG，例如假设只有 <code>/guide</code> 要用孤岛架构，则设置：<code>ssg: [&#x27;/guide&#x27;]</code>。</p>
-<h3 id="标记孤岛"><a aria-hidden="true" tabindex="-1" class="header-anchor text-c-brand hover:text-c-brand-light transition-colors" href="#标记孤岛">#</a>标记孤岛</h3>
-<p>请把你的整个 Web 应用想象成一片静态的汪洋大海，然后从中找出需要交互能力的组件，即动态的孤岛，
-接着对这些孤岛进行标记。例如当前你看到的 servite 文档里，整个站点基本都是静态的，而右上角的切换主题按钮由于需要响应用户点击事件进行切换主题，
-它就可以被认为是一个孤岛。</p>
-<p>我们在代码里可以使用双下划线开头的 <code>__island</code> 属性来把这个组件标记为孤岛组件：</p>
-<pre class="code-theme-light" style="background-color:#f6f8fa"><code><span class="line"><span style="color:#CF222E">&lt;</span><span style="color:#24292F">ThemeModeSwitch __island</span><span style="color:#CF222E">=</span><span style="color:#0A3069">&quot;load&quot;</span><span style="color:#24292F"> </span><span style="color:#CF222E">/&gt;</span></span></code></pre><pre class="code-theme-dark" style="background-color:#161b22"><code><span class="line"><span style="color:#FF7B72">&lt;</span><span style="color:#C9D1D9">ThemeModeSwitch __island</span><span style="color:#FF7B72">=</span><span style="color:#A5D6FF">&quot;load&quot;</span><span style="color:#C9D1D9"> </span><span style="color:#FF7B72">/&gt;</span></span></code></pre>
-<p>这样当页面加载时只会下载这一个组件的代码，其他组件直出 HTML。</p>
-<h3 id="孤岛水合时机"><a aria-hidden="true" tabindex="-1" class="header-anchor text-c-brand hover:text-c-brand-light transition-colors" href="#孤岛水合时机">#</a>孤岛水合时机</h3>
-<p>上面 <code>__island=&quot;load&quot;</code> 的 <code>load</code> 表示在页面加载时立即水合该组件，
-除此之外 servite 还支持了其他的水合时机：</p>
-<ul>
-<li><code>__island=&quot;idle&quot;</code> 表示在浏览器空闲时才下载并水合该组件。
-内部的实现使用了浏览器的 requestIdleCallback 方法。</li>
-<li><code>__island=&quot;visible&quot;</code> 表示在组件可见时才下载并水合。内部的实现使用了 IntersectionObserver。</li>
-<li><code>__island=&quot;media&quot; __islandOpts=&quot;(max-width: 600px)&quot;</code> 表示当浏览器宽度 ≤ 600px 时才下载并水合该组件。</li>
-</ul></div><div class="flex flex-col space-y-2 sm:flex-row sm:justify-between sm:items-center sm:space-x-8 text-sm"><a class="flex items-center font-medium text-c-brand hover:text-c-brand-light transition-colors" href="https://github.com/codpoe/servite/edit/master/packages/docs/src/pages/zh/guide/islands.mdx" target="_blank"><svg width="1em" height="1em" viewBox="0 0 24 24" class="mr-1"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 20h4L18.5 9.5a1.5 1.5 0 0 0-4-4L4 16v4m9.5-13.5l4 4"></path></svg>Edit this page on GitHub</a></div><div class="flex justify-between items-start mt-4 pt-4 space-x-8 border-t border-c-border-1"><a class="group max-w-[48%] font-medium " href="/servite/zh/guide/ssg"><div class="flex items-center text-xs text-c-text-2 group-hover:text-c-text-1 transition-colors"><svg width="1em" height="1em" viewBox="0 0 24 24" class="mr-0.5"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m15 6l-6 6l6 6"></path></svg>Previous</div><div class="mt-1 text-base text-c-brand group-hover:text-c-brand-light transition-colors text-left">SSG 静态生成</div></a><a class="group max-w-[48%] font-medium " href="/servite/zh/guide/csr"><div class="flex items-center justify-end text-xs text-c-text-2 group-hover:text-c-text-1 transition-colors">Next<svg width="1em" height="1em" viewBox="0 0 24 24" class="ml-0.5"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 6l6 6l-6 6"></path></svg></div><div class="mt-1 text-base text-c-brand group-hover:text-c-brand-light transition-colors text-right">CSR 客户端渲染</div></a></div></div></div><div class="hidden xl:block absolute top-0 right-0 w-[var(--right-aside-width)] h-full"><div class="sticky top-[calc(var(--header-height)+var(--banner-height))] max-h-[calc(100vh-var(--header-height)-var(--banner-height))] pt-8 pb-24 pl-3 overflow-y-auto"><servite-island type="visible" index="5" props="{}" style="display:contents"><div><div class="mb-2 text-xs text-c-text-0 font-bold">目录</div><div class="relative"><div class="absolute -left-3 w-1 h-5 rounded bg-c-brand transition-all
-          opacity-0" style="top:4px"></div><a id="toc-item-0" style="padding-left:0px" class="block truncate text-sm leading-7 font-medium text-c-text-1 transition-opacity
-              opacity-60 hover:opacity-100 " href="#介绍">介绍</a><a id="toc-item-1" style="padding-left:0px" class="block truncate text-sm leading-7 font-medium text-c-text-1 transition-opacity
-              opacity-60 hover:opacity-100 " href="#使用">使用</a><a id="toc-item-2" style="padding-left:12px" class="block truncate text-sm leading-7 font-medium text-c-text-1 transition-opacity
-              opacity-60 hover:opacity-100 " href="#开启-ssg">开启 SSG</a><a id="toc-item-3" style="padding-left:12px" class="block truncate text-sm leading-7 font-medium text-c-text-1 transition-opacity
-              opacity-60 hover:opacity-100 " href="#标记孤岛">标记孤岛</a><a id="toc-item-4" style="padding-left:12px" class="block truncate text-sm leading-7 font-medium text-c-text-1 transition-opacity
-              opacity-60 hover:opacity-100 " href="#孤岛水合时机">孤岛水合时机</a></div></div></servite-island></div></div></div><!--/$--></div>
+    <script>window.__SERVITE__ssrData = {"context":{"url":"/zh/guide/islands","pathname":"/zh/guide/islands","noSSR":false},"serverRendered":true,"hasIslands":false,"routerContext":{"location":{"pathname":"/servite/zh/guide/islands","search":"","hash":"","state":null,"key":"default"},"handles":[null]}}</script>
+    <div id="root" data-server-rendered="true"><style>
+.servite-error-boundary {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #fff;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.servite-error-title {
+  margin: 0;
+  font-size: 56px;
+  line-height: 64px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.servite-error-desc {
+  margin: 0;
+  padding-top: 28px;
+  letter-spacing: 1px;
+  font-size: 20px;
+  line-height: 20px;
+  font-weight: 700;
+  color: #374151;
+}
+
+.servite-error-divider {
+  margin: 24px auto 18px;
+  width: 64px;
+  height: 1px;
+  background-color: #d1d5db;
+}
+
+.servite-error-msg {
+  margin: 0 auto;
+  max-width: 600px;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+@media (prefers-color-scheme: dark) {
+  .servite-error-boundary {
+    background: #1b1b1f;
+  }
+
+  .servite-error-title {
+    color: #e5e7eb;
+  }
+
+  .servite-error-desc {
+    color: #e5e7eb;
+  }
+
+  .servite-error-divider {
+    background-color: #6b7280;
+  }
+
+  .servite-error-msg {
+    color: #9ca3af;
+  }
+}
+      </style><div class="servite-error-boundary"><h1 class="servite-error-title">404</h1><p class="servite-error-desc">Not Found</p><div class="servite-error-divider"></div><p class="servite-error-msg">Error: No route matches URL &quot;/servite/zh/guide/islands&quot;</p></div><script>window.__staticRouterHydrationData = JSON.parse("{\"loaderData\":{},\"actionData\":null,\"errors\":{\"_\":{\"status\":404,\"statusText\":\"Not Found\",\"internal\":true,\"data\":\"Error: No route matches URL \\\"/servite/zh/guide/islands\\\"\",\"error\":{},\"__type\":\"RouteErrorResponse\"}}}");</script></div>
   </body>
 </html>
