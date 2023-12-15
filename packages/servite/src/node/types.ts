@@ -1,5 +1,5 @@
-import { Options as ReactOptions } from '@vitejs/plugin-react';
-import { NitroConfig } from 'nitropack';
+import type { Options as ReactOptions } from '@vitejs/plugin-react';
+import type { NitroConfig } from 'nitropack';
 
 export interface PagesDir {
   base?: string;
@@ -30,6 +30,11 @@ export interface UserServiteConfig {
    * @default false
    */
   csr?: boolean;
+  /**
+   * Enable islands architecture
+   * @default false
+   */
+  islands?: boolean;
   api?: {
     /**
      * eg. `'@/utils/fetch'` -> `import _fetch from '@/utils/fetch'`

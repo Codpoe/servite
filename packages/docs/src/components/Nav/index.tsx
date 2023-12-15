@@ -1,5 +1,5 @@
 import React from 'react';
-import { useSiteState } from '@/context';
+import { useSite } from '@/context';
 import { useActiveMatch } from '@/hooks/useActiveMatch';
 import { NavItem } from '@/types';
 import { Link } from '../Link';
@@ -60,7 +60,7 @@ function TextNavItem({ item }: { item: NavItem }) {
 }
 
 export function TextNav() {
-  const { textNav } = useSiteState();
+  const { textNav } = useSite();
 
   if (!textNav?.length) {
     return null;
@@ -98,7 +98,7 @@ export function IconNav({
   size: 'small' | 'medium';
   className?: string;
 }) {
-  const { iconNav } = useSiteState();
+  const { iconNav } = useSite();
 
   if (!iconNav?.length) {
     return null;

@@ -1,22 +1,46 @@
 import type { H3Event } from 'h3';
-import type { FilledContext } from 'react-helmet-async';
-import type { RouteMatch } from 'react-router-dom';
+import type { HelmetServerState } from 'react-helmet-async';
+import type {
+  RouteObject,
+  LazyRouteFunction,
+  Location,
+  LoaderFunction,
+  ActionFunction,
+} from 'react-router-dom';
+import type {
+  StaticHandlerContext,
+  createStaticHandler,
+} from 'react-router-dom/server';
 
 export interface Page {
   routePath: string;
   filePath: string;
+  dataFilePath?: string;
+  hasLoader?: boolean;
+  hasAction?: boolean;
   isLayout: boolean;
   is404: boolean;
-  meta: Record<string, any>;
 }
 
 export interface Route {
+  id: string;
   path: string;
   filePath: string;
-  component: any;
-  element: any;
+  dataFilePath?: string;
+  loader?: LoaderFunction;
+  action?: ActionFunction;
+  module?: Record<string, any>;
+  lazy?: LazyRouteFunction<RouteObject>;
   children?: Route[];
-  meta?: Record<string, any>;
+  __LAZY_PLACEHOLDER__?: string;
+  __LOADER_PLACEHOLDER__?: string;
+  __ACTION_PLACEHOLDER__?: string;
+}
+
+export interface RouteHandle {
+  filePath: string;
+  dataFilePath: string;
+  module: Record<string, any>;
 }
 
 export interface SSRContext {
@@ -33,26 +57,13 @@ export interface Island {
 
 export type IslandType = 'load' | 'idle' | 'visible' | 'media';
 
-export interface AppState {
-  routes: Route[];
-  pages: Page[];
-  pagePath?: string;
-  pageData?: Page;
-  pageModule?: any;
-  pageLoading: boolean;
-  pageError: Error | null;
-  loaderData?: Record<string, any>;
-}
-
 export interface SSREntryRenderContext {
   ssrContext: SSRContext;
-  helmetContext: Partial<FilledContext>;
-  routeMatches?: RouteMatch[];
+  helmetContext?: {
+    helmet: HelmetServerState;
+  };
+  routerContext?: StaticHandlerContext;
   islands?: Island[];
-  appState?: Pick<
-    AppState,
-    'pagePath' | 'pageData' | 'pageModule' | 'loaderData'
-  >;
 }
 
 export interface SSREntryRenderResult {
@@ -62,19 +73,26 @@ export interface SSREntryRenderResult {
 
 export type SSREntryRender = (
   context: SSREntryRenderContext
-) => Promise<SSREntryRenderResult>;
+) => Promise<SSREntryRenderResult | undefined>;
 
 export interface SSREntry {
   render: SSREntryRender;
   pages: Page[];
   routes: Route[];
+  routerHandler: ReturnType<typeof createStaticHandler>;
 }
 
 export interface SSRData {
   context: Omit<SSRContext, 'event'>;
   serverRendered: boolean;
   hasIslands: boolean;
-  appState?: SSREntryRenderContext['appState'];
+  /**
+   * react-router context. Only available in SSR
+   */
+  routerContext?: {
+    location: Location;
+    handles: RouteHandle[];
+  };
 }
 
 export interface LoaderBaseContext {

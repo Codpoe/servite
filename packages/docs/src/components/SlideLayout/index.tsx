@@ -1,7 +1,8 @@
 import React, { useMemo, useRef } from 'react';
-import { useNavigate, useLocation, useAppState } from 'servite/client';
+import { useNavigate, useLocation } from 'servite/client';
 import { useElementSize } from '@/hooks/useElementSize';
 import { useKeyDown } from '@/hooks/useKeyDown';
+import { useSite } from '@/context';
 import { Mdx } from '../Mdx';
 
 const RATIO = 16 / 9;
@@ -45,8 +46,8 @@ export function SlideLayout() {
   const pageRef = useRef(page);
   pageRef.current = page;
 
-  const { pageData } = useAppState();
-  const { slideCount } = pageData?.meta || {};
+  const { routeHandle } = useSite();
+  const { slideCount } = routeHandle?.module || {};
 
   // TODO: slide modules
   const slideModule = {} as any;

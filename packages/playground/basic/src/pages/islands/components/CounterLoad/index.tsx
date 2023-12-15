@@ -14,7 +14,7 @@ export function CounterLoad({
 
   return (
     <div>
-      <div className="counter-message">load</div>
+      <div className="counter-message-load">load</div>
       <div>children: {children}</div>
       <div className="counter">
         <button onClick={subtract}>-</button>

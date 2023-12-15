@@ -1,25 +1,18 @@
 import { createContext, useContext } from 'react';
-import { ssrData } from './constants.js';
-import { AppState } from './types.js';
+import type { Router } from '@remix-run/router';
+import type { Page } from '../../shared/types.js';
 
-export const appContext = createContext<AppState>({
-  ...ssrData?.appState,
-  routes: [],
-  pages: [],
-  pageLoading: false,
-  pageError: null,
-});
-
-/**
- * get app state
- */
-export function useAppState() {
-  return useContext(appContext);
+export interface AppContextValue {
+  pages: Page[];
+  router: Router;
 }
 
-/**
- * get loader data
- */
-export function useLoaderData<T = any>(): T {
-  return useAppState().loaderData as T;
+const appContext = createContext<AppContextValue>({
+  pages: [],
+} as any);
+
+export const AppContextProvider = appContext.Provider;
+
+export function useApp() {
+  return useContext(appContext);
 }

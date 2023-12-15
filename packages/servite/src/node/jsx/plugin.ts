@@ -1,4 +1,4 @@
-import { PluginOption } from 'vite';
+import type { PluginOption } from 'vite';
 import viteReact from '@vitejs/plugin-react';
 import LZString from 'lz-string';
 import {
@@ -6,7 +6,7 @@ import {
   ISLAND_SPLITTER,
   JSX_DIR,
 } from '../constants.js';
-import { ServiteConfig } from '../types.js';
+import type { ServiteConfig } from '../types.js';
 import { babelJsxIsland } from './babel.js';
 
 export interface ServiteJsxPluginConfig {
@@ -59,27 +59,29 @@ export function serviteJsx({
         }
       },
     },
-    {
-      name: 'servite:islands-hmr',
-      enforce: 'post',
-      handleHotUpdate(ctx) {
-        if (islands.size && !islands.has(ctx.file)) {
-          ctx.server.ws.send({
-            type: 'full-reload',
-          });
-          return [];
-        }
-      },
-    },
+    // {
+    //   name: 'servite:islands-hmr',
+    //   enforce: 'post',
+    //   handleHotUpdate(ctx) {
+    //     debugger;
+    //     if (islands.size && !islands.has(ctx.file)) {
+    //       ctx.server.ws.send({
+    //         type: 'full-reload',
+    //       });
+    //       return [];
+    //     }
+    //   },
+    // },
     ...viteReact({
       ...serviteConfig.react,
+      include: /\.([tj]s|md)x?$/,
       jsxRuntime: 'automatic',
       jsxImportSource: JSX_DIR,
       babel(id, opts) {
         const babelOptions =
           typeof babel === 'function' ? babel(id, opts) : babel || {};
 
-        return opts.ssr
+        return opts.ssr && serviteConfig.islands
           ? {
               ...babelOptions,
               plugins: [babelJsxIsland, ...(babelOptions?.plugins || [])],

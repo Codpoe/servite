@@ -12,10 +12,12 @@ servite 实现了 SSG 时的孤岛架构能力。相比单纯的 SSG，孤岛架
 
 ## 使用
 
-### 开启 SSG
+### 开启 SSG 和 islands
 
 再次，servite 的孤岛架构能力依赖于 SSG，所以需要先设置 `ssg: true`，
 或者对那些需要使用孤岛架构的页面开启 SSG，例如假设只有 `/guide` 要用孤岛架构，则设置：`ssg: ['/guide']`。
+
+然后设置 `islands: true` 即可开启孤岛的解析和渲染。
 
 ### 标记孤岛
 

@@ -1,9 +1,6 @@
-import {
-  Link as RouterLink,
-  LinkProps as RouterLinkProps,
-} from 'servite/client';
+import { PrefetchLink, PrefetchLinkProps } from 'servite/client';
 
-export interface LinkProps extends Omit<RouterLinkProps, 'to' | 'color'> {
+export interface LinkProps extends Omit<PrefetchLinkProps, 'to' | 'color'> {
   to?: string;
   color?: boolean;
 }
@@ -26,9 +23,9 @@ export function Link(props: LinkProps) {
   const finalChildren = <>{children}</>;
 
   return isSameOrigin && !isHash ? (
-    <RouterLink {...restProps} className={finalClassName} to={to}>
+    <PrefetchLink {...restProps} className={finalClassName} to={to}>
       {finalChildren}
-    </RouterLink>
+    </PrefetchLink>
   ) : (
     <a
       {...restProps}

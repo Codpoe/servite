@@ -6,11 +6,19 @@ import matter from 'gray-matter';
 import { extract, parse } from 'jest-docblock';
 import { debounce } from 'perfect-debounce';
 import type { ResolvedConfig } from 'vite';
+import { parse as esModuleLexer } from 'es-module-lexer';
 import type { Page, Route } from '../../shared/types.js';
-import enhanceRouteCode from '../../prebuild/enhance-route.prebuilt.js';
 import { isMarkdown } from '../utils.js';
 import type { PagesDir, ServiteConfig } from '../types.js';
-import { PAGES_IGNORE_PATTERN, PAGES_PATTERN } from '../constants.js';
+import {
+  PAGES_DATA_MODULE_ID,
+  PAGES_IGNORE_PATTERN,
+  PAGES_PATTERN,
+  SCRIPT_EXTS,
+} from '../constants.js';
+import routesLazyFactoryCode from '../../prebuild/routes-lazy-factory.prebuilt.js';
+import routesFetchDataCode from '../../prebuild/routes-fetch-data.prebuilt.js';
+import routesHmrCode from '../../prebuild/routes-hmr.prebuilt.js';
 
 export class PagesManager {
   private reloadPromise: Promise<Page[]> | null = null;
@@ -23,15 +31,17 @@ export class PagesManager {
   }
 
   reload = () => {
-    this.reloadPromise = debouncedScanPages(
+    return (this.reloadPromise = debouncedScanPages(
       this.viteConfig,
       this.serviteConfig
-    );
+    ));
   };
 
   getPages = async () => {
     return (await this.reloadPromise) || [];
   };
+
+  getRoutes = async () => createRoutes(await this.getPages());
 
   generatePagesCode = async (write = false) => {
     const pages = await this.getPages();
@@ -47,45 +57,94 @@ export default pages;
   };
 
   generatePagesRoutesCode = async (write = false) => {
-    const pages = await this.getPages();
-    const routes = createRoutes(pages);
+    const routes = await this.getRoutes();
     const rootLayout = routes[0]?.children ? routes[0] : null;
 
     let importsCode = '';
-    let componentIndex = 0;
+    let hasInjectedDataImport = false;
 
-    let routesCode = JSON.stringify(routes, null, 2).replace(
-      /( *)"component":\s"(.*?)"/g,
-      (_str: string, space: string, component: string) => {
-        const localName = `__Route__${componentIndex++}`;
-        const localNameStar = `${localName}__star`;
+    let routesCode = JSON.stringify(routes, null, 2)
+      .replace(
+        /"__LAZY_PLACEHOLDER__":\s"(.*?)"/g,
+        (_str: string, filePath: string) => {
+          if (rootLayout && filePath === rootLayout.filePath) {
+            importsCode += `import * as rootLayoutModule from '/${filePath}';\n`;
+            return `"lazy": lazyFactory(rootLayoutModule)`;
+          }
 
-        if (rootLayout && component === rootLayout.component) {
-          importsCode += [
-            `import * as ${localNameStar} from '${component}';`,
-            `const ${localName} = enhance(${localNameStar})\n`,
-          ].join('\n');
-        } else {
-          importsCode += `const ${localName} = enhance(() => import('${component}'));\n`;
+          return `"lazy": lazyFactory(() => import('/${filePath}'))`;
         }
+      )
+      .replace(
+        /"__(LOADER|ACTION)_PLACEHOLDER__":\s"(.*?)"/g,
+        (_str: string, type: 'LOADER' | 'ACTION', dataFilePath: string) => {
+          if (!hasInjectedDataImport) {
+            importsCode += `import { data as importedData } from '${PAGES_DATA_MODULE_ID}';\n`;
+            hasInjectedDataImport = true;
+          }
 
-        return `${space}"component": ${localName},
-${space}"element": React.createElement(${localName}.component)`;
-      }
-    );
+          const key = type === 'LOADER' ? 'loader' : 'action';
 
-    routesCode = `import React from 'react';
-  ${generateEnhanceCode(this.viteConfig!)}
-  ${importsCode}
-  export const routes = ${routesCode};
-  export default routes;
-  `;
+          return `"${key}": data['${dataFilePath}']?.${key}`;
+        }
+      );
+
+    routesCode = `${importsCode}
+
+${routesLazyFactoryCode}
+
+${hasInjectedDataImport ? 'let data = importedData;' : ''}
+
+export const routes = ${routesCode};
+export default routes;
+
+
+${routesHmrCode}
+`;
 
     if (write) {
       await writeFile(this.viteConfig!, 'pages-routes.js', routesCode);
     }
 
     return routesCode;
+  };
+
+  generatePagesDataCode = async (useApi: boolean) => {
+    const pages = await this.getPages();
+    const imports: string[] = [];
+    const apis: string[] = [];
+    const dataFileToNames: [string, string][] = [];
+
+    pages
+      .filter(page => page.dataFilePath)
+      .forEach((page, index) => {
+        const dataName = `data_${index}`;
+
+        dataFileToNames.push([page.dataFilePath!, dataName]);
+
+        if (useApi) {
+          const loaderOrActionCode = `async ({ request }) => fetchRouteData(request, '${page.filePath}')`;
+          apis.push(`const ${dataName} = {
+  ${page.hasLoader ? `loader: ${loaderOrActionCode},` : ''}
+  ${page.hasAction ? `action: ${loaderOrActionCode},` : ''}
+};`);
+        } else {
+          imports.push(
+            `import * as ${dataName} from '/${page.dataFilePath!}';`
+          );
+        }
+      });
+
+    return `${imports.join('\n')}
+
+${apis.length ? `${routesFetchDataCode}\n\n${apis.join('\n')}` : ''}
+
+export const data = {
+${dataFileToNames
+  .map(([dataFilePath, dataName]) => `  ['${dataFilePath}']: ${dataName},`)
+  .join('\n  ')}
+};
+`;
   };
 
   checkPageFile = async (absFilePath: string) => {
@@ -114,6 +173,18 @@ ${space}"element": React.createElement(${localName}.component)`;
       existingPage,
     };
   };
+
+  checkDataFile = (absFilePath: string) => {
+    const isInPagesDir = this.serviteConfig.pagesDirs.some(({ dir }) => {
+      const prefixPath = path.join(
+        path.resolve(this.viteConfig.root, dir),
+        '/'
+      );
+      return absFilePath.startsWith(prefixPath);
+    });
+
+    return isInPagesDir && /(page|layout)\.data\.(j|t)sx?/.test(absFilePath);
+  };
 }
 
 const debouncedScanPages = debounce(scanPages, 50);
@@ -122,24 +193,22 @@ async function scanPages(
   viteConfig: ResolvedConfig,
   serviteConfig: ServiteConfig
 ): Promise<Page[]> {
-  async function createPage(
-    base: string,
-    pageDir: string,
-    pageFile: string
-  ): Promise<Page> {
+  function createPage(base: string, pageDir: string, pageFile: string): Page {
     const basename = path.basename(path.trimExt(pageFile));
     const routePath = resolveRoutePath(base, pageFile);
     const absFilePath = path.join(pageDir, pageFile);
     const filePath = path.relative(viteConfig.root, absFilePath);
-    const fileContent = fs.readFileSync(absFilePath, 'utf-8');
-    const meta = await parsePageMeta(filePath, fileContent);
+    const { dataFilePath, hasLoader, hasAction } =
+      findDataFile(viteConfig.root, filePath, basename) || {};
 
     return {
       routePath,
       filePath,
+      dataFilePath,
+      hasLoader,
+      hasAction,
       isLayout: basename === 'layout',
       is404: basename === '404',
-      meta,
     };
   }
 
@@ -156,15 +225,16 @@ async function scanPages(
       absolute: false,
     });
 
-    return Promise.all(
-      pageFiles.map(pageFile => createPage(base, pageDir, pageFile))
-    );
+    return pageFiles.map(pageFile => createPage(base, pageDir, pageFile));
   }
 
   return (await Promise.all(serviteConfig.pagesDirs.map(scan)))
     .flat()
     .sort((a, b) => {
-      const compareRes = a.routePath.localeCompare(b.routePath);
+      const compareRes = path
+        .dirname(a.filePath)
+        .localeCompare(path.dirname(b.filePath));
+
       // layout first
       if (compareRes === 0) {
         if (a.isLayout && b.isLayout) {
@@ -172,6 +242,7 @@ async function scanPages(
         }
         return b.isLayout ? 0 : -1;
       }
+
       return compareRes;
     });
 }
@@ -190,7 +261,8 @@ function resolveRoutePath(base: string, pageFile: string) {
   routePath = routePath
     .replace(/\/404$/, '/*') // transform '/404' to '/*' so this route acts like a catch-all for URLs that we don't have explicit routes for
     .replace(/\/\[\.{3}.*?\]$/, '/*') // transform '/post/[...]' to '/post/*'
-    .replace(/\/\[(.*?)\]/g, '/:$1'); // transform '/user/[id]' to '/user/:id'
+    .replace(/\/\[(.*?)\]/g, '/:$1') // transform '/user/[id]' to '/user/:id'
+    .replace(/\/\(.*?\)/g, ''); // transform '/(marketing)/about' to '/about'
 
   return routePath || '/';
 }
@@ -221,24 +293,30 @@ function createRoutes(pages: Page[]): Route[] {
   const layoutRouteStack: Route[] = [];
 
   for (const page of pages) {
-    const route = {
+    const route: Route = {
+      id: page.filePath,
       path: page.routePath,
-      filePath: page.filePath,
-      component: path.join('/', page.filePath),
       children: page.isLayout ? [] : undefined,
-      meta: page.meta,
-    } as Route;
+      filePath: page.filePath,
+      dataFilePath: page.dataFilePath,
+      __LAZY_PLACEHOLDER__: page.filePath,
+      __LOADER_PLACEHOLDER__: page.dataFilePath,
+      __ACTION_PLACEHOLDER__: page.dataFilePath,
+    };
+
+    const routeDir = path.dirname(route.filePath);
 
     while (layoutRouteStack.length) {
       const layout = layoutRouteStack[layoutRouteStack.length - 1];
+      const layoutDir = path.dirname(layout.filePath);
 
       // - root layout
       // - same level layout
       // - sub level layout
       if (
-        layout.path === '/' ||
-        layout.path === route.path ||
-        route.path.startsWith(layout.path + '/')
+        layoutDir === '.' ||
+        layoutDir === routeDir ||
+        routeDir.startsWith(layoutDir + '/')
       ) {
         layout.children?.push(route);
         break;
@@ -259,11 +337,33 @@ function createRoutes(pages: Page[]): Route[] {
   return routes;
 }
 
-function generateEnhanceCode(viteConfig: ResolvedConfig) {
-  return `const seen = {};
-const base = '${viteConfig.base}';
-const assetsDir = '${viteConfig.build.assetsDir}';
-${enhanceRouteCode}`;
+function findDataFile(
+  root: string,
+  pageFile: string,
+  name: string
+): { dataFilePath?: string; hasLoader: boolean; hasAction: boolean } {
+  for (const ext of SCRIPT_EXTS) {
+    const dataFilePath = path.join(
+      path.dirname(pageFile),
+      `${name}.data${ext}`
+    );
+    const absDataFilePath = path.join(root, dataFilePath);
+
+    if (fs.existsSync(absDataFilePath)) {
+      const [, exports] = esModuleLexer(
+        fs.readFileSync(absDataFilePath, 'utf-8')
+      );
+      const exportNames = exports.map(e => e.n);
+
+      return {
+        dataFilePath,
+        hasLoader: exportNames.includes('loader'),
+        hasAction: exportNames.includes('action'),
+      };
+    }
+  }
+
+  return { hasLoader: false, hasAction: false };
 }
 
 async function writeFile(

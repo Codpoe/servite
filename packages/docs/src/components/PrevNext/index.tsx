@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { isEqual } from 'ufo';
-import { useAppState } from 'servite/client';
+import { useLocation } from 'servite/client';
 import { SidebarItem } from '@/types';
-import { useSiteState } from '@/context';
+import { useSite } from '@/context';
 import { Link } from '../Link';
 import { ChevronLeft, ChevronRight } from '../Icons';
 
@@ -40,8 +40,8 @@ function Item({ type, item }: { type: 'prev' | 'next'; item?: SidebarItem }) {
 }
 
 export function PrevNext() {
-  const { pagePath } = useAppState();
-  const { sidebar } = useSiteState();
+  const { pathname } = useLocation();
+  const { sidebar } = useSite();
 
   const { prev, next } = useMemo<{
     prev?: SidebarItem;
@@ -52,7 +52,7 @@ export function PrevNext() {
     let found = false;
 
     function find(items: SidebarItem[] = []) {
-      if (!pagePath) {
+      if (!pathname) {
         return;
       }
 
@@ -71,7 +71,7 @@ export function PrevNext() {
           break;
         }
 
-        if (items[i].link && isEqual(items[i].link!, pagePath)) {
+        if (items[i].link && isEqual(items[i].link!, pathname)) {
           found = true;
           continue;
         }
@@ -88,7 +88,7 @@ export function PrevNext() {
     }
 
     return { prev: _prev, next: _next };
-  }, [sidebar, pagePath]);
+  }, [sidebar, pathname]);
 
   if (!prev && !next) {
     return null;

@@ -1,5 +1,6 @@
 import React from 'react';
-import { DocSearchProps } from '@docsearch/react';
+import type { DocSearchProps } from '@docsearch/react';
+import type { RouteHandle } from 'servite/client';
 
 export type ThemeMode = 'light' | 'dark';
 
@@ -31,11 +32,16 @@ export interface DocsRepoInfo {
   dir?: string;
 }
 
-export interface SiteState {
+export interface SiteContextValue {
   currentLocale: LocaleConfig;
   textNav: NavItem[];
   iconNav: NavItem[];
   sidebar: SidebarItem[];
+  routeHandle?: RouteHandle;
+  /**
+   * The frontmatter of markdown
+   */
+  frontmatter?: Record<string, any>;
 }
 
 export type HtmlTagConfig =

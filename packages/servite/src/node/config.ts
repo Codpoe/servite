@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { ServiteConfig, UserServiteConfig } from './types.js';
+import type { ServiteConfig, UserServiteConfig } from './types.js';
 
 export function resolveServiteConfig(
   userServiteConfig: UserServiteConfig = {}
@@ -8,6 +8,7 @@ export function resolveServiteConfig(
     pagesDirs = [{ dir: 'src/pages' }],
     ssg = false,
     csr = false,
+    islands = false,
     ...rest
   } = userServiteConfig;
 
@@ -18,5 +19,6 @@ export function resolveServiteConfig(
     pagesDirs,
     ssg,
     csr,
+    islands,
   };
 }

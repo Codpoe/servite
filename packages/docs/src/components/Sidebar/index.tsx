@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { CSSTransition } from 'react-transition-group';
-import { useAppState } from 'servite/client';
+import { useLocation } from 'servite/client';
 import { SidebarItem } from '@/types';
 import { Link } from '../Link';
 import { TextWithIcon } from '../TextWithIcon';
@@ -14,13 +14,13 @@ export interface SidebarProps {
 }
 
 export function Sidebar({ items, activeItems }: SidebarProps) {
-  const { pagePath } = useAppState();
+  const { pathname } = useLocation();
   const [open, setOpen] = useState(false);
 
   // close sidebar when path is changed
   useEffect(() => {
     setOpen(false);
-  }, [pagePath]);
+  }, [pathname]);
 
   return (
     <>

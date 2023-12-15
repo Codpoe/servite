@@ -1,6 +1,6 @@
-import { useAppState } from 'servite/client';
 import { DocsRepoInfo } from '@/types';
 import { DOCS_REPO_INFO } from '@/constants';
+import { useSite } from '@/context';
 import { Link } from '../Link';
 import { Pencil } from '../Icons';
 
@@ -36,14 +36,14 @@ function createEditLink(
 }
 
 export function UpdateInfo() {
-  const { pageData } = useAppState();
+  const { routeHandle, frontmatter } = useSite();
 
-  const editLink = pageData?.filePath
-    ? createEditLink(DOCS_REPO_INFO, pageData.filePath)
+  const editLink = routeHandle?.filePath
+    ? createEditLink(DOCS_REPO_INFO, routeHandle.filePath)
     : '';
 
-  const lastUpdated = pageData?.meta?.updatedTime
-    ? new Date(pageData.meta.updatedTime).toLocaleString()
+  const lastUpdated = frontmatter?.commitTime
+    ? new Date(frontmatter.commitTime * 1000).toLocaleString()
     : '';
 
   if (!editLink && !lastUpdated) {

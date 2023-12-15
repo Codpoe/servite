@@ -6,7 +6,7 @@ import {
   useMatch as _useMatch,
   useNavigate as _useNavigate,
   useLinkClickHandler as _useLinkClickHandler,
-  NavigateFunction,
+  type NavigateFunction,
   matchPath,
   resolvePath,
 } from 'react-router-dom';
@@ -15,6 +15,7 @@ import { hasIslands, isBrowser } from './constants.js';
 
 const basename = import.meta.env.BASE_URL;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function warn(api: string, extraMsg?: string) {
   if (!import.meta.env.PROD && isBrowser) {
     const msg = `[servite] using ${api}() in islands may have unexpected results.${
@@ -22,13 +23,6 @@ function warn(api: string, extraMsg?: string) {
     }`;
     // eslint-disable-next-line no-console
     console.warn(msg);
-
-    try {
-      throw new Error(
-        '[servite] This error is thrown so that you can more easily find the source of the above warning'
-      );
-      // eslint-disable-next-line no-empty
-    } catch (e) {}
   }
 }
 

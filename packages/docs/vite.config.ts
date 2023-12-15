@@ -8,13 +8,9 @@ import icons from 'unplugin-icons/vite';
 export default defineConfig({
   base: process.env.GH_PAGES ? '/servite/' : '/',
   ssr: {
-    noExternal: ['@docsearch/react'],
+    noExternal: ['@docsearch/react', 'algoliasearch'],
   },
   plugins: [
-    servite({
-      ssg: ['**/*'],
-    }),
-    tsAlias(),
     mdxPlus({
       theme: {
         light: 'github-light',
@@ -32,6 +28,11 @@ export default defineConfig({
         },
       },
     }),
+    servite({
+      ssg: ['**/*'],
+      islands: process.env.GH_PAGES === '1',
+    }),
+    tsAlias(),
     icons({
       compiler: 'jsx',
       autoInstall: true,

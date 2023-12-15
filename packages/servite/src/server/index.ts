@@ -12,14 +12,14 @@ export interface ApiHandler<Args extends Record<string, any>, Result = any> {
 
 export interface ClientApiHandler<
   Args extends Record<string, any>,
-  Result = any
+  Result = any,
 > {
   (args: Args, options?: FetchOptions): Promise<Result>;
 }
 
 export function defineApiHandler<
   Args extends Record<string, any>,
-  Result = any
+  Result = any,
 >(handler: ApiHandler<Args, Result>): ClientApiHandler<Args, Result> {
   return defineEventHandler(async event => {
     const args = isMethod(event, 'GET')
@@ -34,7 +34,7 @@ export const apiHandler = defineApiHandler;
 
 export function defineCachedApiHandler<
   Args extends Record<string, any>,
-  Result = any
+  Result = any,
 >(handler: ApiHandler<Args, Result>): ClientApiHandler<Args, Result> {
   return defineCachedEventHandler(async event => {
     const args = isMethod(event, 'GET')

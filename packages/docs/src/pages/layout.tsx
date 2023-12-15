@@ -1,44 +1,50 @@
 import './layout.css';
 
 import { useMemo } from 'react';
-import { useAppState, Helmet, Outlet } from 'servite/client';
-import { createSiteState, siteContext } from '@/context';
+import {
+  Helmet,
+  Outlet,
+  useLocation,
+  useMatches,
+  type RouteHandle,
+} from 'servite/client';
+import { SiteContextProvider, createSiteContextValue } from '@/context';
 import { SITE_DESCRIPTION, SITE_TITLE } from '@/constants';
-import { useScrollToTop } from '@/hooks/useScrollToTop';
 import { Header } from '@/components/Header';
 import { DocLayout } from '@/components/DocLayout';
 import { HomeLayout } from '@/components/HomeLayout';
+import type { SiteContextValue } from '@/types';
 
 export default function Layout() {
-  const appState = useAppState();
-  const { pagePath, pageData } = appState;
+  const { pathname } = useLocation();
+  const routeMatches = useMatches();
 
-  const siteState = useMemo(() => createSiteState(appState), [appState]);
-  const { currentLocale } = siteState;
+  const siteContextValue: SiteContextValue = useMemo(() => {
+    return createSiteContextValue(
+      pathname,
+      routeMatches[routeMatches.length - 1]?.handle as RouteHandle
+    );
+  }, [pathname, routeMatches]);
 
-  useScrollToTop();
-
-  if (!pagePath || !pageData) {
-    return null;
-  }
+  const { currentLocale, routeHandle, frontmatter } = siteContextValue;
 
   return (
     <>
       <Helmet titleTemplate={`%s | ${SITE_TITLE}`} defaultTitle={SITE_TITLE}>
         <html lang={currentLocale.locale} />
-        <title>{pageData.meta?.title}</title>
+        <title>{frontmatter?.title}</title>
         <meta name="description" content={SITE_DESCRIPTION} />
       </Helmet>
-      <siteContext.Provider value={siteState}>
+      <SiteContextProvider value={siteContextValue}>
         <Header />
-        {pageData.routePath === currentLocale.localePath ? (
+        {frontmatter?.layout === 'home' ? (
           <HomeLayout />
-        ) : /\.mdx?$/.test(pageData.filePath) ? (
+        ) : /\.mdx?$/.test(routeHandle?.filePath || '') ? (
           <DocLayout />
         ) : (
           <Outlet />
         )}
-      </siteContext.Provider>
+      </SiteContextProvider>
     </>
   );
 }

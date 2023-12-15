@@ -1,6 +1,6 @@
 import { extname } from 'path';
 import type { HtmlTagDescriptor } from 'vite';
-import { Island } from '../../shared/types.js';
+import type { Island } from '../../shared/types.js';
 
 export function lazyCachedFn<T>(fn: () => Promise<T>): () => Promise<T> {
   let res: Promise<T> | null = null;
@@ -136,4 +136,28 @@ window.dispatchEvent(new CustomEvent('servite:hydrate'));
 `;
 
   return code;
+}
+
+export function isResponse(value: any): value is Response {
+  return (
+    value != null &&
+    typeof value.status === 'number' &&
+    typeof value.statusText === 'string' &&
+    typeof value.headers === 'object' &&
+    typeof value.body !== 'undefined'
+  );
+}
+
+const redirectStatusCodes = new Set([301, 302, 303, 307, 308]);
+
+export function isRedirectStatusCode(statusCode: number): boolean {
+  return redirectStatusCodes.has(statusCode);
+}
+
+export function isRedirectResponse(value: any): boolean {
+  return isResponse(value) && isRedirectStatusCode(value.status);
+}
+
+export function isSuccessStatusCode(statusCode: number): boolean {
+  return statusCode >= 200 && statusCode < 300;
 }
