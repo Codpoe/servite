@@ -39,7 +39,7 @@ Servite 约定了加 `.data` 后缀的文件为对应路由的**数据文件**�
 - 如果布局路由文件是 `src/pages/layout.tsx`，那么它对应的数据文件是 `src/pages/layout.data.ts`
 - 如果页面路由文件是 `src/pages/about/page.tsx`，那么对应的数据文件是 `src/pages/about/page.data.ts`
 
-我们可以在数据文件中导出一个 `loader` 函数用于数据加载：
+我们可以在数据文件中导出一个 `loader` 函数用于在组件渲染前进行数据加载：
 
 ```ts
 // page.data.ts
@@ -63,14 +63,73 @@ export default function Page() {
 }
 ```
 
+在 CSR 环境下，loader 函数会在客户端执行，loader 函数内可以使用浏览器的 API（但通常不需要，也不推荐）。
+
+在 SSR 环境下，不管是首屏，还是在客户端的导航，loader 函数只会在服务端执行，这里可以调用任意的 Node.js API，同时这里使用的任何依赖和代码都不会包含在客户端的 bundle 中。
+
 :::warning
-需要注意的是，如果需要在组件中导入 `.data` 文件定义的 TS 类型，最好使用 `import type`，而不是单纯的 `import`，
+需要注意的是，如果需要在组件和 `.data` 文件之间共享 TS 类型，最好使用 `import type`，而不是单纯的 `import`，
 这样能让构建工具更好地 Tree Shaking，例如上面代码中的：<br />
 `import type { SomeData } from './page.data'`
-
-尤其是当我们在 `.data` 文件中使用了一些只能在服务端运行的 API 和库时，直接使用 `import { xxx } from './page.data'` 
-可能会导致打包编译失败，或者浏览器端的构建产物中包含服务端的代码，有泄露风险。
 :::
+
+### loader 参数
+
+`loader` 函数的参数中有两个字段：`params` 和 `request`。
+
+- `params` 根据动态路由解析而来的，例如 `/posts/[id]/page.data.tsx`：
+
+  ```ts
+  // /posts/[id]/page.data.tsx
+  export async function loader({ params }) {
+    return fakeGetPost({ id: params.id });
+  }
+  ```
+
+- `request` 是一个 [Fetch Requst](https://developer.mozilla.org/en-US/docs/Web/API/Request) 实例。这个参数常见的使用场景是，从 `request` 中解析出 url 和查询参数：
+
+  ```ts
+  export async function loader({ request }) {
+    const url = new URL(request.url);
+    const uid = url.searchParams.get('uid');
+    return fakeGetUser({ uid });
+  }
+  ```
+
+### loader 返回
+
+- 返回任意数据
+  ```ts
+  export async function loader() {
+    return {
+      some: 'data'
+    };
+  }
+  ```
+- 返回 Response 实例
+  ```ts
+  export async function loader() {
+    return new Response(JSON.stringify({ some: 'data' }), {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  }
+  ```
+  返回的 JSON 数据的 Response 也可以使用 `json` 这个工具函数来简化代码，所以上面例子可以简化成：
+  ```ts
+  import { json } from 'servite/client';
+  export async function loader() {
+    return json({ some: 'data' });
+  }
+  ```
+- Throw Response 实例
+  ```ts
+  export async function loader() {
+    throw new Response('没有权限', { status: 403 });
+  }
+  ```
+
 
 ## 数据更新
 

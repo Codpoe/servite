@@ -13,5 +13,6 @@ export {
   useLinkClickHandler,
 } from './app/router.js';
 export * from './app/types.js';
+export { useApp, type AppContextValue } from './app/context.js';
 export * from './app/components/PrefetchLink.js';
 export * from './app/components/ClientOnly.js';

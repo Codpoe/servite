@@ -1,6 +1,6 @@
 # 使用 servite/client
 
-为了便于开发，我们统一通过 `servite/client` 导出了一些常用的组件、hooks、类型等。下文将介绍几个常见的使用场景。
+为了便于开发和收敛入口，Servite 统一通过 `servite/client` 导出了一些常用的组件、hooks、类型等。下文将介绍几个常见的使用场景。
 
 :::tip
 可以在[这个文件](https://github.com/Codpoe/servite/blob/master/packages/servite/src/client/index.ts)看到 `servite/client` 的所有导出。
@@ -50,13 +50,13 @@ export function Component() {
 }
 ```
 
-## 获取应用页面和路由列表
+## 获取页面列表和路由实例
 
 ```tsx
 import { useApp } from 'servite/client';
 
-export function useApp() {
-  const { pages, routes } = useAppState();
+export default function Page() {
+  const { pages, router } = useApp();
   // ...
 }
 ```

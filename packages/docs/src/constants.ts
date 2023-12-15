@@ -67,16 +67,16 @@ export const LOCALE_TO_SIDEBAR: Record<string, SidebarItem[]> = {
       link: '/zh/guide/routes-data',
     },
     {
+      text: '路由错误',
+      link: '/zh/guide/routes-error',
+    },
+    {
       text: 'SSR 服务端渲染',
       link: '/zh/guide/ssr',
     },
     {
       text: 'SSG 静态生成',
       link: '/zh/guide/ssg',
-    },
-    {
-      text: 'Islands 孤岛架构',
-      link: '/zh/guide/islands',
     },
     {
       text: 'CSR 客户端渲染',
@@ -92,6 +92,10 @@ export const LOCALE_TO_SIDEBAR: Record<string, SidebarItem[]> = {
         {
           text: 'SPA vs MPA',
           link: '/zh/guide/spa-vs-mpa',
+        },
+        {
+          text: 'Islands 孤岛架构',
+          link: '/zh/guide/islands',
         },
         {
           text: '使用 servite/client',
