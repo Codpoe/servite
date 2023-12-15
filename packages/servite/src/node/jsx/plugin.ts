@@ -81,7 +81,7 @@ export function serviteJsx({
         const babelOptions =
           typeof babel === 'function' ? babel(id, opts) : babel || {};
 
-        return opts.ssr
+        return opts.ssr && serviteConfig.islands
           ? {
               ...babelOptions,
               plugins: [babelJsxIsland, ...(babelOptions?.plugins || [])],

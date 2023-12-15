@@ -30,6 +30,7 @@ export default defineConfig({
     }),
     servite({
       ssg: ['**/*'],
+      islands: process.env.GH_PAGES === '1',
     }),
     tsAlias(),
     icons({
