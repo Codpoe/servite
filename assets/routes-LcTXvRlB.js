@@ -1,6 +1,6 @@
-import{u as r,j as l}from"./index-cT6O7OcH.js";const i={commitTime:1702629563},d=[{id:"页面路由",text:"页面路由",depth:2},{id:"api-路由",text:"API 路由",depth:2}];function c(e){const s={a:"a",code:"code",h1:"h1",h2:"h2",li:"li",p:"p",pre:"pre",span:"span",table:"table",tbody:"tbody",td:"td",th:"th",thead:"thead",tr:"tr",ul:"ul",...r(),...e.components},{Callout:n}=s;return n||o("Callout",!0),l.jsxs(l.Fragment,{children:[l.jsxs(s.h1,{id:"路由",children:[l.jsx(s.a,{className:"header-anchor","aria-hidden":"true",tabIndex:"-1",href:"#路由",children:"#"}),"路由"]}),`
+import{u as r,j as l}from"./index-p8_hTGan.js";const i={commitTime:1702659797},d=[{id:"页面路由",text:"页面路由",depth:2},{id:"普通路由",text:"普通路由",depth:3},{id:"动态路由",text:"动态路由",depth:3},{id:"路由分组",text:"路由分组",depth:3},{id:"api-路由",text:"API 路由",depth:2}];function c(e){const s={a:"a",code:"code",h1:"h1",h2:"h2",h3:"h3",li:"li",p:"p",pre:"pre",span:"span",strong:"strong",table:"table",tbody:"tbody",td:"td",th:"th",thead:"thead",tr:"tr",ul:"ul",...r(),...e.components},{Callout:n}=s;return n||a("Callout",!0),l.jsxs(l.Fragment,{children:[l.jsxs(s.h1,{id:"路由",children:[l.jsx(s.a,{className:"header-anchor","aria-hidden":"true",tabIndex:"-1",href:"#路由",children:"#"}),"路由"]}),`
 `,l.jsx(s.p,{children:"servite 使用约定式路由（文件系统路由），文件路径会被简单地映射为路由路径，这会使整个项目的路由变得非常直观。"}),`
-`,l.jsx(s.p,{children:"由于 servite 同时支持写页面和 API 借口而，路由系统也就分成了两个部分："}),`
+`,l.jsx(s.p,{children:"由于 servite 同时支持写页面和 API 接口，路由系统也就分成了两个部分："}),`
 `,l.jsxs(s.ul,{children:[`
 `,l.jsx(s.li,{children:"页面路由"}),`
 `,l.jsx(s.li,{children:"API 路由"}),`
@@ -8,15 +8,16 @@ import{u as r,j as l}from"./index-cT6O7OcH.js";const i={commitTime:1702629563},d
 `,l.jsxs(s.h2,{id:"页面路由",children:[l.jsx(s.a,{className:"header-anchor","aria-hidden":"true",tabIndex:"-1",href:"#页面路由",children:"#"}),"页面路由"]}),`
 `,l.jsxs(s.p,{children:["servite 会收集 ",l.jsx(s.a,{href:"/zh/guide/config#pagesdirs",children:"pagesDirs"})," 指定目录下的文件作为页面："]}),`
 `,l.jsxs(s.ul,{children:[`
-`,l.jsxs(s.li,{children:[l.jsx(s.code,{children:"page.{js,jsx,ts,tsx}"})," 会作为普通页面组件"]}),`
+`,l.jsxs(s.li,{children:[l.jsx(s.code,{children:"page.{js,jsx,ts,tsx}"})," 会作为",l.jsx(s.strong,{children:"页面组件"})]}),`
 `,l.jsxs(s.li,{children:["以 ",l.jsx(s.code,{children:".md"})," 或 ",l.jsx(s.code,{children:".mdx"})," 结尾的文件也会被作为普通页面组件"]}),`
-`,l.jsxs(s.li,{children:[l.jsx(s.code,{children:"layout.{js,jsx,ts,tsx}"})," 会作为布局组件"]}),`
+`,l.jsxs(s.li,{children:[l.jsx(s.code,{children:"layout.{js,jsx,ts,tsx}"})," 会作为",l.jsx(s.strong,{children:"布局组件"})]}),`
 `]}),`
 `,l.jsx(n,{type:"tip",children:l.jsxs(s.ul,{children:[`
 `,l.jsxs(s.li,{children:["不管是 ",l.jsx(s.code,{children:".md"})," 还是 ",l.jsx(s.code,{children:".mdx"}),"，servite 都会统一使用 MDX 来解析 Markdown 文件内容。"]}),`
 `,l.jsxs(s.li,{children:["如果是 ",l.jsx(s.code,{children:".js"}),"、",l.jsx(s.code,{children:".jsx"}),"、",l.jsx(s.code,{children:".ts"}),"、",l.jsx(s.code,{children:".tsx"})," 页面文件，这些文件模块需要默认导出一个组件。"]}),`
 `]})}),`
-`,l.jsx(s.p,{children:"举个例子，假设你的项目 src/pages 目录有如下文件结构："}),`
+`,l.jsxs(s.h3,{id:"普通路由",children:[l.jsx(s.a,{className:"header-anchor","aria-hidden":"true",tabIndex:"-1",href:"#普通路由",children:"#"}),"普通路由"]}),`
+`,l.jsx(s.p,{children:"假设你的项目 src/pages 目录有如下文件结构："}),`
 `,l.jsx(s.pre,{className:"code-theme-light",style:{backgroundColor:'#f6f8fa" tabindex="0'},children:l.jsxs(s.code,{children:[l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#6F42C1"},children:"src/pages"})}),`
 `,l.jsxs(s.span,{className:"line",children:[l.jsx(s.span,{style:{color:"#24292E"},children:"  "}),l.jsx(s.span,{style:{color:"#6F42C1"},children:"├─"}),l.jsx(s.span,{style:{color:"#24292E"},children:" "}),l.jsx(s.span,{style:{color:"#032F62"},children:"dashboard"})]}),`
 `,l.jsxs(s.span,{className:"line",children:[l.jsx(s.span,{style:{color:"#24292E"},children:"  "}),l.jsx(s.span,{style:{color:"#6F42C1"},children:"│"}),l.jsx(s.span,{style:{color:"#24292E"},children:"  "}),l.jsx(s.span,{style:{color:"#032F62"},children:"├─"}),l.jsx(s.span,{style:{color:"#24292E"},children:" "}),l.jsx(s.span,{style:{color:"#032F62"},children:"analytics"})]}),`
@@ -45,7 +46,7 @@ import{u as r,j as l}from"./index-cT6O7OcH.js";const i={commitTime:1702629563},d
 `,l.jsx(s.p,{children:"对应的 React Router 配置对象类似于："}),`
 `,l.jsx(s.pre,{className:"code-theme-light",style:{backgroundColor:'#f6f8fa" tabindex="0'},children:l.jsxs(s.code,{children:[l.jsxs(s.span,{className:"line",children:[l.jsx(s.span,{style:{color:"#D73A49"},children:"const"}),l.jsx(s.span,{style:{color:"#24292E"},children:" "}),l.jsx(s.span,{style:{color:"#005CC5"},children:"routes"}),l.jsx(s.span,{style:{color:"#24292E"},children:" "}),l.jsx(s.span,{style:{color:"#D73A49"},children:"="}),l.jsx(s.span,{style:{color:"#24292E"},children:" ["})]}),`
 `,l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#24292E"},children:"  {"})}),`
-`,l.jsxs(s.span,{className:"line",children:[l.jsx(s.span,{style:{color:"#24292E"},children:"    path: "}),l.jsx(s.span,{style:{color:"#032F62"},children:"'/*'"}),l.jsx(s.span,{style:{color:"#24292E"},children:","})]}),`
+`,l.jsxs(s.span,{className:"line",children:[l.jsx(s.span,{style:{color:"#24292E"},children:"    path: "}),l.jsx(s.span,{style:{color:"#032F62"},children:"'/'"}),l.jsx(s.span,{style:{color:"#24292E"},children:","})]}),`
 `,l.jsxs(s.span,{className:"line",children:[l.jsx(s.span,{style:{color:"#24292E"},children:"    element: <"}),l.jsx(s.span,{style:{color:"#005CC5"},children:"Layout"}),l.jsx(s.span,{style:{color:"#24292E"},children:" />,"})]}),`
 `,l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#24292E"},children:"    children: ["})}),`
 `,l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#24292E"},children:"      {"})}),`
@@ -53,7 +54,7 @@ import{u as r,j as l}from"./index-cT6O7OcH.js";const i={commitTime:1702629563},d
 `,l.jsxs(s.span,{className:"line",children:[l.jsx(s.span,{style:{color:"#24292E"},children:"        element: <"}),l.jsx(s.span,{style:{color:"#005CC5"},children:"Index"}),l.jsx(s.span,{style:{color:"#24292E"},children:" />,"})]}),`
 `,l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#24292E"},children:"      },"})}),`
 `,l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#24292E"},children:"      {"})}),`
-`,l.jsxs(s.span,{className:"line",children:[l.jsx(s.span,{style:{color:"#24292E"},children:"        path: "}),l.jsx(s.span,{style:{color:"#032F62"},children:"'/dashboard/*'"}),l.jsx(s.span,{style:{color:"#24292E"},children:","})]}),`
+`,l.jsxs(s.span,{className:"line",children:[l.jsx(s.span,{style:{color:"#24292E"},children:"        path: "}),l.jsx(s.span,{style:{color:"#032F62"},children:"'/dashboard'"}),l.jsx(s.span,{style:{color:"#24292E"},children:","})]}),`
 `,l.jsxs(s.span,{className:"line",children:[l.jsx(s.span,{style:{color:"#24292E"},children:"        element: <"}),l.jsx(s.span,{style:{color:"#005CC5"},children:"DashboardLayout"}),l.jsx(s.span,{style:{color:"#24292E"},children:" />,"})]}),`
 `,l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#24292E"},children:"        children: ["})}),`
 `,l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#24292E"},children:"          {"})}),`
@@ -70,7 +71,7 @@ import{u as r,j as l}from"./index-cT6O7OcH.js";const i={commitTime:1702629563},d
 `,l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#24292E"},children:"  },"})}),`
 `,l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#24292E"},children:"];"})})]})}),l.jsx(s.pre,{className:"code-theme-dark",style:{backgroundColor:'#161b22" tabindex="0'},children:l.jsxs(s.code,{children:[l.jsxs(s.span,{className:"line",children:[l.jsx(s.span,{style:{color:"#F97583"},children:"const"}),l.jsx(s.span,{style:{color:"#E1E4E8"},children:" "}),l.jsx(s.span,{style:{color:"#79B8FF"},children:"routes"}),l.jsx(s.span,{style:{color:"#E1E4E8"},children:" "}),l.jsx(s.span,{style:{color:"#F97583"},children:"="}),l.jsx(s.span,{style:{color:"#E1E4E8"},children:" ["})]}),`
 `,l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#E1E4E8"},children:"  {"})}),`
-`,l.jsxs(s.span,{className:"line",children:[l.jsx(s.span,{style:{color:"#E1E4E8"},children:"    path: "}),l.jsx(s.span,{style:{color:"#9ECBFF"},children:"'/*'"}),l.jsx(s.span,{style:{color:"#E1E4E8"},children:","})]}),`
+`,l.jsxs(s.span,{className:"line",children:[l.jsx(s.span,{style:{color:"#E1E4E8"},children:"    path: "}),l.jsx(s.span,{style:{color:"#9ECBFF"},children:"'/'"}),l.jsx(s.span,{style:{color:"#E1E4E8"},children:","})]}),`
 `,l.jsxs(s.span,{className:"line",children:[l.jsx(s.span,{style:{color:"#E1E4E8"},children:"    element: <"}),l.jsx(s.span,{style:{color:"#79B8FF"},children:"Layout"}),l.jsx(s.span,{style:{color:"#E1E4E8"},children:" />,"})]}),`
 `,l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#E1E4E8"},children:"    children: ["})}),`
 `,l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#E1E4E8"},children:"      {"})}),`
@@ -78,7 +79,7 @@ import{u as r,j as l}from"./index-cT6O7OcH.js";const i={commitTime:1702629563},d
 `,l.jsxs(s.span,{className:"line",children:[l.jsx(s.span,{style:{color:"#E1E4E8"},children:"        element: <"}),l.jsx(s.span,{style:{color:"#79B8FF"},children:"Index"}),l.jsx(s.span,{style:{color:"#E1E4E8"},children:" />,"})]}),`
 `,l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#E1E4E8"},children:"      },"})}),`
 `,l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#E1E4E8"},children:"      {"})}),`
-`,l.jsxs(s.span,{className:"line",children:[l.jsx(s.span,{style:{color:"#E1E4E8"},children:"        path: "}),l.jsx(s.span,{style:{color:"#9ECBFF"},children:"'/dashboard/*'"}),l.jsx(s.span,{style:{color:"#E1E4E8"},children:","})]}),`
+`,l.jsxs(s.span,{className:"line",children:[l.jsx(s.span,{style:{color:"#E1E4E8"},children:"        path: "}),l.jsx(s.span,{style:{color:"#9ECBFF"},children:"'/dashboard'"}),l.jsx(s.span,{style:{color:"#E1E4E8"},children:","})]}),`
 `,l.jsxs(s.span,{className:"line",children:[l.jsx(s.span,{style:{color:"#E1E4E8"},children:"        element: <"}),l.jsx(s.span,{style:{color:"#79B8FF"},children:"DashboardLayout"}),l.jsx(s.span,{style:{color:"#E1E4E8"},children:" />,"})]}),`
 `,l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#E1E4E8"},children:"        children: ["})}),`
 `,l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#E1E4E8"},children:"          {"})}),`
@@ -94,6 +95,37 @@ import{u as r,j as l}from"./index-cT6O7OcH.js";const i={commitTime:1702629563},d
 `,l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#E1E4E8"},children:"    ],"})}),`
 `,l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#E1E4E8"},children:"  },"})}),`
 `,l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#E1E4E8"},children:"];"})})]})}),`
+`,l.jsxs(s.h3,{id:"动态路由",children:[l.jsx(s.a,{className:"header-anchor","aria-hidden":"true",tabIndex:"-1",href:"#动态路由",children:"#"}),"动态路由"]}),`
+`,l.jsxs(s.p,{children:["像 ",l.jsx(s.code,{children:"/posts/[id]"})," 这样的路径就是动态路由，",l.jsx(s.code,{children:"[]"})," 里面的 ",l.jsx(s.code,{children:"id"})," 是动态参数。当我们跳转到 ",l.jsx(s.code,{children:"/posts/123"}),` 时，
+在页面组件中可以通过 `,l.jsx(s.code,{children:"useParams"})," 拿到这个值为 ",l.jsx(s.code,{children:"123"})," 的 ",l.jsx(s.code,{children:"id"}),"："]}),`
+`,l.jsx(s.pre,{className:"code-theme-light",style:{backgroundColor:'#f6f8fa" tabindex="0'},children:l.jsxs(s.code,{children:[l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#24292e"},children:"// posts/[id]/page.tsx"})}),`
+`,l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#24292e"},children:"import { useParams } from 'servite/client';"})}),`
+`,l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#24292e"}})}),`
+`,l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#24292e"},children:"export default function Post() {"})}),`
+`,l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#24292e"},children:"  const { id } = useParams();"})}),`
+`,l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#24292e"},children:"  return <p>{id}</p>; // 会渲染成：<p>123</p>"})}),`
+`,l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#24292e"},children:"}"})})]})}),l.jsx(s.pre,{className:"code-theme-dark",style:{backgroundColor:'#161b22" tabindex="0'},children:l.jsxs(s.code,{children:[l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#e1e4e8"},children:"// posts/[id]/page.tsx"})}),`
+`,l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#e1e4e8"},children:"import { useParams } from 'servite/client';"})}),`
+`,l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#e1e4e8"}})}),`
+`,l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#e1e4e8"},children:"export default function Post() {"})}),`
+`,l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#e1e4e8"},children:"  const { id } = useParams();"})}),`
+`,l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#e1e4e8"},children:"  return <p>{id}</p>; // 会渲染成：<p>123</p>"})}),`
+`,l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#e1e4e8"},children:"}"})})]})}),`
+`,l.jsxs(s.h3,{id:"路由分组",children:[l.jsx(s.a,{className:"header-anchor","aria-hidden":"true",tabIndex:"-1",href:"#路由分组",children:"#"}),"路由分组"]}),`
+`,l.jsxs(s.p,{children:[`路由分组的概念来源于 Next.js 的 App 路由。在约定式路由中，目录会直白地映射为 URL 路径，
+但有些时候我们的确想让某个目录不被映射为 URL 的一部分，这时就可以使用`,l.jsx(s.strong,{children:"路由分组"}),"，这能让我们组织出更有逻辑性的项目目录结构。"]}),`
+`,l.jsxs(s.p,{children:["举个例子，我们把不同语种翻译的文档按语种划分到不同的目录下，就像 ",l.jsx(s.code,{children:"/zh/about.mdx"})," 和 ",l.jsx(s.code,{children:"/en/about.mdx"}),`，但可能英文作为站点的默认语言，
+我们不想在 URL 上有 `,l.jsx(s.code,{children:"en"})," 这个路径，这时只需要给 ",l.jsx(s.code,{children:"en"})," 加上括号 ",l.jsx(s.code,{children:"(en)"})," 即可成为路由分组："]}),`
+`,l.jsx(s.pre,{className:"code-theme-light",style:{backgroundColor:'#f6f8fa" tabindex="0'},children:l.jsxs(s.code,{children:[l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#6F42C1"},children:"src/pages"})}),`
+`,l.jsxs(s.span,{className:"line",children:[l.jsx(s.span,{style:{color:"#24292E"},children:"  "}),l.jsx(s.span,{style:{color:"#6F42C1"},children:"├─"}),l.jsx(s.span,{style:{color:"#24292E"},children:" (en)"})]}),`
+`,l.jsxs(s.span,{className:"line",children:[l.jsx(s.span,{style:{color:"#24292E"},children:"  "}),l.jsx(s.span,{style:{color:"#6F42C1"},children:"│"}),l.jsx(s.span,{style:{color:"#24292E"},children:"  "}),l.jsx(s.span,{style:{color:"#032F62"},children:"└─"}),l.jsx(s.span,{style:{color:"#24292E"},children:" "}),l.jsx(s.span,{style:{color:"#032F62"},children:"about.mdx"})]}),`
+`,l.jsxs(s.span,{className:"line",children:[l.jsx(s.span,{style:{color:"#24292E"},children:"  "}),l.jsx(s.span,{style:{color:"#6F42C1"},children:"└─"}),l.jsx(s.span,{style:{color:"#24292E"},children:" "}),l.jsx(s.span,{style:{color:"#032F62"},children:"zh"})]}),`
+`,l.jsxs(s.span,{className:"line",children:[l.jsx(s.span,{style:{color:"#24292E"},children:"     "}),l.jsx(s.span,{style:{color:"#6F42C1"},children:"└─"}),l.jsx(s.span,{style:{color:"#24292E"},children:" "}),l.jsx(s.span,{style:{color:"#032F62"},children:"about.mdx"})]})]})}),l.jsx(s.pre,{className:"code-theme-dark",style:{backgroundColor:'#161b22" tabindex="0'},children:l.jsxs(s.code,{children:[l.jsx(s.span,{className:"line",children:l.jsx(s.span,{style:{color:"#B392F0"},children:"src/pages"})}),`
+`,l.jsxs(s.span,{className:"line",children:[l.jsx(s.span,{style:{color:"#E1E4E8"},children:"  "}),l.jsx(s.span,{style:{color:"#B392F0"},children:"├─"}),l.jsx(s.span,{style:{color:"#E1E4E8"},children:" (en)"})]}),`
+`,l.jsxs(s.span,{className:"line",children:[l.jsx(s.span,{style:{color:"#E1E4E8"},children:"  "}),l.jsx(s.span,{style:{color:"#B392F0"},children:"│"}),l.jsx(s.span,{style:{color:"#E1E4E8"},children:"  "}),l.jsx(s.span,{style:{color:"#9ECBFF"},children:"└─"}),l.jsx(s.span,{style:{color:"#E1E4E8"},children:" "}),l.jsx(s.span,{style:{color:"#9ECBFF"},children:"about.mdx"})]}),`
+`,l.jsxs(s.span,{className:"line",children:[l.jsx(s.span,{style:{color:"#E1E4E8"},children:"  "}),l.jsx(s.span,{style:{color:"#B392F0"},children:"└─"}),l.jsx(s.span,{style:{color:"#E1E4E8"},children:" "}),l.jsx(s.span,{style:{color:"#9ECBFF"},children:"zh"})]}),`
+`,l.jsxs(s.span,{className:"line",children:[l.jsx(s.span,{style:{color:"#E1E4E8"},children:"     "}),l.jsx(s.span,{style:{color:"#B392F0"},children:"└─"}),l.jsx(s.span,{style:{color:"#E1E4E8"},children:" "}),l.jsx(s.span,{style:{color:"#9ECBFF"},children:"about.mdx"})]})]})}),`
+`,l.jsxs(s.p,{children:["这样我们就可以通过 ",l.jsx(s.code,{children:"/about"})," 访问到英文文档，通过 ",l.jsx(s.code,{children:"/zh/about"})," 访问到中文文档。"]}),`
 `,l.jsxs(s.h2,{id:"api-路由",children:[l.jsx(s.a,{className:"header-anchor","aria-hidden":"true",tabIndex:"-1",href:"#api-路由",children:"#"}),"API 路由"]}),`
 `,l.jsxs(s.p,{children:["servite 的 API 功能是由 Nitro 驱动的，完整的 API 路由文档请查看 ",l.jsx(s.a,{href:"https://nitro.unjs.io/guide/introduction/routing",children:"Nitro Route Handling"}),"。"]}),`
 `,l.jsx(s.p,{children:"举个例子："}),`
@@ -126,4 +158,4 @@ import{u as r,j as l}from"./index-cT6O7OcH.js";const i={commitTime:1702629563},d
 `,l.jsx(s.pre,{className:"code-theme-light",style:{backgroundColor:'#f6f8fa" tabindex="0'},children:l.jsxs(s.code,{children:[l.jsxs(s.span,{className:"line",children:[l.jsx(s.span,{style:{color:"#D73A49"},children:"import"}),l.jsx(s.span,{style:{color:"#24292E"},children:" { ofetch } "}),l.jsx(s.span,{style:{color:"#D73A49"},children:"from"}),l.jsx(s.span,{style:{color:"#24292E"},children:" "}),l.jsx(s.span,{style:{color:"#032F62"},children:"'servite/client'"}),l.jsx(s.span,{style:{color:"#24292E"},children:";"})]}),`
 `,l.jsxs(s.span,{className:"line",children:[l.jsx(s.span,{style:{color:"#6F42C1"},children:"ofetch"}),l.jsx(s.span,{style:{color:"#24292E"},children:"("}),l.jsx(s.span,{style:{color:"#032F62"},children:"'/api/todo'"}),l.jsx(s.span,{style:{color:"#24292E"},children:");"})]})]})}),l.jsx(s.pre,{className:"code-theme-dark",style:{backgroundColor:'#161b22" tabindex="0'},children:l.jsxs(s.code,{children:[l.jsxs(s.span,{className:"line",children:[l.jsx(s.span,{style:{color:"#F97583"},children:"import"}),l.jsx(s.span,{style:{color:"#E1E4E8"},children:" { ofetch } "}),l.jsx(s.span,{style:{color:"#F97583"},children:"from"}),l.jsx(s.span,{style:{color:"#E1E4E8"},children:" "}),l.jsx(s.span,{style:{color:"#9ECBFF"},children:"'servite/client'"}),l.jsx(s.span,{style:{color:"#E1E4E8"},children:";"})]}),`
 `,l.jsxs(s.span,{className:"line",children:[l.jsx(s.span,{style:{color:"#B392F0"},children:"ofetch"}),l.jsx(s.span,{style:{color:"#E1E4E8"},children:"("}),l.jsx(s.span,{style:{color:"#9ECBFF"},children:"'/api/todo'"}),l.jsx(s.span,{style:{color:"#E1E4E8"},children:");"})]})]})}),`
-`,l.jsx(n,{type:"tip",title:"进阶",children:l.jsxs(s.p,{children:["Servite 支持",l.jsx(s.a,{href:"/zh/guide/integrate-api-call",children:"一体化 API 调用"}),"，能提供更好的开发体验。"]})})]})}function h(e={}){const{wrapper:s}={...r(),...e.components};return s?l.jsx(s,{...e,children:l.jsx(c,{...e})}):c(e)}function o(e,s){throw new Error("Expected "+(s?"component":"object")+" `"+e+"` to be defined: you likely forgot to import, pass, or provide it.")}export{h as default,i as frontmatter,d as toc};
+`,l.jsx(n,{type:"tip",title:"进阶",children:l.jsxs(s.p,{children:["Servite 支持",l.jsx(s.a,{href:"/zh/guide/integrate-api-call",children:"一体化 API 调用"}),"，能提供更好的开发体验。"]})})]})}function h(e={}){const{wrapper:s}={...r(),...e.components};return s?l.jsx(s,{...e,children:l.jsx(c,{...e})}):c(e)}function a(e,s){throw new Error("Expected "+(s?"component":"object")+" `"+e+"` to be defined: you likely forgot to import, pass, or provide it.")}export{h as default,i as frontmatter,d as toc};
