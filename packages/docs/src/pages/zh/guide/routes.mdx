@@ -83,7 +83,7 @@ const routes = [
 像 `/posts/[id]` 这样的路径就是动态路由，`[]` 里面的 `id` 是动态参数。当我们跳转到 `/posts/123` 时，
 在页面组件中可以通过 `useParams` 拿到这个值为 `123` 的 `id`：
 
-```
+```tsx
 // posts/[id]/page.tsx
 import { useParams } from 'servite/client';
 
