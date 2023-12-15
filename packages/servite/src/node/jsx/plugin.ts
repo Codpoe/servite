@@ -59,18 +59,19 @@ export function serviteJsx({
         }
       },
     },
-    {
-      name: 'servite:islands-hmr',
-      enforce: 'post',
-      handleHotUpdate(ctx) {
-        if (islands.size && !islands.has(ctx.file)) {
-          ctx.server.ws.send({
-            type: 'full-reload',
-          });
-          return [];
-        }
-      },
-    },
+    // {
+    //   name: 'servite:islands-hmr',
+    //   enforce: 'post',
+    //   handleHotUpdate(ctx) {
+    //     debugger;
+    //     if (islands.size && !islands.has(ctx.file)) {
+    //       ctx.server.ws.send({
+    //         type: 'full-reload',
+    //       });
+    //       return [];
+    //     }
+    //   },
+    // },
     ...viteReact({
       ...serviteConfig.react,
       include: /\.([tj]s|md)x?$/,
@@ -80,7 +81,7 @@ export function serviteJsx({
         const babelOptions =
           typeof babel === 'function' ? babel(id, opts) : babel || {};
 
-        return opts.ssr && serviteConfig.islands
+        return opts.ssr
           ? {
               ...babelOptions,
               plugins: [babelJsxIsland, ...(babelOptions?.plugins || [])],

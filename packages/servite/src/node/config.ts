@@ -8,7 +8,6 @@ export function resolveServiteConfig(
     pagesDirs = [{ dir: 'src/pages' }],
     ssg = false,
     csr = false,
-    islands = false,
     ...rest
   } = userServiteConfig;
 
@@ -19,6 +18,5 @@ export function resolveServiteConfig(
     pagesDirs,
     ssg,
     csr,
-    islands,
   };
 }

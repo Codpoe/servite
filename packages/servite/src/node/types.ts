@@ -30,11 +30,6 @@ export interface UserServiteConfig {
    * @default false
    */
   csr?: boolean;
-  /**
-   * Enable islands architecture
-   * @default false
-   */
-  islands?: boolean;
   api?: {
     /**
      * eg. `'@/utils/fetch'` -> `import _fetch from '@/utils/fetch'`

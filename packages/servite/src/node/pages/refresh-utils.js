@@ -74,7 +74,7 @@ function registerExportsForReactRefresh(filename, moduleExports) {
     }
   }
 
-  if (/\.(page|layout)\.[jt]sx?$/.test(filename) || /\.mdx?$/.test(filename)) {
+  if (/\/(page|layout)\.[jt]sx?$/.test(filename) || /\.mdx?$/.test(filename)) {
     exportsToFileMap.set(moduleExports, filename);
   }
 }

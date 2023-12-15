@@ -30,7 +30,6 @@ export default defineConfig({
     }),
     servite({
       ssg: ['**/*'],
-      islands: process.env.NODE_ENV === 'production',
     }),
     tsAlias(),
     icons({
