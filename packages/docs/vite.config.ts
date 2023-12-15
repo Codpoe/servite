@@ -11,11 +11,6 @@ export default defineConfig({
     noExternal: ['@docsearch/react', 'algoliasearch'],
   },
   plugins: [
-    servite({
-      ssg: ['**/*'],
-      islands: process.env.NODE_ENV === 'production',
-    }),
-    tsAlias(),
     mdxPlus({
       theme: {
         light: 'github-light',
@@ -33,6 +28,11 @@ export default defineConfig({
         },
       },
     }),
+    servite({
+      ssg: ['**/*'],
+      islands: process.env.NODE_ENV === 'production',
+    }),
+    tsAlias(),
     icons({
       compiler: 'jsx',
       autoInstall: true,

@@ -74,7 +74,9 @@ function registerExportsForReactRefresh(filename, moduleExports) {
     }
   }
 
-  exportsToFileMap.set(moduleExports, filename);
+  if (/\.(page|layout)\.[jt]sx?$/.test(filename) || /\.mdx?$/.test(filename)) {
+    exportsToFileMap.set(moduleExports, filename);
+  }
 }
 
 // Set acceptExports to prevent hmr boundary crossing
@@ -102,6 +104,9 @@ function validateRefreshBoundaryAndEnqueueUpdate(prevExports, nextExports) {
     return 'Could not Fast Refresh (new export)';
   }
 
+  const filename = exportsToFileMap.get(prevExports);
+  exportsToFileMap.delete(prevExports);
+
   let hasExports = false;
   const allExportsAreComponentsOrUnchanged = predicateOnExport(
     nextExports,
@@ -109,14 +114,9 @@ function validateRefreshBoundaryAndEnqueueUpdate(prevExports, nextExports) {
       hasExports = true;
       // Servite can handle Servite-specific exports (e.g. `frontmatter` and `toc`)
       if (acceptExports.includes(key)) {
-        const filename = exportsToFileMap.get(prevExports);
-
         if (!filename) {
           return false;
         }
-
-        exportsToFileMap.delete(prevExports);
-
         if (
           JSON.stringify(prevExports[key]) !== JSON.stringify(nextExports[key])
         ) {

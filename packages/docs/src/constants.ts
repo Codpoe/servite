@@ -63,6 +63,10 @@ export const LOCALE_TO_SIDEBAR: Record<string, SidebarItem[]> = {
       link: '/zh/guide/routes',
     },
     {
+      text: '路由数据',
+      link: '/zh/guide/routes-data',
+    },
+    {
       text: 'SSR 服务端渲染',
       link: '/zh/guide/ssr',
     },
