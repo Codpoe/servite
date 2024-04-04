@@ -11,7 +11,7 @@ const argv = minimist<{ ts?: boolean }>(process.argv.slice(2), {
 
 const cwd = process.cwd();
 
-const serviteVersion = '^1.0.0';
+const serviteVersion = '^1.0.1';
 
 const viteConfigContent = `import { defineConfig } from 'vite';
 import { servite } from 'servite';
