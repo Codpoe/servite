@@ -2,7 +2,7 @@
 
 servite 使用约定式路由（文件系统路由），文件路径会被简单地映射为路由路径，这会使整个项目的路由变得非常直观。
 
-由于 servite 同时支持写页面和 API 借口而，路由系统也就分成了两个部分：
+由于 servite 同时支持写页面和 API 接口，路由系统也就分成了两个部分：
 
 - 页面路由
 - API 路由
@@ -11,17 +11,17 @@ servite 使用约定式路由（文件系统路由），文件路径会被简单
 
 servite 会收集 [pagesDirs](/zh/guide/config#pagesdirs) 指定目录下的文件作为页面：
 
-- `page.{js,jsx,ts,tsx}` 会作为普通页面组件
+- `page.{js,jsx,ts,tsx}` 会作为**页面组件**
 - 以 `.md` 或 `.mdx` 结尾的文件也会被作为普通页面组件
-- `layout.{js,jsx,ts,tsx}` 会作为布局组件
+- `layout.{js,jsx,ts,tsx}` 会作为**布局组件**
 
 :::tip
-
 - 不管是 `.md` 还是 `.mdx`，servite 都会统一使用 MDX 来解析 Markdown 文件内容。
 - 如果是 `.js`、`.jsx`、`.ts`、`.tsx` 页面文件，这些文件模块需要默认导出一个组件。
-  :::
+:::
 
-举个例子，假设你的项目 src/pages 目录有如下文件结构：
+### 普通路由
+假设你的项目 src/pages 目录有如下文件结构：
 
 ```shell
 src/pages
@@ -53,7 +53,7 @@ src/pages
 ```tsx
 const routes = [
   {
-    path: '/*',
+    path: '/',
     element: <Layout />,
     children: [
       {
@@ -61,7 +61,7 @@ const routes = [
         element: <Index />,
       },
       {
-        path: '/dashboard/*',
+        path: '/dashboard',
         element: <DashboardLayout />,
         children: [
           {
@@ -78,6 +78,37 @@ const routes = [
   },
 ];
 ```
+
+### 动态路由
+像 `/posts/[id]` 这样的路径就是动态路由，`[]` 里面的 `id` 是动态参数。当我们跳转到 `/posts/123` 时，
+在页面组件中可以通过 `useParams` 拿到这个值为 `123` 的 `id`：
+
+```tsx
+// posts/[id]/page.tsx
+import { useParams } from 'servite/client';
+
+export default function Post() {
+  const { id } = useParams();
+  return <p>{id}</p>; // 会渲染成：<p>123</p>
+}
+```
+
+### 路由分组
+路由分组的概念来源于 Next.js 的 App 路由。在约定式路由中，目录会直白地映射为 URL 路径，
+但有些时候我们的确想让某个目录不被映射为 URL 的一部分，这时就可以使用**路由分组**，这能让我们组织出更有逻辑性的项目目录结构。
+
+举个例子，我们把不同语种翻译的文档按语种划分到不同的目录下，就像 `/zh/about.mdx` 和 `/en/about.mdx`，但可能英文作为站点的默认语言，
+我们不想在 URL 上有 `en` 这个路径，这时只需要给 `en` 加上括号 `(en)` 即可成为路由分组：
+
+```shell
+src/pages
+  ├─ (en)
+  │  └─ about.mdx
+  └─ zh
+     └─ about.mdx
+```
+
+这样我们就可以通过 `/about` 访问到英文文档，通过 `/zh/about` 访问到中文文档。
 
 ## API 路由
 
