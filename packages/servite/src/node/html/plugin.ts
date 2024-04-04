@@ -2,7 +2,11 @@ import path from 'upath';
 import fs from 'fs-extra';
 import type { Plugin, HtmlTagDescriptor } from 'vite';
 import type { ServiteConfig } from '../types.js';
-import { APP_HTML_FILE, FS_PREFIX_CLIENT_ENTRY } from '../constants.js';
+import {
+  APP_HTML_FILE,
+  CLIENT_ENTRY_FILE,
+  FS_PREFIX_CLIENT_ENTRY,
+} from '../constants.js';
 
 export interface ServiteHtmlPluginConfig {
   serviteConfig: ServiteConfig;
@@ -37,6 +41,9 @@ export function serviteHtml({
           rollupOptions: {
             input: target,
           },
+        },
+        optimizeDeps: {
+          entries: [path.relative(root, CLIENT_ENTRY_FILE)],
         },
       };
     },

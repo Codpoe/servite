@@ -20,8 +20,10 @@ export const getViteDevServer = lazyCachedFn(async () => {
       middlewareMode: true,
     },
     // logLevel: 'warn',
+    cacheDir: 'node_modules/.vite-ssr',
     optimizeDeps: {
-      disabled: true,
+      noDiscovery: true,
+      include: [],
     },
     plugins: [
       {

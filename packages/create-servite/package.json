@@ -35,6 +35,6 @@
     "prompts": "^2.4.2"
   },
   "devDependencies": {
-    "@types/minimist": "^1.2.2"
+    "@types/minimist": "^1.2.5"
   }
 }

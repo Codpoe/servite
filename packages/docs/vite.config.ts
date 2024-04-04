@@ -7,8 +7,11 @@ import icons from 'unplugin-icons/vite';
 // https://vitejs.dev/config/
 export default defineConfig({
   base: process.env.GH_PAGES ? '/servite/' : '/',
+  // optimizeDeps: {
+  //   exclude: ['react-router-dom', 'react-dom', 'react-helmet-async'],
+  // },
   ssr: {
-    noExternal: ['@docsearch/react', 'algoliasearch'],
+    noExternal: ['@docsearch/react', 'algoliasearch', /@algolia\//],
   },
   plugins: [
     mdxPlus({
