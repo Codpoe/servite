@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.0
+
+### Major Changes
+
+- chore: upgrade all deps
+
 ## 0.1.7
 
 ### Patch Changes
