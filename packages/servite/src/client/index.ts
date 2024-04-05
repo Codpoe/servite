@@ -1,6 +1,7 @@
-export * from 'react-router-dom';
+import * as helmet from 'react-helmet-async';
+export const Helmet = helmet.Helmet;
 
-export { Helmet } from 'react-helmet-async';
+export * from 'react-router-dom';
 
 export * from 'ofetch';
 

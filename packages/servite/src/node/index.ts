@@ -39,7 +39,7 @@ export function servite(userServiteConfig?: UserServiteConfig): PluginOption[] {
               'servite > react-helmet-async > invariant',
               'servite > react-helmet-async > shallowequal',
             ],
-            exclude: ['virtual:servite-dist'],
+            exclude: ['virtual:servite-dist', 'servite/client'],
           },
           ssr: {
             noExternal: ['react-helmet-async'],
