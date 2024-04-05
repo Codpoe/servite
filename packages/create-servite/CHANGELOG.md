@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.3
+
+### Patch Changes
+
+- fix: add esm ext to fix esm load error
+- fix: prepend viteConfig.base to route path by default
+
 ## 1.0.2
 
 ### Patch Changes
