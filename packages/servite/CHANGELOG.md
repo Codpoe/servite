@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.2
+
+### Patch Changes
+
+- fix: export helmet
+
 ## 1.0.1
 
 ### Patch Changes
