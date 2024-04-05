@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -19,87 +19,208 @@
         document.documentElement.classList.remove('dark');
       }
     </script>
-    <script type="module" crossorigin src="/servite/assets/index-BPw-oqGO.js"></script>
+    <script type="module" crossorigin src="/servite/assets/index-DEfUcY5W.js"></script>
     <link rel="stylesheet" crossorigin href="/servite/assets/index-CKFQ6s1p.css">
-    <title data-rh="true">Servite App</title>
+    <title data-rh="true">Servite</title>
+    <meta data-rh="true" name="description" content="A vite plugin for React SSR / SSG"/>
+    <link data-rh="true" rel="preconnect" href="https://P8DCJAPIC4-dsn.algolia.net" crossOrigin=""/>
+    <script>const StaticHtml=({name:r,html:n})=>n?window.__SERVITE__createElement("servite-slot",{name:r,suppressHydrationWarning:!0,dangerouslySetInnerHTML:{__html:n}}):null;StaticHtml.shouldComponentUpdate=()=>!1,customElements.get("servite-island")||customElements.define("servite-island",class extends HTMLElement{Component;async connectedCallback(){switch(this.getAttribute("type")){case"idle":{"requestIdleCallback"in window?window.requestIdleCallback(this.hydrate):setTimeout(this.hydrate,200);break}case"visible":{await this.ensureChildren();const t=new IntersectionObserver(e=>{for(const s of e)if(s.isIntersecting){t.disconnect(),this.hydrate();break}});for(let e=0;e<this.children.length;e++)t.observe(this.children[e]);break}case"media":{const t=this.getAttribute("opts");if(t){const e=matchMedia(t);e.matches?this.hydrate():e.addEventListener("change",this.hydrate,{once:!0})}break}default:this.hydrate()}}async ensureChildren(){if(!this.children.length)return new Promise(n=>{new MutationObserver((t,e)=>{this.children.length&&(e.disconnect(),n())}).observe(this,{childList:!0})})}hydrate=async()=>{if(!window.__SERVITE__islands){window.addEventListener("servite:hydrate",this.hydrate,{once:!0});return}const n=Number(this.getAttribute("index")),t=JSON.parse(this.getAttribute("props")||""),e=!!this.getAttribute("client");if(this.Component??=await window.__SERVITE__islands?.[n]?.(),this.Component){this.querySelectorAll("servite-slot").forEach(o=>{const i=o.getAttribute("name");i&&(t[i]=window.__SERVITE__createElement(StaticHtml,{name:i,html:o.innerHTML}))});const s=window.__SERVITE__createElement(this.Component,t);e?window.__SERVITE__createRoot(this).render(s):window.__SERVITE__hydrateRoot(this,s)}}});</script>
+<script type="module" crossorigin src="/@id/virtual:servite/islands/JYWwDg9gTgLgBAbzgYygUwIYzQUQDZohoB28AvnAGZQQhwDk6GyM9A3AFCiSyIpPYAShAgwANHAAWATwAmULGmGi4FarQZMWAWlm0A9MjzASrThwDuwYnosA6APoOAyjkEA1AJIAVHE9SY2PiEpnAAvPyBuAREpJxWNhD2Tq4ePn4OAYrK8BFZQiIw8da2ji5uXr5OMvLZheFScgoFoubIEMQAzvDAnXgYNg4ADA0AFACU4QB8cNzQMKP0dnb6zphQyJJOns4AMgCCAHIAIk76krRo+lAArsTEaFD6FtAA1vqdjwBuwNgf378rmBmK8MABzNCdfR6ZBQzobQy0SAPUhQgASmFkj30JTQAA87DBOnj6ONCZISKMQBBZNM4NTZHY1hgNpJxm0Ot1Zn0BrIHABGMaTMIzOawRbLfTeClEACyNLQzisME22z2R1ODnOl2udweTxeUHenygPz+JrNQJB4Mh0IgsI+CPa4A6pnRmOxuIJRJJZJgFOIVJpdIZdmlIXlWKVv027I4HHaXR6PMGACYhXSxQslitmay1QcTmcLkRdfdsYbjQDzdWrchQRCoTC4U6ka7UfoMRgsU8vYTiaTyZSGSGaUz1rGOUnuf1BgBmDMi2Yu8U5-SHDBfZwBEgFjXFnW3csGt7-U2As+W-TA+s2pv2lvIREulFEzse3s2fH931DwMjpdQw3Lcd2IOME05ZNZz5AAWRdRRXbNJW8e09yLLUSyuI99WeU8LQvfC-hvBtbWbR0n2dZE3X0Y57V2DBpAgG4YBxL9vQHP0AyDWlALHFDkHAhJShSCp0icXpoM6BoAG0ODgGdeWGMQ5IUwZ+WU+SJMU1MNNUvk510rTBhgjgAF1zH0fQ4EOURgEoaRGlqGBoEsEokjsWRemBFVJBwL5TFGB4LDgABhG5uloPyAvoQi0AALhqZo0FJOMgA"></script>
   </head>
   <body>
     <noscript>
       We're sorry but react app doesn't work properly without JavaScript
       enabled. Please enable it to continue.
     </noscript>
-    <script>window.__SERVITE__ssrData = {"context":{"url":"/zh/guide/integrate-api-call","pathname":"/zh/guide/integrate-api-call","noSSR":false},"serverRendered":true,"hasIslands":false,"routerContext":{"location":{"pathname":"/servite/zh/guide/integrate-api-call","search":"","hash":"","state":null,"key":"default"},"handles":[null]}}</script>
-    <div id="root" data-server-rendered="true"><style>
-.servite-error-boundary {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: #fff;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
-
-.servite-error-title {
-  margin: 0;
-  font-size: 56px;
-  line-height: 64px;
-  font-weight: 600;
-  color: #374151;
-}
-
-.servite-error-desc {
-  margin: 0;
-  padding-top: 28px;
-  letter-spacing: 1px;
-  font-size: 20px;
-  line-height: 20px;
-  font-weight: 700;
-  color: #374151;
-}
-
-.servite-error-divider {
-  margin: 24px auto 18px;
-  width: 64px;
-  height: 1px;
-  background-color: #d1d5db;
-}
-
-.servite-error-msg {
-  margin: 0 auto;
-  max-width: 600px;
-  font-size: 16px;
-  line-height: 24px;
-  font-weight: 500;
-  color: #6b7280;
-}
-
-@media (prefers-color-scheme: dark) {
-  .servite-error-boundary {
-    background: #1b1b1f;
-  }
-
-  .servite-error-title {
-    color: #e5e7eb;
-  }
-
-  .servite-error-desc {
-    color: #e5e7eb;
-  }
-
-  .servite-error-divider {
-    background-color: #6b7280;
-  }
-
-  .servite-error-msg {
-    color: #9ca3af;
-  }
-}
-      </style><div class="servite-error-boundary"><h1 class="servite-error-title">404</h1><p class="servite-error-desc">Not Found</p><div class="servite-error-divider"></div><p class="servite-error-msg">Error: No route matches URL &quot;/servite/zh/guide/integrate-api-call&quot;</p></div><script>window.__staticRouterHydrationData = JSON.parse("{\"loaderData\":{},\"actionData\":null,\"errors\":{\"_\":{\"status\":404,\"statusText\":\"Not Found\",\"internal\":true,\"data\":\"Error: No route matches URL \\\"/servite/zh/guide/integrate-api-call\\\"\",\"error\":{},\"__type\":\"RouteErrorResponse\"}}}");</script></div>
+    <script>window.__SERVITE__ssrData = {"context":{"url":"/zh/guide/integrate-api-call","pathname":"/zh/guide/integrate-api-call","noSSR":false},"serverRendered":true,"hasIslands":true,"routerContext":{"location":{"pathname":"/servite/zh/guide/integrate-api-call","search":"","hash":"","state":null,"key":"default"},"handles":[null,{"filePath":"src/pages/layout.tsx","module":{}},{"filePath":"src/pages/zh/guide/integrate-api-call.mdx","module":{"frontmatter":{"commitTime":1712328050},"toc":[{"id":"使用","text":"使用","depth":2},{"id":"结合-typescript","text":"结合 Typescript","depth":3}]}}]}}</script>
+    <div id="root" data-server-rendered="true"><div class="sticky top-0 w-full z-[var(--z-index-header)]"><div class="h-[var(--banner-height)] px-6 bg-c-brand leading-[var(--banner-height)] text-center text-white text-xs font-semibold">This is early WIP!</div><header class="h-[var(--header-height)] border-b border-b-c-border-1 bg-c-bg-0"><div class="h-full max-w-8xl mx-auto px-6 flex items-center"><a class="h-full flex items-center space-x-2 hover:opacity-80 transition-opacity" href="/"><h1 class="text-lg font-medium tracking-wide text-c-text-0">Servite</h1></a><div class="h-full hidden md:block"><servite-island type="visible" index="0" props="{}" style="display:contents"><button class="group flex justify-center items-center h-full ml-6" aria-label="Search"><div class="flex items-center space-x-1.5 mr-1.5 text-c-text-2 group-hover:text-c-text-0 transition-colors"><svg width="1em" height="1em" viewBox="0 0 24 24" class="text-[15px]"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="10" cy="10" r="7"></circle><path d="m21 21l-6-6"></path></g></svg><span class="text-[13px]">Search</span></div><div class="flex items-center h-4.5 px-0.5 border border-current rounded text-xs text-c-text-3 group-hover:text-c-brand transition-colors"><svg width="1em" height="1em" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 9a2 2 0 1 1 2-2v10a2 2 0 1 1-2-2h10a2 2 0 1 1-2 2V7a2 2 0 1 1 2 2H7"></path></svg>K</div></button></servite-island></div><div class="h-full ml-auto -mr-2 hidden md:flex items-center"><nav class="h-full hidden md:flex items-center text-sm text-c-text-0 -mb-0.5"><a class="h-full flex items-center px-3 border-b
+    cursor-pointer font-medium transition-colors
+     hover:text-c-brand
+        border-transparent
+       " href="https://stackblitz.com/edit/servite-t37smj?file=src/pages/page.tsx" target="_blank"><span>Playground</span></a></nav><servite-island type="visible" index="1" props="{&quot;className&quot;:&quot;ml-4 pl-4 mr-2 border-l border-c-border-1&quot;}" style="display:contents"><div class="ml-4 pl-4 mr-2 border-l border-c-border-1"><div class="relative w-10 h-[22px] border border-c-border-2 rounded-full bg-c-bg-1 cursor-pointer hover:border-c-brand transition-[border-color]"><div class="theme-mode-switch__circle w-[18px] h-[18px] rounded-full bg-c-bg-0 text-sm absolute top-px left-px transition-transform"><svg width="1em" height="1em" viewBox="0 0 24 24" class="theme-mode-switch__sun absolute top-0.5 left-0.5 text-sm transition-all text-c-text-0"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="12" cy="12" r="4"></circle><path d="M3 12h1m8-9v1m8 8h1m-9 8v1M5.6 5.6l.7.7m12.1-.7l-.7.7m0 11.4l.7.7m-12.1-.7l-.7.7"></path></g></svg><svg width="1em" height="1em" viewBox="0 0 24 24" class="theme-mode-switch__moon absolute top-0.5 left-0.5 text-sm transition-all text-c-text-0"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3h.393a7.5 7.5 0 0 0 7.92 12.446A9 9 0 1 1 12 2.992z"></path></svg></div></div></div></servite-island></div><div class="h-full ml-auto -mr-4 flex md:hidden items-center"><servite-island type="visible" index="2" props="{&quot;iconOnly&quot;:true}" style="display:contents"><button class="group flex justify-center items-center h-full ml-6" aria-label="Search"><div class="flex justify-center w-12"><svg width="1em" height="1em" viewBox="0 0 24 24" class="text-xl text-c-text-0 group-hover:text-c-brand transition-colors"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="10" cy="10" r="7"></circle><path d="m21 21l-6-6"></path></g></svg></div></button></servite-island><servite-island type="visible" index="3" props="{}" style="display:contents"><button class="group w-12 h-full inline-flex justify-center items-center"><div class="relative w-4 h-3.5 overflow-hidden"><div class="w-full h-0.5 bg-c-text-0 rounded-full absolute left-0 transition-all top-0
+            group-hover:translate-x-1
+          "></div><div class="w-full h-0.5 bg-c-text-0 rounded-full absolute left-0 transition-all top-1.5 translate-x-2
+            opacity-100 group-hover:translate-x-0
+          "></div><div class="w-full h-0.5 bg-c-text-0 rounded-full absolute left-0 transition-all bottom-0 translate-x-1 group-hover:translate-x-2"></div></div></button></servite-island></div></div></header></div><div class="max-w-[90rem] w-full mx-auto lg:flex relative"><div class="flex-1 w-full  xl:pr-[var(--right-aside-width)]"><div class="max-w-[850px] min-w-0 w-full mx-auto pt-8 pb-24 px-6 md:px-8"><div class="mb-16 markdown-body prose dark:prose-invert max-w-none w-full
+        prose-h2:pt-[1.25em] prose-h2:border-t prose-h2:border-[color:var(--tw-prose-hr)]
+        prose-a:no-underline prose-a:text-c-brand hover:prose-a:text-c-brand-light prose-a:transition-colors
+         prose-pre:bg-[rgba(0,0,0,0.03)] dark:prose-pre:bg-[rgba(0,0,0,0.3)] prose-pre:p-0
+      "><h1 id="一体化-api-调用"><a aria-hidden="true" tabindex="-1" class="header-anchor text-c-brand hover:text-c-brand-light transition-colors" href="#一体化-api-调用">#</a>一体化 API 调用</h1>
+<p>Servite 支持一体化的 API 调用，意思就是可以在前端直接 import API 函数，调用时会自动转换成 HTTP 请求。这个方式有以下好处：</p>
+<ul>
+<li>更简洁、优雅的 API 调用方式，无需手动写接口 URL</li>
+<li>更完善的 Typescript 类型提示。在前端侧可以直接感知接口的参数类型和响应类型</li>
+<li>更好的开发体验</li>
+</ul>
+<h2 id="使用"><a aria-hidden="true" tabindex="-1" class="header-anchor text-c-brand hover:text-c-brand-light transition-colors" href="#使用">#</a>使用</h2>
+<p>在前面我们已经介绍过如何定义 <a class=" text-c-brand hover:text-c-brand-light transition-colors" href="/zh/guide/routes#api-%E8%B7%AF%E7%94%B1">API 路由</a>了，但想要实现<strong>一体化调用</strong>，你需要改为从 <code>servite/server</code> 中导出 <code>apiHandler</code> 方法来定义接口：</p>
+<pre class="code-theme-light" style="background-color:#f6f8fa&quot; tabindex=&quot;0"><code><span class="line"><span style="color:#6A737D">// &lt;root&gt;/src/server/api/todo.get.ts</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D73A49">import</span><span style="color:#24292E"> { apiHandler } </span><span style="color:#D73A49">from</span><span style="color:#24292E"> </span><span style="color:#032F62">&#x27;servite/server&#x27;</span><span style="color:#24292E">;</span></span>
+<span class="line"><span style="color:#D73A49">export</span><span style="color:#24292E"> </span><span style="color:#D73A49">default</span><span style="color:#24292E"> </span><span style="color:#6F42C1">apiHandler</span><span style="color:#24292E">(</span><span style="color:#D73A49">async</span><span style="color:#24292E"> (</span><span style="color:#E36209">args</span><span style="color:#24292E">, </span><span style="color:#E36209">event</span><span style="color:#24292E">) </span><span style="color:#D73A49">=&gt;</span><span style="color:#24292E"> {</span></span>
+<span class="line"><span style="color:#24292E">  </span><span style="color:#6A737D">// ...</span></span>
+<span class="line"><span style="color:#24292E">  </span><span style="color:#D73A49">return</span><span style="color:#24292E"> {</span></span>
+<span class="line"><span style="color:#24292E">    code: </span><span style="color:#005CC5">0</span><span style="color:#24292E">,</span></span>
+<span class="line"><span style="color:#24292E">    msg: </span><span style="color:#032F62">&#x27;ok&#x27;</span><span style="color:#24292E">,</span></span>
+<span class="line"><span style="color:#24292E">    data: </span><span style="color:#032F62">&#x27;This is ok&#x27;</span><span style="color:#24292E">,</span></span>
+<span class="line"><span style="color:#24292E">  };</span></span>
+<span class="line"><span style="color:#24292E">});</span></span></code></pre><pre class="code-theme-dark" style="background-color:#161b22&quot; tabindex=&quot;0"><code><span class="line"><span style="color:#6A737D">// &lt;root&gt;/src/server/api/todo.get.ts</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { apiHandler } </span><span style="color:#F97583">from</span><span style="color:#E1E4E8"> </span><span style="color:#9ECBFF">&#x27;servite/server&#x27;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#E1E4E8"> </span><span style="color:#F97583">default</span><span style="color:#E1E4E8"> </span><span style="color:#B392F0">apiHandler</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">async</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">args</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">event</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span><span style="color:#6A737D">// ...</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span><span style="color:#F97583">return</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    code: </span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    msg: </span><span style="color:#9ECBFF">&#x27;ok&#x27;</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    data: </span><span style="color:#9ECBFF">&#x27;This is ok&#x27;</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  };</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<p>接着就可以在前端代码中直接 import 该文件来进行调用了：</p>
+<pre class="code-theme-light" style="background-color:#f6f8fa&quot; tabindex=&quot;0"><code><span class="line"><span style="color:#6A737D">// &lt;root&gt;/src/pages/page.tsx</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D73A49">import</span><span style="color:#24292E"> { useState, useEffect } </span><span style="color:#D73A49">from</span><span style="color:#24292E"> </span><span style="color:#032F62">&#x27;react&#x27;</span><span style="color:#24292E">;</span></span>
+<span class="line"><span style="color:#D73A49">import</span><span style="color:#24292E"> getTodo </span><span style="color:#D73A49">from</span><span style="color:#24292E"> </span><span style="color:#032F62">&#x27;../server/api/todo.get&#x27;</span><span style="color:#24292E">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D73A49">export</span><span style="color:#24292E"> </span><span style="color:#D73A49">default</span><span style="color:#24292E"> </span><span style="color:#D73A49">function</span><span style="color:#24292E"> </span><span style="color:#6F42C1">Page</span><span style="color:#24292E">() {</span></span>
+<span class="line"><span style="color:#24292E">  </span><span style="color:#D73A49">const</span><span style="color:#24292E"> [</span><span style="color:#005CC5">res</span><span style="color:#24292E">, </span><span style="color:#005CC5">setRes</span><span style="color:#24292E">] </span><span style="color:#D73A49">=</span><span style="color:#24292E"> </span><span style="color:#6F42C1">useState</span><span style="color:#24292E">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#24292E">  </span><span style="color:#6F42C1">useEffect</span><span style="color:#24292E">(() </span><span style="color:#D73A49">=&gt;</span><span style="color:#24292E"> {</span></span>
+<span class="line"><span style="color:#24292E">    (</span><span style="color:#D73A49">async</span><span style="color:#24292E"> () </span><span style="color:#D73A49">=&gt;</span><span style="color:#24292E"> {</span></span>
+<span class="line"><span style="color:#24292E">      </span><span style="color:#6A737D">// 此调用会被自动转换成发起请求：GET /api/todo</span></span>
+<span class="line"><span style="color:#24292E">      </span><span style="color:#D73A49">const</span><span style="color:#24292E"> </span><span style="color:#005CC5">res</span><span style="color:#24292E"> </span><span style="color:#D73A49">=</span><span style="color:#24292E"> </span><span style="color:#D73A49">await</span><span style="color:#24292E"> </span><span style="color:#6F42C1">getTodo</span><span style="color:#24292E">();</span></span>
+<span class="line"><span style="color:#24292E">      </span><span style="color:#6F42C1">setRes</span><span style="color:#24292E">(res);</span></span>
+<span class="line"><span style="color:#24292E">    })();</span></span>
+<span class="line"><span style="color:#24292E">  }, []);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#24292E">  </span><span style="color:#6A737D">// ...</span></span>
+<span class="line"><span style="color:#24292E">}</span></span></code></pre><pre class="code-theme-dark" style="background-color:#161b22&quot; tabindex=&quot;0"><code><span class="line"><span style="color:#6A737D">// &lt;root&gt;/src/pages/page.tsx</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { useState, useEffect } </span><span style="color:#F97583">from</span><span style="color:#E1E4E8"> </span><span style="color:#9ECBFF">&#x27;react&#x27;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> getTodo </span><span style="color:#F97583">from</span><span style="color:#E1E4E8"> </span><span style="color:#9ECBFF">&#x27;../server/api/todo.get&#x27;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#E1E4E8"> </span><span style="color:#F97583">default</span><span style="color:#E1E4E8"> </span><span style="color:#F97583">function</span><span style="color:#E1E4E8"> </span><span style="color:#B392F0">Page</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span><span style="color:#F97583">const</span><span style="color:#E1E4E8"> [</span><span style="color:#79B8FF">res</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">setRes</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> </span><span style="color:#B392F0">useState</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">  </span><span style="color:#B392F0">useEffect</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    (</span><span style="color:#F97583">async</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">      </span><span style="color:#6A737D">// 此调用会被自动转换成发起请求：GET /api/todo</span></span>
+<span class="line"><span style="color:#E1E4E8">      </span><span style="color:#F97583">const</span><span style="color:#E1E4E8"> </span><span style="color:#79B8FF">res</span><span style="color:#E1E4E8"> </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> </span><span style="color:#F97583">await</span><span style="color:#E1E4E8"> </span><span style="color:#B392F0">getTodo</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">      </span><span style="color:#B392F0">setRes</span><span style="color:#E1E4E8">(res);</span></span>
+<span class="line"><span style="color:#E1E4E8">    })();</span></span>
+<span class="line"><span style="color:#E1E4E8">  }, []);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">  </span><span style="color:#6A737D">// ...</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<div class="callout callout-tip relative my-5 p-4 rounded-lg"><div class="callout-bg absolute top-0 bottom-0 left-0 right-0 rounded-lg"></div><div class="callout-header flex items-start space-x-2 text-base font-bold"><span class="flex items-center h-6"><svg width="1em" height="1em" viewBox="0 0 24 24" class="text-[1.2em]"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 3v7h6l-8 11v-7H5l8-11"></path></svg></span><div>TIP</div></div><div class="callout-content mt-1 ml-0.5"><p>一体化 API 调用相关的配置项可以看<a class=" text-c-brand hover:text-c-brand-light transition-colors" href="/zh/guide/config#api">这里</a>。</p></div></div>
+<h3 id="结合-typescript"><a aria-hidden="true" tabindex="-1" class="header-anchor text-c-brand hover:text-c-brand-light transition-colors" href="#结合-typescript">#</a>结合 Typescript</h3>
+<p>结合 Typescript，定义好接口的入参类型和返回结果类型，能让一体化调用达到更好的开发体验：</p>
+<pre class="code-theme-light" style="background-color:#f6f8fa&quot; tabindex=&quot;0"><code><span class="line"><span style="color:#6A737D">// &lt;root&gt;/src/server/api/todo.get.ts</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D73A49">import</span><span style="color:#24292E"> { apiHandler } </span><span style="color:#D73A49">from</span><span style="color:#24292E"> </span><span style="color:#032F62">&#x27;servite/server&#x27;</span><span style="color:#24292E">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D73A49">export</span><span style="color:#24292E"> </span><span style="color:#D73A49">enum</span><span style="color:#24292E"> </span><span style="color:#6F42C1">Bar</span><span style="color:#24292E"> {</span></span>
+<span class="line"><span style="color:#24292E">  </span><span style="color:#005CC5">Great</span><span style="color:#24292E">,</span></span>
+<span class="line"><span style="color:#24292E">  </span><span style="color:#005CC5">Cool</span><span style="color:#24292E">,</span></span>
+<span class="line"><span style="color:#24292E">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// 定义入参类型</span></span>
+<span class="line"><span style="color:#D73A49">export</span><span style="color:#24292E"> </span><span style="color:#D73A49">interface</span><span style="color:#24292E"> </span><span style="color:#6F42C1">Args</span><span style="color:#24292E"> {</span></span>
+<span class="line"><span style="color:#24292E">  </span><span style="color:#E36209">foo</span><span style="color:#D73A49">:</span><span style="color:#24292E"> </span><span style="color:#005CC5">string</span><span style="color:#24292E">;</span></span>
+<span class="line"><span style="color:#24292E">  </span><span style="color:#E36209">bar</span><span style="color:#D73A49">:</span><span style="color:#24292E"> </span><span style="color:#6F42C1">Bar</span><span style="color:#24292E">;</span></span>
+<span class="line"><span style="color:#24292E">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// 定义响应类型</span></span>
+<span class="line"><span style="color:#D73A49">export</span><span style="color:#24292E"> </span><span style="color:#D73A49">interface</span><span style="color:#24292E"> </span><span style="color:#6F42C1">Result</span><span style="color:#24292E"> {</span></span>
+<span class="line"><span style="color:#24292E">  </span><span style="color:#E36209">code</span><span style="color:#D73A49">:</span><span style="color:#24292E"> </span><span style="color:#005CC5">number</span><span style="color:#24292E">;</span></span>
+<span class="line"><span style="color:#24292E">  </span><span style="color:#E36209">msg</span><span style="color:#D73A49">:</span><span style="color:#24292E"> </span><span style="color:#005CC5">string</span><span style="color:#24292E">;</span></span>
+<span class="line"><span style="color:#24292E">  </span><span style="color:#E36209">data</span><span style="color:#D73A49">:</span><span style="color:#24292E"> </span><span style="color:#005CC5">string</span><span style="color:#24292E">;</span></span>
+<span class="line"><span style="color:#24292E">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// 通过泛型来约束函数类型</span></span>
+<span class="line"><span style="color:#D73A49">export</span><span style="color:#24292E"> </span><span style="color:#D73A49">default</span><span style="color:#24292E"> </span><span style="color:#6F42C1">apiHandler</span><span style="color:#24292E">&lt;</span><span style="color:#6F42C1">Args</span><span style="color:#24292E">, </span><span style="color:#6F42C1">Result</span><span style="color:#24292E">&gt;(</span><span style="color:#D73A49">async</span><span style="color:#24292E"> (</span><span style="color:#E36209">args</span><span style="color:#D73A49">:</span><span style="color:#24292E"> </span><span style="color:#6F42C1">Args</span><span style="color:#24292E">, </span><span style="color:#E36209">event</span><span style="color:#24292E">) </span><span style="color:#D73A49">=&gt;</span><span style="color:#24292E"> {</span></span>
+<span class="line"><span style="color:#24292E">  </span><span style="color:#6A737D">// ...</span></span>
+<span class="line"><span style="color:#24292E">  </span><span style="color:#D73A49">return</span><span style="color:#24292E"> {</span></span>
+<span class="line"><span style="color:#24292E">    code: </span><span style="color:#005CC5">0</span><span style="color:#24292E">,</span></span>
+<span class="line"><span style="color:#24292E">    msg: </span><span style="color:#032F62">&#x27;ok&#x27;</span><span style="color:#24292E">,</span></span>
+<span class="line"><span style="color:#24292E">    data: </span><span style="color:#032F62">&#x27;This is ok&#x27;</span><span style="color:#24292E">,</span></span>
+<span class="line"><span style="color:#24292E">  };</span></span>
+<span class="line"><span style="color:#24292E">});</span></span></code></pre><pre class="code-theme-dark" style="background-color:#161b22&quot; tabindex=&quot;0"><code><span class="line"><span style="color:#6A737D">// &lt;root&gt;/src/server/api/todo.get.ts</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { apiHandler } </span><span style="color:#F97583">from</span><span style="color:#E1E4E8"> </span><span style="color:#9ECBFF">&#x27;servite/server&#x27;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#E1E4E8"> </span><span style="color:#F97583">enum</span><span style="color:#E1E4E8"> </span><span style="color:#B392F0">Bar</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span><span style="color:#79B8FF">Great</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span><span style="color:#79B8FF">Cool</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// 定义入参类型</span></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#E1E4E8"> </span><span style="color:#F97583">interface</span><span style="color:#E1E4E8"> </span><span style="color:#B392F0">Args</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span><span style="color:#FFAB70">foo</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> </span><span style="color:#79B8FF">string</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span><span style="color:#FFAB70">bar</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> </span><span style="color:#B392F0">Bar</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// 定义响应类型</span></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#E1E4E8"> </span><span style="color:#F97583">interface</span><span style="color:#E1E4E8"> </span><span style="color:#B392F0">Result</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span><span style="color:#FFAB70">code</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> </span><span style="color:#79B8FF">number</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span><span style="color:#FFAB70">msg</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> </span><span style="color:#79B8FF">string</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span><span style="color:#FFAB70">data</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> </span><span style="color:#79B8FF">string</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// 通过泛型来约束函数类型</span></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#E1E4E8"> </span><span style="color:#F97583">default</span><span style="color:#E1E4E8"> </span><span style="color:#B392F0">apiHandler</span><span style="color:#E1E4E8">&lt;</span><span style="color:#B392F0">Args</span><span style="color:#E1E4E8">, </span><span style="color:#B392F0">Result</span><span style="color:#E1E4E8">&gt;(</span><span style="color:#F97583">async</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">args</span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> </span><span style="color:#B392F0">Args</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">event</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span><span style="color:#6A737D">// ...</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span><span style="color:#F97583">return</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    code: </span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    msg: </span><span style="color:#9ECBFF">&#x27;ok&#x27;</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    data: </span><span style="color:#9ECBFF">&#x27;This is ok&#x27;</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  };</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<p>在前端 import 相关的类型：</p>
+<pre class="code-theme-light" style="background-color:#f6f8fa&quot; tabindex=&quot;0"><code><span class="line"><span style="color:#6A737D">// &lt;root&gt;/src/pages/page.tsx</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D73A49">import</span><span style="color:#24292E"> { useState, useEffect } </span><span style="color:#D73A49">from</span><span style="color:#24292E"> </span><span style="color:#032F62">&#x27;react&#x27;</span><span style="color:#24292E">;</span></span>
+<span class="line"><span style="color:#D73A49">import</span><span style="color:#24292E"> getTodo, { Result, Bar } </span><span style="color:#D73A49">from</span><span style="color:#24292E"> </span><span style="color:#032F62">&#x27;../server/api/todo.get&#x27;</span><span style="color:#24292E">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D73A49">export</span><span style="color:#24292E"> </span><span style="color:#D73A49">default</span><span style="color:#24292E"> </span><span style="color:#D73A49">function</span><span style="color:#24292E"> </span><span style="color:#6F42C1">Page</span><span style="color:#24292E">() {</span></span>
+<span class="line"><span style="color:#24292E">  </span><span style="color:#6A737D">// 使用 Result 作为 useState 的泛型</span></span>
+<span class="line"><span style="color:#24292E">  </span><span style="color:#D73A49">const</span><span style="color:#24292E"> [</span><span style="color:#005CC5">res</span><span style="color:#24292E">, </span><span style="color:#005CC5">setRes</span><span style="color:#24292E">] </span><span style="color:#D73A49">=</span><span style="color:#24292E"> </span><span style="color:#6F42C1">useState</span><span style="color:#24292E">&lt;</span><span style="color:#6F42C1">Result</span><span style="color:#24292E">&gt;();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#24292E">  </span><span style="color:#6F42C1">useEffect</span><span style="color:#24292E">(() </span><span style="color:#D73A49">=&gt;</span><span style="color:#24292E"> {</span></span>
+<span class="line"><span style="color:#24292E">    (</span><span style="color:#D73A49">async</span><span style="color:#24292E"> () </span><span style="color:#D73A49">=&gt;</span><span style="color:#24292E"> {</span></span>
+<span class="line"><span style="color:#24292E">      </span><span style="color:#6A737D">// 此调用会被自动转换成发起请求：GET /api/todo?foo=xxx&amp;bar=0</span></span>
+<span class="line"><span style="color:#24292E">      </span><span style="color:#D73A49">const</span><span style="color:#24292E"> </span><span style="color:#005CC5">res</span><span style="color:#24292E"> </span><span style="color:#D73A49">=</span><span style="color:#24292E"> </span><span style="color:#D73A49">await</span><span style="color:#24292E"> </span><span style="color:#6F42C1">getTodo</span><span style="color:#24292E">({</span></span>
+<span class="line"><span style="color:#24292E">        foo: </span><span style="color:#032F62">&#x27;xxx&#x27;</span><span style="color:#24292E">,</span></span>
+<span class="line"><span style="color:#24292E">        bar: Bar.Great,</span></span>
+<span class="line"><span style="color:#24292E">      });</span></span>
+<span class="line"><span style="color:#24292E">      </span><span style="color:#6F42C1">setRes</span><span style="color:#24292E">(res);</span></span>
+<span class="line"><span style="color:#24292E">    })();</span></span>
+<span class="line"><span style="color:#24292E">  }, []);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#24292E">  </span><span style="color:#6A737D">// ...</span></span>
+<span class="line"><span style="color:#24292E">}</span></span></code></pre><pre class="code-theme-dark" style="background-color:#161b22&quot; tabindex=&quot;0"><code><span class="line"><span style="color:#6A737D">// &lt;root&gt;/src/pages/page.tsx</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { useState, useEffect } </span><span style="color:#F97583">from</span><span style="color:#E1E4E8"> </span><span style="color:#9ECBFF">&#x27;react&#x27;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> getTodo, { Result, Bar } </span><span style="color:#F97583">from</span><span style="color:#E1E4E8"> </span><span style="color:#9ECBFF">&#x27;../server/api/todo.get&#x27;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#E1E4E8"> </span><span style="color:#F97583">default</span><span style="color:#E1E4E8"> </span><span style="color:#F97583">function</span><span style="color:#E1E4E8"> </span><span style="color:#B392F0">Page</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span><span style="color:#6A737D">// 使用 Result 作为 useState 的泛型</span></span>
+<span class="line"><span style="color:#E1E4E8">  </span><span style="color:#F97583">const</span><span style="color:#E1E4E8"> [</span><span style="color:#79B8FF">res</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">setRes</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> </span><span style="color:#B392F0">useState</span><span style="color:#E1E4E8">&lt;</span><span style="color:#B392F0">Result</span><span style="color:#E1E4E8">&gt;();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">  </span><span style="color:#B392F0">useEffect</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    (</span><span style="color:#F97583">async</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">      </span><span style="color:#6A737D">// 此调用会被自动转换成发起请求：GET /api/todo?foo=xxx&amp;bar=0</span></span>
+<span class="line"><span style="color:#E1E4E8">      </span><span style="color:#F97583">const</span><span style="color:#E1E4E8"> </span><span style="color:#79B8FF">res</span><span style="color:#E1E4E8"> </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> </span><span style="color:#F97583">await</span><span style="color:#E1E4E8"> </span><span style="color:#B392F0">getTodo</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">        foo: </span><span style="color:#9ECBFF">&#x27;xxx&#x27;</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">        bar: Bar.Great,</span></span>
+<span class="line"><span style="color:#E1E4E8">      });</span></span>
+<span class="line"><span style="color:#E1E4E8">      </span><span style="color:#B392F0">setRes</span><span style="color:#E1E4E8">(res);</span></span>
+<span class="line"><span style="color:#E1E4E8">    })();</span></span>
+<span class="line"><span style="color:#E1E4E8">  }, []);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">  </span><span style="color:#6A737D">// ...</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre></div></div></div><div class="hidden xl:block absolute top-0 right-0 w-[var(--right-aside-width)] h-full"><div class="sticky top-[calc(var(--header-height)+var(--banner-height))] max-h-[calc(100vh-var(--header-height)-var(--banner-height))] pt-8 pb-24 pl-3 overflow-y-auto"><servite-island type="visible" index="4" props="{}" style="display:contents"><div><div class="mb-2 text-xs text-c-text-0 font-bold">目录</div><div class="relative"><div class="absolute -left-3 w-1 h-5 rounded bg-c-brand transition-all
+          opacity-0" style="top:4px"></div><a id="toc-item-0" style="padding-left:0px" class="block truncate text-sm leading-7 font-medium text-c-text-1 transition-opacity
+              opacity-60 hover:opacity-100 " href="#使用">使用</a><a id="toc-item-1" style="padding-left:12px" class="block truncate text-sm leading-7 font-medium text-c-text-1 transition-opacity
+              opacity-60 hover:opacity-100 " href="#结合-typescript">结合 Typescript</a></div></div></servite-island></div></div></div><script>window.__staticRouterHydrationData = JSON.parse("{\"loaderData\":{\"_\":null,\"src/pages/layout.tsx\":null},\"actionData\":null,\"errors\":null}");</script></div>
   </body>
 </html>
