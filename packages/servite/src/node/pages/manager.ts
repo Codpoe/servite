@@ -214,7 +214,7 @@ async function scanPages(
 
   async function scan({
     dir,
-    base = '/',
+    base = viteConfig.base || '/',
     ignore = [],
   }: PagesDir): Promise<Page[]> {
     const pageDir = path.resolve(viteConfig.root, dir);

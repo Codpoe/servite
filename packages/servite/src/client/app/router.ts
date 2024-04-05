@@ -10,10 +10,8 @@ import {
   matchPath,
   resolvePath,
 } from 'react-router-dom';
-import { resolveURL, withoutBase } from 'ufo';
+import { resolveURL } from 'ufo';
 import { hasIslands, isBrowser } from './constants.js';
-
-const basename = import.meta.env.BASE_URL;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function warn(api: string, extraMsg?: string) {
@@ -39,7 +37,7 @@ export const useHref: typeof _useHref = to => {
         to,
         window.location.pathname
       );
-      return resolveURL(basename, pathname, search, hash);
+      return resolveURL(pathname, search, hash);
     }, [to]);
   }
 
@@ -58,7 +56,7 @@ export const useLocation: typeof _useLocation = () => {
     return useMemo(
       () => ({
         ...window.location,
-        pathname: withoutBase(window.location.pathname, basename),
+        pathname: window.location.pathname,
         state: null,
         key: '',
       }),
@@ -79,7 +77,7 @@ export const useMatch: typeof _useMatch = pattern => {
   if (hasIslands) {
     // warn('useMatch', 'It will run matchPath() with `window.location.pathname`');
     return useMemo(
-      () => matchPath(pattern, withoutBase(window.location.pathname, basename)),
+      () => matchPath(pattern, window.location.pathname),
       [pattern]
     );
   }
@@ -114,7 +112,7 @@ export const useNavigate: typeof _useNavigate = () => {
 
         const { pathname, search, hash } = resolvePath(
           to,
-          withoutBase(window.location.pathname, basename)
+          window.location.pathname
         );
 
         (options?.replace
@@ -122,7 +120,7 @@ export const useNavigate: typeof _useNavigate = () => {
           : window.history.pushState)(
           options?.state,
           '',
-          resolveURL(basename, pathname, search, hash)
+          resolveURL(pathname, search, hash)
         );
       }) as NavigateFunction,
       []

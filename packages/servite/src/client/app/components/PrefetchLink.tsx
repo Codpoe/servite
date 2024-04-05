@@ -1,8 +1,8 @@
 import React from 'react';
 import { matchRoutes, resolvePath, type To } from 'react-router-dom';
-import { useHref, useLinkClickHandler, useLocation } from '../router';
+import { useHref, useLinkClickHandler, useLocation } from '../router.js';
 import { hasIslands } from '../constants.js';
-import { useApp } from '../context';
+import { useApp } from '../context.js';
 
 export interface PrefetchLinkProps
   extends Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'href'> {

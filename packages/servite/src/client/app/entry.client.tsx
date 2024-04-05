@@ -6,8 +6,8 @@ import {
   matchRoutes,
 } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
-import { routes } from './routes';
-import { NProgress } from './components/NProgress';
+import { routes } from './routes.js';
+import { NProgress } from './components/NProgress.js';
 
 async function bootstrap() {
   const container = document.getElementById('root');
