@@ -41,9 +41,6 @@ export function servite(userServiteConfig?: UserServiteConfig): PluginOption[] {
             ],
             exclude: ['virtual:servite-dist', 'servite/client'],
           },
-          ssr: {
-            noExternal: ['react-helmet-async'],
-          },
           // optimizeDeps: {
           //   include: [
           //     'react',

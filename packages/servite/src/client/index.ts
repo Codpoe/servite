@@ -1,10 +1,8 @@
-import * as helmet from 'react-helmet-async';
-export const Helmet = helmet.Helmet;
-
 export * from 'react-router-dom';
 
 export * from 'ofetch';
 
+export { Helmet } from './app/helmet.js';
 export { isBrowser, ssrData } from './app/constants.js';
 export {
   useHref,

@@ -5,7 +5,6 @@ import {
   createStaticRouter,
   StaticRouterProvider,
 } from 'react-router-dom/server';
-import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { sendRedirect, sendWebResponse, toWebRequest } from 'h3';
 import customRender from 'virtual:servite/custom-server-render';
 import { islands } from 'virtual:servite-dist/jsx/jsx-runtime';
@@ -15,6 +14,7 @@ import type {
   SSREntryRender,
   SSREntryRenderResult,
 } from '../../shared/types.js';
+import { Helmet, HelmetProvider } from './helmet.js';
 import { routes } from './routes.js';
 import { isBrowser } from './constants.js';
 
