@@ -1,0 +1,61 @@
+{
+  "name": "servite",
+  "version": "2.0.0",
+  "description": "A full stack React framework",
+  "keywords": [
+    "react",
+    "metaframework",
+    "vinxi"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Codpoe/servite-new.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Codpoe/servite-new/issues"
+  },
+  "author": "Codpoe <codpoe.me@gmail.com> (https://github.com/codpoe)",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    "./config": {
+      "types": "./dist/config.d.ts",
+      "default": "./dist/config.js"
+    },
+    "./runtime/router": {
+      "types": "./dist/runtime/router.d.ts",
+      "default": "./dist/runtime/router.js"
+    },
+    "./runtime/helmet": {
+      "types": "./dist/runtime/helmet.d.ts",
+      "default": "./dist/runtime/helmet.js"
+    }
+  },
+  "scripts": {
+    "dev": "tsc -w",
+    "build": "rimraf dist && tsc"
+  },
+  "peerDependencies": {
+    "vinxi": "^0.4.2"
+  },
+  "dependencies": {
+    "@vinxi/react": "^0.2.4",
+    "@vinxi/server-functions": "^0.4.2",
+    "@vitejs/plugin-react": "^4.3.1",
+    "defu": "^6.1.4",
+    "fast-glob": "^3.3.2",
+    "isbot": "^5.1.17",
+    "pathe": "^1.1.2",
+    "react-helmet-async": "^2.0.5",
+    "react-router-dom": "^6.26.1",
+    "rou3": "^0.5.1",
+    "vite-tsconfig-paths": "^5.0.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0"
+  }
+}

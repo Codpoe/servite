@@ -1,0 +1,61 @@
+{
+  "name": "servite-monorepo",
+  "version": "1.0.0",
+  "description": "A full stack React framework",
+  "keywords": [
+    "react",
+    "metaframework",
+    "vinxi"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Codpoe/servite-new.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Codpoe/servite-new/issues"
+  },
+  "author": "Codpoe <codpoe.me@gmail.com> (https://github.com/codpoe)",
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=9"
+  },
+  "packageManager": "pnpm@9.8.0",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "typesVersions": {
+    "*": {
+      ".": [
+        "./dist/index.d.ts"
+      ]
+    }
+  },
+  "scripts": {
+    "prepare": "husky",
+    "dev": "pnpm --filter servite dev",
+    "dev:docs": "pnpm --filter docs dev",
+    "build": "pnpm --filter servite build",
+    "build-docs": "pnpm build && pnpm --filter docs build",
+    "ci:docs": "pnpm build && pnpm --filter docs run deploy",
+    "bump": "pnpm changeset && pnpm changeset version",
+    "release": "pnpm -r publish"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": "eslint --fix"
+  },
+  "devDependencies": {
+    "@codpoe/eslint-config": "^1.0.2",
+    "@types/node": "^22.5.2",
+    "eslint": "^9.9.1",
+    "husky": "^9.1.5",
+    "lint-staged": "^15.2.10",
+    "prettier": "^3.3.3",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.5.4"
+  }
+}

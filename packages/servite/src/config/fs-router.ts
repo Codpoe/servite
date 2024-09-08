@@ -1,0 +1,251 @@
+import { existsSync } from 'node:fs';
+import { posix } from 'node:path';
+import path from 'pathe';
+import {
+  BaseFileSystemRouter,
+  FileSystemRouterConfig,
+  cleanPath,
+  analyzeModule,
+} from 'vinxi/fs-router';
+import { AppOptions } from 'vinxi';
+import fg from 'fast-glob';
+import { PageFsRoute, ServerFsRoute } from '../types/index.js';
+
+// react-router pages
+export class PagesFsRouter extends BaseFileSystemRouter {
+  srcToPageInfo: Record<string, { isMd?: boolean; isLayout?: boolean }> = {};
+
+  toPath(src: string): string {
+    let routePath = cleanPath(src, this.config);
+
+    // markdown
+    if (src.endsWith('.md') || src.endsWith('.mdx')) {
+      this.srcToPageInfo[src] = { isMd: true };
+      routePath = routePath.replace(/\/index$/, '').replace(/\/README$/i, '');
+    } else if (routePath.endsWith('/page') || routePath.endsWith('/layout')) {
+      // page or layout
+      this.srcToPageInfo[src] = { isLayout: routePath.endsWith('/layout') };
+      routePath = routePath.replace(/\/(page|layout)$/, '');
+    } else {
+      return '';
+    }
+
+    routePath = routePath
+      // '/user/[...]' -> '/user/*'
+      .replace(/\/\[\.{3}.*?\]$/, '/*')
+      // '/user/[id]' -> '/user/:id'
+      // '/user/[[id]]' -> '/user/:id?'
+      .replace(/\/\[(\[?.+?\]?)\]/g, (_, m: string) => {
+        // optional
+        if (m.startsWith('[') && m.endsWith(']')) {
+          return `/:${m.slice(1, -1)}?)}`;
+        }
+        // dynamic
+        return `/:${m}`;
+      })
+      // '/(admin)/home' -> '/home'
+      .replace(/\/\(.*?\)/g, '');
+
+    return routePath || '/';
+  }
+
+  toRoute(src: string): PageFsRoute | null {
+    const routePath = this.toPath(src);
+
+    if (!routePath) {
+      return null;
+    }
+
+    const [, exports] = analyzeModule(src);
+
+    if (!exports.some(x => x.n === 'default')) {
+      return null;
+    }
+
+    const pageInfo = this.srcToPageInfo[src];
+    let dataFileFile: string | undefined = undefined;
+
+    if (!pageInfo.isMd) {
+      const dir = path.dirname(src);
+
+      for (const ext of this.config.extensions) {
+        const _dataFilePath = path.join(
+          dir,
+          `${pageInfo.isLayout ? 'layout' : 'page'}.data.${ext}`,
+        );
+        if (existsSync(_dataFilePath)) {
+          dataFileFile = _dataFilePath;
+          break;
+        }
+      }
+    }
+
+    const dataPick: string[] = [];
+
+    if (dataFileFile) {
+      const [, dataExports] = analyzeModule(dataFileFile);
+
+      if (dataExports.some(x => x.n === 'loader')) {
+        dataPick.push('loader');
+      }
+
+      if (dataExports.some(x => x.n === 'action')) {
+        dataPick.push('action');
+      }
+    }
+
+    return {
+      path: src,
+      routePath,
+      filePath: src,
+      isMd: pageInfo.isMd,
+      isLayout: pageInfo.isLayout,
+      hasErrorBoundary: exports.some(x => x.n === 'ErrorBoundary'),
+      hasLoader: dataPick.includes('loader'),
+      hasAction: dataPick.includes('action'),
+      $component: {
+        src,
+        pick: ['default', '$css'],
+      },
+      ...(dataFileFile &&
+        dataPick.length > 0 && {
+          $data: {
+            src: dataFileFile,
+            pick: dataPick,
+          },
+        }),
+    };
+  }
+
+  async getRoutes(): Promise<PageFsRoute[]> {
+    // sort routes
+    return ((await super.getRoutes()) as PageFsRoute[]).slice().sort((a, b) => {
+      const compareRes = path
+        .dirname(a.filePath)
+        .localeCompare(path.dirname(b.filePath));
+
+      // layout first
+      if (compareRes === 0) {
+        if (a.isLayout && b.isLayout) {
+          return 0;
+        }
+        return a.isLayout ? -1 : 1;
+      }
+
+      return compareRes;
+    });
+  }
+}
+
+const HTTP_METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
+
+interface ServerFsRouterConfig extends FileSystemRouterConfig {
+  middlewaresDir?: string;
+}
+
+// server routes
+export class ServerFsRouter extends BaseFileSystemRouter {
+  config: ServerFsRouterConfig;
+
+  constructor(config: ServerFsRouterConfig, router: any, app: AppOptions) {
+    super(config, router, app);
+    this.config = config;
+  }
+
+  isMiddleware(src: string): boolean {
+    return Boolean(
+      this.config.middlewaresDir && src.startsWith(this.config.middlewaresDir),
+    );
+  }
+
+  getHttpMethod(src: string): string | undefined {
+    if (this.isMiddleware(src)) {
+      return undefined;
+    }
+
+    const [, method] = cleanPath(src, this.config).match(/\.([^./]+)$/) || [];
+
+    if (!method || !HTTP_METHODS.includes(method.toUpperCase())) {
+      return undefined;
+    }
+
+    return method.toUpperCase();
+  }
+
+  glob(): any {
+    const patterns = [
+      posix.join(
+        fg.convertPathToPattern(this.config.dir),
+        `**/*.{${this.config.extensions.join(',')}}`,
+      ),
+    ];
+
+    if (this.config.middlewaresDir) {
+      patterns.push(
+        posix.join(
+          fg.convertPathToPattern(this.config.middlewaresDir),
+          `*.{${this.config.extensions.join(',')}}`,
+        ),
+        posix.join(
+          fg.convertPathToPattern(this.config.middlewaresDir),
+          `*/index.{${this.config.extensions.join(',')}}`,
+        ),
+      );
+    }
+
+    return patterns;
+  }
+
+  toPath(src: string): string {
+    if (this.isMiddleware(src)) {
+      return '/**';
+    }
+
+    const method = this.getHttpMethod(src);
+
+    // server routes need append with http method
+    // eg. '/user.get.ts', '/user.post.ts'
+    if (!method) {
+      return '';
+    }
+
+    let routePath = cleanPath(src, this.config);
+
+    routePath = routePath
+      // '/user.get' -> '/user'
+      .slice(0, -method.length - 1)
+      // '/user/index' -> '/user'
+      .replace(/\/index$/, '')
+      // '/user/[...]' -> '/user/**'
+      .replace(/\/\[\.{3}.*?\]$/, '/**')
+      // '/user/[id]' -> '/user/:id'
+      .replace(/\/\[(.+?)\]/g, '/:$1');
+
+    return routePath || '/';
+  }
+
+  toRoute(src: string): ServerFsRoute | null {
+    const routePath = this.toPath(src);
+
+    if (!routePath) {
+      return null;
+    }
+
+    const [, exports] = analyzeModule(src);
+
+    if (!exports.some(x => x.n === 'default')) {
+      return null;
+    }
+
+    return {
+      path: src,
+      routePath,
+      filePath: src,
+      method: this.getHttpMethod(src),
+      [this.isMiddleware(src) ? '$$middleware' : '$handler']: {
+        src,
+        pick: ['default'],
+      },
+    };
+  }
+}
