@@ -11,9 +11,16 @@ import { AppOptions } from 'vinxi';
 import fg from 'fast-glob';
 import { PageFsRoute, ServerFsRoute } from '../types/index.js';
 
+interface PageInfo {
+  isMd?: boolean;
+  isLayout?: boolean;
+  componentPick?: string[];
+  dataPick?: string[];
+}
+
 // react-router pages
 export class PagesFsRouter extends BaseFileSystemRouter {
-  srcToPageInfo: Record<string, { isMd?: boolean; isLayout?: boolean }> = {};
+  srcToPageInfo: Record<string, PageInfo> = {};
 
   toPath(src: string): string {
     let routePath = cleanPath(src, this.config);
@@ -63,7 +70,13 @@ export class PagesFsRouter extends BaseFileSystemRouter {
     }
 
     const pageInfo = this.srcToPageInfo[src];
+    const componentPick = ['default', '$css'];
+    const dataPick: string[] = [];
     let dataFileFile: string | undefined = undefined;
+
+    if (exports.some(x => x.n === 'ErrorBoundary')) {
+      componentPick.push('ErrorBoundary');
+    }
 
     if (!pageInfo.isMd) {
       const dir = path.dirname(src);
@@ -80,8 +93,6 @@ export class PagesFsRouter extends BaseFileSystemRouter {
       }
     }
 
-    const dataPick: string[] = [];
-
     if (dataFileFile) {
       const [, dataExports] = analyzeModule(dataFileFile);
 
@@ -94,26 +105,28 @@ export class PagesFsRouter extends BaseFileSystemRouter {
       }
     }
 
+    pageInfo.componentPick = componentPick;
+    pageInfo.dataPick = dataPick;
+
     return {
       path: src,
       routePath,
       filePath: src,
       isMd: pageInfo.isMd,
       isLayout: pageInfo.isLayout,
-      hasErrorBoundary: exports.some(x => x.n === 'ErrorBoundary'),
+      hasErrorBoundary: componentPick.includes('ErrorBoundary'),
       hasLoader: dataPick.includes('loader'),
       hasAction: dataPick.includes('action'),
       $component: {
         src,
-        pick: ['default', '$css'],
+        pick: componentPick,
       },
-      ...(dataFileFile &&
-        dataPick.length > 0 && {
-          $data: {
-            src: dataFileFile,
-            pick: dataPick,
-          },
-        }),
+      ...(dataPick.length > 0 && {
+        $data: {
+          src: dataFileFile!,
+          pick: dataPick,
+        },
+      }),
     };
   }
 
@@ -147,11 +160,20 @@ export class PagesFsRouter extends BaseFileSystemRouter {
 
     if (this.isRoute(src)) {
       try {
+        const originalPageInfo = this.srcToPageInfo[src];
         const route = await this.toRoute(src);
+
         if (route) {
           this._addRoute(route);
-          // if it's a route file, just let react-refresh control the hmr.
-          // this.reload(route as any);
+
+          // if the exports of route file is changed, reload the route.
+          // otherwise, just let react-refresh to handle hmr.
+          if (
+            originalPageInfo.componentPick?.toString() !==
+            this.srcToPageInfo[src].componentPick?.toString()
+          ) {
+            this.reload(route as any);
+          }
         }
       } catch (e) {
         // eslint-disable-next-line no-console

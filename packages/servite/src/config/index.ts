@@ -14,7 +14,7 @@ import viteReact, { Options as ViteReactOptions } from '@vitejs/plugin-react';
 import viteTsConfigPaths, {
   PluginOptions as ViteTsConfigPathsOptions,
 } from 'vite-tsconfig-paths';
-import { defaults } from '../utils/index.js';
+import { defaults, toArray } from '../utils/index.js';
 import { RouterName } from '../types/index.js';
 import { PagesFsRouter, ServerFsRouter } from './fs-router.js';
 
@@ -222,7 +222,12 @@ export function defineConfig({
         ...userConfig.routers?.[RouterName.Client],
         plugins: async () => [
           viteTsConfigPaths(userConfig.viteTsConfigPaths),
-          viteReact(userConfig.viteReact),
+          viteReact({
+            ...userConfig.viteReact,
+            exclude: toArray(userConfig.viteReact?.exclude).concat(
+              fileURLToPath(new URL('../ssr/routes.js', import.meta.url)),
+            ),
+          }),
           serverFunctions.client(),
           config('servite-client', (router, app) => {
             return {

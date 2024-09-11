@@ -7,6 +7,11 @@ export interface LoaderData {
 }
 
 export const loader: LoaderFunction = async () => {
+  // throw new Response('abc', {
+  //   status: 404,
+  //   statusText: 'Not Found',
+  // });
+
   return defer({
     a: Date.now(),
     b: 'bbb',

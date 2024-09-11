@@ -1,8 +1,10 @@
 /// <reference types="vinxi/types/server" />
 import {
+  createError,
   defineEventHandler,
   getRequestHeader,
   getWebRequest,
+  sendError,
   setResponseHeaders,
   setResponseStatus,
 } from 'vinxi/http';
@@ -20,7 +22,6 @@ import reactDomServer, {
 import { HelmetProvider } from 'react-helmet-async';
 import { isbot } from 'isbot';
 import { RouterName } from '../types/index.js';
-import { createErrorResponse } from '../utils/index.js';
 import { routes } from './routes.js';
 import { RouterHydration } from './RouterHydration.js';
 import {
@@ -33,10 +34,6 @@ type HelmetContext = NonNullable<
 >;
 
 export default defineEventHandler(async event => {
-  if (!routes.length) {
-    return createErrorResponse(404, 'Not Found');
-  }
-
   const ssrManifest = getManifest(RouterName.SSR);
   const clientManifest = getManifest(RouterName.Client);
 
@@ -162,11 +159,10 @@ window.manifest = ${JSON.stringify(clientManifest.json())};`;
     }
   } catch (error: any) {
     // TODO: fallback to CSR
-    return createErrorResponse(
-      500,
-      'Internal Server Error',
-      error || new Error('Something went wrong'),
-    );
+    const h3Error = createError(error || 'Something went wrong');
+    h3Error.statusCode = 500;
+    h3Error.statusMessage = 'Internal Server Error';
+    return sendError(event, h3Error);
   }
 
   throw new Error(
