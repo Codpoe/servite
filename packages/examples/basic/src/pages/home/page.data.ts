@@ -7,6 +7,7 @@ export interface LoaderData {
 }
 
 export const loader: LoaderFunction = async () => {
+  // throw new Error('loader error');
   // throw new Response('abc', {
   //   status: 404,
   //   statusText: 'Not Found',

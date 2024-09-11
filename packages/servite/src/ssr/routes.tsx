@@ -1,9 +1,4 @@
-import {
-  DataRouteObject,
-  isRouteErrorResponse,
-  Outlet,
-  useRouteError,
-} from 'react-router-dom';
+import { DataRouteObject, Outlet, useRouteError } from 'react-router-dom';
 import fileRoutes from 'vinxi/routes';
 import { lazyRoute } from '@vinxi/react';
 import { getManifest } from 'vinxi/manifest';
@@ -31,17 +26,16 @@ const lazyLoaderAction =
   };
 
 const RootErrorBoundary = () => {
-  const error = useRouteError();
+  const error: any = useRouteError();
 
   useEffect(() => {
     // eslint-disable-next-line no-console
     console.error(error);
   }, [error]);
 
-  if (isRouteErrorResponse(error)) {
-    return (
-      <>
-        <style>{`
+  return (
+    <>
+      <style>{`
     .servite-error-boundary {
       position: fixed;
       top: 0;
@@ -112,21 +106,18 @@ const RootErrorBoundary = () => {
       }
     }
           `}</style>
-        <div className="servite-error-boundary">
-          <h1 className="servite-error-title">{error.status || 'Oops!'}</h1>
-          <p className="servite-error-desc">
-            {error.statusText || 'Sorry, an unexpected error has occurred.'}
-          </p>
-          <div className="servite-error-divider"></div>
-          <p className="servite-error-msg">
-            {error.data || (error as any).message}
-          </p>
-        </div>
-      </>
-    );
-  }
-
-  throw error;
+      <div className="servite-error-boundary">
+        <h1 className="servite-error-title">{error?.status || 'Oops!'}</h1>
+        <p className="servite-error-desc">
+          {error?.statusText || 'An unexpected error has occurred.'}
+        </p>
+        <div className="servite-error-divider"></div>
+        <p className="servite-error-msg">
+          {error?.data || error?.toString?.()}
+        </p>
+      </div>
+    </>
+  );
 };
 
 const rootRoot: DataRouteObject = {

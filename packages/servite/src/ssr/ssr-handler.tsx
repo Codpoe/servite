@@ -162,7 +162,8 @@ window.manifest = ${JSON.stringify(clientManifest.json())};`;
     const h3Error = createError(error || 'Something went wrong');
     h3Error.statusCode = 500;
     h3Error.statusMessage = 'Internal Server Error';
-    return sendError(event, h3Error);
+    h3Error.data = error?.toString?.();
+    return sendError(event, h3Error, import.meta.env.DEV);
   }
 
   throw new Error(
