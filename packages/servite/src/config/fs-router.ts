@@ -135,6 +135,35 @@ export class PagesFsRouter extends BaseFileSystemRouter {
       return compareRes;
     });
   }
+
+  async updateRoute(src: string) {
+    src = path.normalize(src);
+
+    // if it's a data file, just reload.
+    if (this.isDataFile(src)) {
+      this.reload(undefined as any);
+      return;
+    }
+
+    if (this.isRoute(src)) {
+      try {
+        const route = await this.toRoute(src);
+        if (route) {
+          this._addRoute(route);
+          // if it's a route file, just let react-refresh control the hmr.
+          // this.reload(route as any);
+        }
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error(e);
+      }
+    }
+  }
+
+  isDataFile(src: string) {
+    src = cleanPath(src, this.config);
+    return src.endsWith('page.data') || src.endsWith('layout.data');
+  }
 }
 
 const HTTP_METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];

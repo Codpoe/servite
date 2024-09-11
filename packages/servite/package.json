@@ -21,8 +21,8 @@
   ],
   "exports": {
     "./config": {
-      "types": "./dist/config.d.ts",
-      "default": "./dist/config.js"
+      "types": "./dist/config/index.d.ts",
+      "default": "./dist/config/index.js"
     },
     "./runtime/router": {
       "types": "./dist/runtime/router.d.ts",

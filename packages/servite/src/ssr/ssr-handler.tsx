@@ -1,25 +1,32 @@
 /// <reference types="vinxi/types/server" />
-import { Transform, TransformCallback } from 'node:stream';
 import {
   defineEventHandler,
+  getRequestHeader,
   getWebRequest,
-  sendError,
   setResponseHeaders,
   setResponseStatus,
 } from 'vinxi/http';
 import { getManifest } from 'vinxi/manifest';
-import { createAssets } from '@vinxi/react';
+import { renderAsset } from '@vinxi/react';
 import {
   createStaticHandler,
   createStaticRouter,
   StaticRouterProvider,
 } from 'react-router-dom/server';
-import { PipeableStream, renderToPipeableStream } from 'react-dom/server';
+import reactDomServer, {
+  PipeableStream,
+  renderToPipeableStream,
+} from 'react-dom/server';
 import { HelmetProvider } from 'react-helmet-async';
-import { Suspense } from 'react';
+import { isbot } from 'isbot';
 import { RouterName } from '../types/index.js';
-import { createNotFoundResponse } from '../utils/index.js';
+import { createErrorResponse } from '../utils/index.js';
 import { routes } from './routes.js';
+import { RouterHydration } from './RouterHydration.js';
+import {
+  transformHtmlForReadableStream,
+  transformHtmlForPipeableStream,
+} from './transform-html.js';
 
 type HelmetContext = NonNullable<
   React.ComponentProps<typeof HelmetProvider>['context']
@@ -27,7 +34,7 @@ type HelmetContext = NonNullable<
 
 export default defineEventHandler(async event => {
   if (!routes.length) {
-    return createNotFoundResponse();
+    return createErrorResponse(404, 'Not Found');
   }
 
   const ssrManifest = getManifest(RouterName.SSR);
@@ -44,133 +51,125 @@ export default defineEventHandler(async event => {
   }
 
   const router = createStaticRouter(routes, handlerContext);
-  const Assets = createAssets(clientManifest.handler, clientManifest);
   const helmetContext: HelmetContext = {};
-  let didError = false;
 
-  const stream = await new Promise<PipeableStream | undefined>(resolve => {
-    const stream = renderToPipeableStream(
-      <html>
-        <head>
-          <meta charSet="utf-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <template id="__HEAD_TAGS__"></template>
-          <Suspense>
-            <Assets />
-          </Suspense>
-        </head>
-        <body>
-          <div id="root">
-            <HelmetProvider context={helmetContext}>
-              <StaticRouterProvider
-                router={router}
-                context={handlerContext}
-                // TODO: set hydrate to false when using react-router defer promise
-                hydrate={true}
-              />
-            </HelmetProvider>
-          </div>
-        </body>
-      </html>,
-      {
-        onShellReady() {
-          resolve(stream);
-        },
-        onShellError(error: any) {
-          // TODO: fallback to CSR
-          sendError(
-            event,
-            error ?? new Error('Something went wrong'),
-            import.meta.env.DEV,
-          );
-          resolve(undefined);
-        },
-        onError(error) {
-          didError = true;
-          // eslint-disable-next-line no-console
-          console.error(error);
-          // TODO: report error
-        },
-        bootstrapModules: [
-          clientManifest.inputs[clientManifest.handler].output.path,
-        ],
-        bootstrapScriptContent: `window.__servite = ${JSON.stringify({ ssr: true })};
-window.manifest = ${JSON.stringify(clientManifest.json())};`,
-      },
-    );
-  });
+  const assets = (await clientManifest.inputs[
+    clientManifest.handler
+  ].assets()) as any as {
+    tag: string;
+    attrs: Record<string, string>;
+    children: any;
+  }[];
 
-  if (!stream) {
-    return;
-  }
+  const bootstrapScriptContent = `window.__servite__ = ${JSON.stringify({ ssr: true })};
+window.manifest = ${JSON.stringify(clientManifest.json())};`;
+  const bootstrapModules = [
+    clientManifest.inputs[clientManifest.handler].output.path,
+  ];
 
-  if (didError) {
-    setResponseStatus(event, 500);
-  }
+  const isBot = isbot(getRequestHeader(event, 'User-Agent'));
 
-  setResponseHeaders(event, {
-    'Content-Type': 'text/html',
-  });
+  const app = (
+    <html>
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <template id="__HEAD_TAGS__"></template>
+        {assets.map(asset => renderAsset(asset))}
+      </head>
+      <body>
+        <RouterHydration context={handlerContext} />
+        <div id="root">
+          <HelmetProvider context={helmetContext}>
+            <StaticRouterProvider
+              router={router}
+              context={handlerContext}
+              hydrate={false}
+            />
+          </HelmetProvider>
+        </div>
+      </body>
+    </html>
+  );
 
-  return stream.pipe(new HtmlTransformStream({ helmetContext }));
-});
+  try {
+    let didError = false;
+    const onError = (error: any) => {
+      didError = true;
+      // eslint-disable-next-line no-console
+      console.error(error);
+      // TODO: report error
+    };
 
-class HtmlTransformStream extends Transform {
-  isFirstChunk = true;
-  helmetContext: HelmetContext;
+    // For environments with Web Streams, like Deno and modern edge runtimes
+    if (typeof reactDomServer.renderToReadableStream === 'function') {
+      const stream = await reactDomServer.renderToReadableStream(app, {
+        bootstrapScriptContent,
+        bootstrapModules,
+        onError,
+      });
 
-  constructor({ helmetContext }: { helmetContext: HelmetContext }) {
-    super();
-    this.helmetContext = helmetContext;
-  }
-
-  _transform(
-    chunk: any,
-    _encoding: BufferEncoding,
-    callback: TransformCallback,
-  ) {
-    // inject helmet data
-    if (this.isFirstChunk) {
-      this.isFirstChunk = false;
-
-      const {
-        htmlAttributes,
-        bodyAttributes,
-        title,
-        priority,
-        meta,
-        link,
-        style,
-        script,
-      } = this.helmetContext.helmet || {};
-      const htmlAttrs = htmlAttributes?.toString() || '';
-      const bodyAttrs = bodyAttributes?.toString();
-      let html: string = chunk.toString('utf-8');
-
-      if (htmlAttrs) {
-        html = html.replace('<html>', `<html ${htmlAttrs}>`);
+      if (isBot) {
+        await stream.allReady;
       }
 
-      if (bodyAttrs) {
-        html = html.replace('<body>', `<body ${bodyAttrs}>`);
+      if (didError) {
+        setResponseStatus(event, 500);
       }
 
-      const headTags = [title, priority, meta, link, style, script]
-        .map(x => x?.toString())
-        .filter(Boolean)
-        .join('\n  ');
+      setResponseHeaders(event, {
+        'Content-Type': 'text/html',
+      });
 
-      if (headTags) {
-        html = html.replace(
-          '<template id="__HEAD_TAGS__"></template>',
-          headTags,
-        );
-      }
-
-      chunk = Buffer.from(html, 'utf-8');
+      return stream.pipeThrough(
+        transformHtmlForReadableStream({ helmetContext }),
+      );
     }
 
-    this.push(chunk);
-    callback();
+    // For Node.js
+    if (typeof reactDomServer.renderToPipeableStream === 'function') {
+      const stream = await new Promise<PipeableStream>((resolve, reject) => {
+        const stream = renderToPipeableStream(app, {
+          bootstrapScriptContent,
+          bootstrapModules,
+          onShellReady() {
+            if (!isBot) {
+              resolve(stream);
+            }
+          },
+          onAllReady() {
+            resolve(stream);
+          },
+          onShellError(error) {
+            reject(error);
+          },
+          onError(error) {
+            onError(error);
+            reject(error);
+          },
+        });
+      });
+
+      if (didError) {
+        setResponseStatus(event, 500);
+      }
+
+      setResponseHeaders(event, {
+        'Content-Type': 'text/html',
+      });
+
+      return stream.pipe(transformHtmlForPipeableStream({ helmetContext }));
+    }
+  } catch (error: any) {
+    // TODO: fallback to CSR
+    return createErrorResponse(
+      500,
+      'Internal Server Error',
+      error || new Error('Something went wrong'),
+    );
   }
-}
+
+  throw new Error(
+    'No renderToReadableStream or renderToPipeableStream found in react-dom/server. Ensure you are using a version of react-dom that supports streaming.',
+  );
+});

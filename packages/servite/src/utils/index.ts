@@ -8,11 +8,15 @@ export function defaults<T extends Record<string, any>, K extends T>(
   return defu(origin, defaultValue) as any;
 }
 
-export function createNotFoundResponse() {
+export function createErrorResponse(
+  statusCode: number,
+  statusText: string,
+  error?: any,
+) {
   return new Response(
-    `<center><h1>404 Not Found</h1></center><hr><center>Servite</center>`,
+    `<center><h1>${statusCode}</h1><h2>${statusText}</h2></center><hr><center><div>${(import.meta.env.DEV && error?.stack) || 'Servite'}</div></center>`,
     {
-      status: 404,
+      status: statusCode,
       headers: {
         'content-type': 'text/html',
       },

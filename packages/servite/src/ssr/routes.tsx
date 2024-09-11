@@ -2,14 +2,32 @@ import { DataRouteObject } from 'react-router-dom';
 import fileRoutes from 'vinxi/routes';
 import { lazyRoute } from '@vinxi/react';
 import { getManifest } from 'vinxi/manifest';
-import { PageFsRouteModule, RouterName } from '../types/index.js';
+import { Manifest } from 'vinxi/dist/types/types/manifest';
+import { FsRouteMod, PageFsRouteModule, RouterName } from '../types/index.js';
 
 const dirname = (path: string) => path.replace(/\/[^/]+$/, '') || '/';
+
+const lazyLoaderAction =
+  (
+    routeMod: FsRouteMod,
+    clientManifest: Manifest,
+    ssrManifest: Manifest,
+    exported: 'loader' | 'action',
+  ) =>
+  (...args: any[]) => {
+    if (import.meta.env.DEV) {
+      const manifest = import.meta.env.SSR ? ssrManifest : clientManifest;
+      return manifest.inputs[routeMod.src]
+        .import()
+        .then(mod => mod[exported]?.(...args));
+    }
+    return routeMod.import().then(mod => mod[exported]?.(...args));
+  };
 
 const getRoutes = () => {
   const clientManifest = getManifest(RouterName.Client);
   const ssrManifest = getManifest(RouterName.SSR);
-  const routes = [];
+  const routes: DataRouteObject[] = [];
   const layoutStack: DataRouteObject[] = [];
 
   for (const fsRoute of fileRoutes as PageFsRouteModule[]) {
@@ -17,16 +35,20 @@ const getRoutes = () => {
       id: fsRoute.filePath,
       path: fsRoute.routePath,
       loader: fsRoute.hasLoader
-        ? async (...args) => {
-            const { loader } = (await fsRoute.$data?.import()) || {};
-            return loader?.(...args);
-          }
+        ? lazyLoaderAction(
+            fsRoute.$data!,
+            clientManifest,
+            ssrManifest,
+            'loader',
+          )
         : undefined,
       action: fsRoute.hasAction
-        ? async (...args) => {
-            const { action } = (await fsRoute.$data?.import()) || {};
-            return action?.(...args);
-          }
+        ? lazyLoaderAction(
+            fsRoute.$data!,
+            clientManifest,
+            ssrManifest,
+            'action',
+          )
         : undefined,
       Component: lazyRoute(
         fsRoute.$component,

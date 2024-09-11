@@ -224,7 +224,7 @@ export function defineConfig({
           viteTsConfigPaths(userConfig.viteTsConfigPaths),
           viteReact(userConfig.viteReact),
           serverFunctions.client(),
-          config('ssr-base-url', (router, app) => {
+          config('servite-client', (router, app) => {
             return {
               define: {
                 'import.meta.env.SSR_BASE_URL': JSON.stringify(
@@ -233,6 +233,13 @@ export function defineConfig({
                     app.getRouter(RouterName.SSR).base,
                   ),
                 ),
+              },
+              optimizeDeps: {
+                entries: [
+                  fileURLToPath(
+                    new URL('../ssr/client-handler.js', import.meta.url),
+                  ),
+                ],
               },
             };
           }),
