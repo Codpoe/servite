@@ -210,5 +210,7 @@ const getRoutes = (): DataRouteObject[] => {
 
 export const routes = getRoutes();
 
-// eslint-disable-next-line no-console
-console.debug('[servite] routes', routes[0].children);
+if (typeof window !== 'undefined') {
+  // eslint-disable-next-line no-console
+  console.debug('[servite] routes', routes[0].children);
+}
