@@ -45,7 +45,7 @@ export class PagesFsRouter extends BaseFileSystemRouter {
       .replace(/\/\[(\[?.+?\]?)\]/g, (_, m: string) => {
         // optional
         if (m.startsWith('[') && m.endsWith(']')) {
-          return `/:${m.slice(1, -1)}?)}`;
+          return `/:${m.slice(1, -1)}?`;
         }
         // dynamic
         return `/:${m}`;

@@ -135,7 +135,7 @@ const getRoutes = (): DataRouteObject[] => {
   for (const fsRoute of fileRoutes as PageFsRouteModule[]) {
     const route: DataRouteObject = {
       id: fsRoute.filePath,
-      path: fsRoute.routePath,
+      path: fsRoute.isLayout ? undefined : fsRoute.routePath,
       loader: fsRoute.hasLoader
         ? lazyLoaderAction(
             fsRoute.$data!,
@@ -209,3 +209,6 @@ const getRoutes = (): DataRouteObject[] => {
 };
 
 export const routes = getRoutes();
+
+// eslint-disable-next-line no-console
+console.debug('[servite] routes', routes[0].children);
