@@ -5,6 +5,7 @@ import {
   ClientRouterSchema,
   createApp,
   HTTPRouterSchema,
+  Plugin,
   StaticRouterSchema,
 } from 'vinxi';
 import { config } from 'vinxi/plugins/config';
@@ -125,7 +126,7 @@ export function defineConfig({
     },
   });
 
-  return createApp({
+  const app = createApp({
     name,
     root,
     server,
@@ -191,7 +192,7 @@ export function defineConfig({
         plugins: async () => [
           viteTsConfigPaths(userConfig.viteTsConfigPaths),
           viteReact(userConfig.viteReact),
-          config('ssr-no-external', {
+          config('servite-ssr-config', {
             ssr: {
               // The package.json "type" of react-helmet-async is not "module",
               // but its ES format file extension is not "mjs",
@@ -220,7 +221,7 @@ export function defineConfig({
             app,
           ),
         ...userConfig.routers?.[RouterName.Client],
-        plugins: async () => [
+        plugins: async (): Promise<Plugin[]> => [
           viteTsConfigPaths(userConfig.viteTsConfigPaths),
           viteReact({
             ...userConfig.viteReact,
@@ -229,7 +230,7 @@ export function defineConfig({
             ),
           }),
           serverFunctions.client(),
-          config('servite-client', (router, app) => {
+          config('servite-client-config', (router, app) => {
             return {
               define: {
                 'import.meta.env.SSR_BASE_URL': JSON.stringify(
@@ -248,9 +249,53 @@ export function defineConfig({
               },
             };
           }),
+          {
+            name: 'servite-client-hmr',
+            apply: 'serve',
+            enforce: 'post',
+            // Page file will generate multiple different modules. e.g.
+            //
+            // file: src/pages/home/page.tsx
+            // ↓↓↓
+            // modules:
+            //   - src/pages/home/page.tsx
+            //   - src/pages/home/page.tsx?pick=default
+            //   - src/pages/home/page.tsx?pick=ErrorBoundary
+            //
+            // And vinxi will only include the `pick` module for hmr.
+            // But we still need to include the original module for tailwindcss hmr.
+            handleHotUpdate(ctx) {
+              if (
+                app
+                  .getRouter(RouterName.Client)
+                  .internals.routes?.isRoute(ctx.file)
+              ) {
+                let added = false;
+                return ctx.modules.flatMap(mod => {
+                  if (
+                    !added &&
+                    mod.file === ctx.file &&
+                    new URLSearchParams(mod.id?.split('?')[1]).has('pick')
+                  ) {
+                    const originMod = ctx.server.moduleGraph.getModuleById(
+                      ctx.file,
+                    );
+
+                    if (originMod) {
+                      added = true;
+                      return [mod, originMod];
+                    }
+                  }
+                  return mod;
+                });
+              }
+            },
+          },
           ...((await userConfig.routers?.[RouterName.Client]?.plugins) ?? []),
         ],
       },
     ],
   });
+
+  return app;
 }

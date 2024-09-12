@@ -12,7 +12,7 @@ export default function Home() {
   const serverFn_2_promise = useMemo(() => serverFn_2(), []);
 
   return (
-    <div>
+    <div className="text-blue-500">
       Home
       <div>{JSON.stringify(loaderData)}</div>
       <button onClick={() => setCount(count + 1)}>{count}</button>
