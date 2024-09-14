@@ -23,7 +23,7 @@ declare global {
   }
 
   interface ImportMetaEnv {
-    SSR_BASE_URL: string;
+    ROUTER_SSR_BASE_URL: string;
   }
 }
 
@@ -37,7 +37,7 @@ declare global {
   const rootEl = document.getElementById('root')!;
 
   window.__servite_react_router__ = createBrowserRouter(routes, {
-    basename: import.meta.env.SSR_BASE_URL,
+    basename: import.meta.env.ROUTER_SSR_BASE_URL,
   });
 
   const app = (

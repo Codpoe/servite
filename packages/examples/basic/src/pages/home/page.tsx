@@ -1,7 +1,8 @@
 import { Await, useLoaderData } from 'servite/runtime/router';
-import { Suspense, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import type { LoaderData } from './page.data';
 import { serverFn_1, serverFn_2 } from './server-fns';
+import getUser from '@/server/routes/user.get';
 
 // const serverFn_1_promise = serverFn_1();
 
@@ -11,15 +12,31 @@ export default function Home() {
   const serverFn_1_promise = useMemo(() => serverFn_1(), []);
   const serverFn_2_promise = useMemo(() => serverFn_2(), []);
 
+  const [user, setUse] = useState<Awaited<LoaderData['getUserPromise']>>();
+
+  useEffect(() => {
+    getUser({}).then(setUse);
+  }, []);
+
   return (
     <div className="text-blue-500">
       Home
       <div>{JSON.stringify(loaderData)}</div>
       <button onClick={() => setCount(count + 1)}>{count}</button>
+      <div className="text-red-500">
+        client user: {JSON.stringify(user || null)}
+      </div>
       <Suspense fallback={<div>loading c</div>}>
         <Await resolve={loaderData.c}>
           {(c: boolean) => {
             return <div>{JSON.stringify(c)}</div>;
+          }}
+        </Await>
+      </Suspense>
+      <Suspense fallback={<div>loading getUser</div>}>
+        <Await resolve={loaderData.getUserPromise}>
+          {(user: Awaited<LoaderData['getUserPromise']>) => {
+            return <div>{JSON.stringify(user)}</div>;
           }}
         </Await>
       </Suspense>

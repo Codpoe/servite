@@ -1,9 +1,11 @@
 import { defer, LoaderFunction } from 'servite/runtime/router';
+import getUser from '@/server/routes/user.get';
 
 export interface LoaderData {
   a: number;
   b: string;
   c?: Promise<boolean>;
+  getUserPromise: ReturnType<typeof getUser>;
 }
 
 export const loader: LoaderFunction = async () => {
@@ -12,6 +14,7 @@ export const loader: LoaderFunction = async () => {
   //   status: 404,
   //   statusText: 'Not Found',
   // });
+  // const res = await getUser({});
 
   return defer({
     a: Date.now(),
@@ -21,5 +24,6 @@ export const loader: LoaderFunction = async () => {
         resolve(true);
       }, 300);
     }),
+    getUserPromise: getUser({}),
   } satisfies LoaderData);
 };

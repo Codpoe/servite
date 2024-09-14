@@ -24,6 +24,10 @@
       "types": "./dist/config/index.d.ts",
       "default": "./dist/config/index.js"
     },
+    "./runtime/server": {
+      "types": "./dist/runtime/server.d.ts",
+      "default": "./dist/runtime/server.js"
+    },
     "./runtime/router": {
       "types": "./dist/runtime/router.d.ts",
       "default": "./dist/runtime/router.js"
@@ -31,6 +35,10 @@
     "./runtime/helmet": {
       "types": "./dist/runtime/helmet.d.ts",
       "default": "./dist/runtime/helmet.js"
+    },
+    "./runtime/fetch": {
+      "types": "./dist/runtime/fetch.d.ts",
+      "default": "./dist/runtime/fetch.js"
     }
   },
   "scripts": {
@@ -47,6 +55,7 @@
     "defu": "^6.1.4",
     "fast-glob": "^3.3.2",
     "isbot": "^5.1.17",
+    "ofetch": "^1.3.4",
     "pathe": "^1.1.2",
     "react-helmet-async": "^2.0.5",
     "react-router-dom": "^6.26.1",

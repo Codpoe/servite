@@ -1,4 +1,4 @@
-import { defineEventHandler } from 'vinxi/http';
+import { defineEventHandler } from 'servite/runtime/server';
 
 export default defineEventHandler(async event => {
   await new Promise(resolve => setTimeout(resolve, 300));

@@ -17,6 +17,8 @@ import viteTsConfigPaths, {
 } from 'vite-tsconfig-paths';
 import { defaults, toArray } from '../utils/index.js';
 import { RouterName } from '../types/index.js';
+import { hmr } from '../plugins/hmr.js';
+import { unifiedInvocation } from '../plugins/unified-invocation.js';
 import { PagesFsRouter, ServerFsRouter } from './fs-router.js';
 
 export { RouterName };
@@ -126,6 +128,29 @@ export function defineConfig({
     },
   });
 
+  const resolvedPagesDir = resolve(root, source.srcDir, source.pagesDir);
+  const resolvedServerDir = resolve(root, source.srcDir, source.serverDir);
+  const resolvedServerRoutesDir = resolve(
+    resolvedServerDir,
+    source.serverRoutesDir,
+  );
+  const resolvedMiddlewaresDir = resolve(
+    resolvedServerDir,
+    source.serverMiddlewaresDir,
+  );
+
+  const getDefines = (app: App): Record<string, any> => ({
+    'import.meta.env.ROUTER_SERVER_BASE_URL': JSON.stringify(
+      join(server.baseURL || '/', app.getRouter(RouterName.Server).base),
+    ),
+    'import.meta.env.ROUTER_SSR_BASE_URL': JSON.stringify(
+      join(server.baseURL || '/', app.getRouter(RouterName.SSR).base),
+    ),
+    'import.meta.env.ROUTER_CLIENT_BASE_URL': JSON.stringify(
+      join(server.baseURL || '/', app.getRouter(RouterName.Client).base),
+    ),
+  });
+
   const app = createApp({
     name,
     root,
@@ -147,18 +172,8 @@ export function defineConfig({
         routes: (router, app) =>
           new ServerFsRouter(
             {
-              dir: resolve(
-                root,
-                source.srcDir,
-                source.serverDir,
-                source.serverRoutesDir,
-              ),
-              middlewaresDir: resolve(
-                root,
-                source.srcDir,
-                source.serverDir,
-                source.serverMiddlewaresDir,
-              ),
+              dir: resolvedServerRoutesDir,
+              middlewaresDir: resolvedMiddlewaresDir,
               extensions: ['ts', 'js'],
             },
             router,
@@ -182,7 +197,7 @@ export function defineConfig({
         routes: (router, app) =>
           new PagesFsRouter(
             {
-              dir: resolve(root, source.srcDir, source.pagesDir),
+              dir: resolvedPagesDir,
               extensions: ['tsx', 'ts', 'jsx', 'js'],
             },
             router,
@@ -192,13 +207,19 @@ export function defineConfig({
         plugins: async () => [
           viteTsConfigPaths(userConfig.viteTsConfigPaths),
           viteReact(userConfig.viteReact),
-          config('servite-ssr-config', {
+          config('servite-ssr-config', () => ({
+            define: getDefines(app),
             ssr: {
               // The package.json "type" of react-helmet-async is not "module",
               // but its ES format file extension is not "mjs",
               // so nodejs parsing will fail, and we need to handle it through vite
               noExternal: ['react-helmet-async'],
             },
+          })),
+          unifiedInvocation({
+            app,
+            serverDir: resolvedServerDir,
+            serverRoutesDir: resolvedServerRoutesDir,
           }),
           ...((await userConfig.routers?.[RouterName.SSR]?.plugins) ?? []),
         ],
@@ -214,7 +235,7 @@ export function defineConfig({
         routes: (router, app) =>
           new PagesFsRouter(
             {
-              dir: resolve(root, source.srcDir, source.pagesDir),
+              dir: resolvedPagesDir,
               extensions: ['tsx', 'ts', 'jsx', 'js'],
             },
             router,
@@ -230,67 +251,22 @@ export function defineConfig({
             ),
           }),
           serverFunctions.client(),
-          config('servite-client-config', (router, app) => {
-            return {
-              define: {
-                'import.meta.env.SSR_BASE_URL': JSON.stringify(
-                  join(
-                    server.baseURL || '/',
-                    app.getRouter(RouterName.SSR).base,
-                  ),
+          config('servite-client-config', () => ({
+            define: getDefines(app),
+            optimizeDeps: {
+              entries: [
+                fileURLToPath(
+                  new URL('../ssr/client-handler.js', import.meta.url),
                 ),
-              },
-              optimizeDeps: {
-                entries: [
-                  fileURLToPath(
-                    new URL('../ssr/client-handler.js', import.meta.url),
-                  ),
-                ],
-              },
-            };
-          }),
-          {
-            name: 'servite-client-hmr',
-            apply: 'serve',
-            enforce: 'post',
-            // Page file will generate multiple different modules. e.g.
-            //
-            // file: src/pages/home/page.tsx
-            // ↓↓↓
-            // modules:
-            //   - src/pages/home/page.tsx
-            //   - src/pages/home/page.tsx?pick=default
-            //   - src/pages/home/page.tsx?pick=ErrorBoundary
-            //
-            // And vinxi will only include the `pick` module for hmr.
-            // But we still need to include the original module for tailwindcss hmr.
-            handleHotUpdate(ctx) {
-              if (
-                app
-                  .getRouter(RouterName.Client)
-                  .internals.routes?.isRoute(ctx.file)
-              ) {
-                let added = false;
-                return ctx.modules.flatMap(mod => {
-                  if (
-                    !added &&
-                    mod.file === ctx.file &&
-                    new URLSearchParams(mod.id?.split('?')[1]).has('pick')
-                  ) {
-                    const originMod = ctx.server.moduleGraph.getModuleById(
-                      ctx.file,
-                    );
-
-                    if (originMod) {
-                      added = true;
-                      return [mod, originMod];
-                    }
-                  }
-                  return mod;
-                });
-              }
+              ],
             },
-          },
+          })),
+          hmr({ app }),
+          unifiedInvocation({
+            app,
+            serverDir: resolvedServerDir,
+            serverRoutesDir: resolvedServerRoutesDir,
+          }),
           ...((await userConfig.routers?.[RouterName.Client]?.plugins) ?? []),
         ],
       },
