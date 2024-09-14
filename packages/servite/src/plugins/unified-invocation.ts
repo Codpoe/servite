@@ -17,6 +17,7 @@ type GetPluginHookParams<T> =
 
 export interface UnifiedInvocationConfig {
   app: App;
+  srcDir: string;
   serverDir: string;
   serverRoutesDir: string;
 }
@@ -27,6 +28,7 @@ export const enum B {}
 
 export function unifiedInvocation({
   app,
+  srcDir,
   serverDir,
   serverRoutesDir,
 }: UnifiedInvocationConfig): Plugin {
@@ -40,15 +42,17 @@ export function unifiedInvocation({
       viteConfig = config;
     },
     resolveId(source, importer, options) {
-      if (options.custom?.depScan && !options.ssr) {
-        const id = path.resolve(importer || '', source);
+      if (importer?.startsWith(path.join(srcDir, '/'))) {
+        const id = path.resolve(importer, source);
 
-        // skip optimize server routes files
         if (id.startsWith(path.join(serverRoutesDir, '/'))) {
-          return {
-            id,
-            external: true,
-          };
+          // skip optimize server routes files
+          if (options.custom?.depScan) {
+            return {
+              id: id,
+              external: true,
+            };
+          }
         }
 
         if (id.startsWith(path.join(serverDir, '/'))) {
@@ -78,7 +82,7 @@ export function unifiedInvocation({
         const apiName = getApiName(route);
 
         return `import { getFetch } from 'servite/runtime/fetch';
-${options?.ssr ? `import { getRequestHeader } from 'servite/runtime/server';` : ''}
+${options?.ssr ? `import { getRequestHeader, getRequestProtocol, getRequestHost } from 'servite/runtime/server';` : ''}
 
 ${enumCode}
 
@@ -92,7 +96,8 @@ export default function ${apiName}(args, { routerParams = {}, ...opts } = {}) {
     throw new Error('Missing router param:' + name);
   });
 
-  const baseURL = new URL(import.meta.env.ROUTER_SERVER_BASE_URL, ${options?.ssr ? `getRequestHeader('Referer')` : 'window.location.origin'}).href;
+  const origin = ${options?.ssr ? `getRequestHeader('Referer') || getRequestProtocol() + '://' + getRequestHost({ xForwardedHost: true })` : 'window.location.origin'}
+  const baseURL = new URL(import.meta.env.ROUTER_SERVER_BASE_URL, origin).href;
 
   return getFetch()(apiPath, {
     baseURL,

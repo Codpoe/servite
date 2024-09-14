@@ -1,21 +1,23 @@
 import { Await, useLoaderData } from 'servite/runtime/router';
-import { Suspense, useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import type { LoaderData } from './page.data';
 import { serverFn_1, serverFn_2 } from './server-fns';
 import getUser from '@/server/routes/user.get';
 
-// const serverFn_1_promise = serverFn_1();
-
 export default function Home() {
   const loaderData = useLoaderData() as LoaderData;
   const [count, setCount] = useState(0);
-  const serverFn_1_promise = useMemo(() => serverFn_1(), []);
-  const serverFn_2_promise = useMemo(() => serverFn_2(), []);
 
   const [user, setUse] = useState<Awaited<LoaderData['getUserPromise']>>();
+  const [serverFn_1_res, setServerFn_1_res] =
+    useState<Awaited<ReturnType<typeof serverFn_1>>>();
+  const [serverFn_2_res, setServerFn_2_res] =
+    useState<Awaited<ReturnType<typeof serverFn_2>>>();
 
   useEffect(() => {
     getUser({}).then(setUse);
+    serverFn_1().then(setServerFn_1_res);
+    serverFn_2().then(setServerFn_2_res);
   }, []);
 
   return (
@@ -23,9 +25,6 @@ export default function Home() {
       Home
       <div>{JSON.stringify(loaderData)}</div>
       <button onClick={() => setCount(count + 1)}>{count}</button>
-      <div className="text-red-500">
-        client user: {JSON.stringify(user || null)}
-      </div>
       <Suspense fallback={<div>loading c</div>}>
         <Await resolve={loaderData.c}>
           {(c: boolean) => {
@@ -40,20 +39,11 @@ export default function Home() {
           }}
         </Await>
       </Suspense>
-      <Suspense fallback={<div>loading serverFn_1</div>}>
-        <Await resolve={serverFn_1_promise}>
-          {data => {
-            return <div>serverFn_1: {JSON.stringify(data)}</div>;
-          }}
-        </Await>
-      </Suspense>
-      <Suspense fallback={<div>loading serverFn_2</div>}>
-        <Await resolve={serverFn_2_promise}>
-          {data => {
-            return <div>serverFn_2: {JSON.stringify(data)}</div>;
-          }}
-        </Await>
-      </Suspense>
+      <div className="text-red-500">
+        client user: {JSON.stringify(user || null)}
+      </div>
+      <div>serverFn_1: {JSON.stringify(serverFn_1_res || null)}</div>
+      <div>serverFn_2: {JSON.stringify(serverFn_2_res || null)}</div>
     </div>
   );
 }

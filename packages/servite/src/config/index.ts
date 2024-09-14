@@ -128,8 +128,9 @@ export function defineConfig({
     },
   });
 
-  const resolvedPagesDir = resolve(root, source.srcDir, source.pagesDir);
-  const resolvedServerDir = resolve(root, source.srcDir, source.serverDir);
+  const resolvedSrcDir = resolve(root, source.srcDir);
+  const resolvedPagesDir = resolve(resolvedSrcDir, source.pagesDir);
+  const resolvedServerDir = resolve(resolvedSrcDir, source.serverDir);
   const resolvedServerRoutesDir = resolve(
     resolvedServerDir,
     source.serverRoutesDir,
@@ -182,12 +183,6 @@ export function defineConfig({
         ...userConfig.routers?.[RouterName.Server],
       },
       {
-        ...serverFunctions.router(
-          userConfig.routers?.[RouterName.ServerFns] as any,
-        ),
-        name: RouterName.ServerFns,
-      },
-      {
         name: RouterName.SSR,
         type: 'http',
         target: 'server',
@@ -218,6 +213,7 @@ export function defineConfig({
           })),
           unifiedInvocation({
             app,
+            srcDir: resolvedSrcDir,
             serverDir: resolvedServerDir,
             serverRoutesDir: resolvedServerRoutesDir,
           }),
@@ -264,11 +260,18 @@ export function defineConfig({
           hmr({ app }),
           unifiedInvocation({
             app,
+            srcDir: resolvedSrcDir,
             serverDir: resolvedServerDir,
             serverRoutesDir: resolvedServerRoutesDir,
           }),
           ...((await userConfig.routers?.[RouterName.Client]?.plugins) ?? []),
         ],
+      },
+      {
+        ...serverFunctions.router(
+          userConfig.routers?.[RouterName.ServerFns] as any,
+        ),
+        name: RouterName.ServerFns,
       },
     ],
   });

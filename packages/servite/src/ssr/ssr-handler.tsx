@@ -22,7 +22,7 @@ import reactDomServer, {
 import { HelmetProvider } from 'react-helmet-async';
 import { isbot } from 'isbot';
 import { RouterName } from '../types/index.js';
-import { routes } from './routes.js';
+import { getRoutes } from './routes.js';
 import { RouterHydration } from './RouterHydration.js';
 import {
   transformHtmlForReadableStream,
@@ -34,11 +34,11 @@ type HelmetContext = NonNullable<
 >;
 
 export default defineEventHandler(async event => {
-  const ssrManifest = getManifest(RouterName.SSR);
+  const routes = getRoutes();
   const clientManifest = getManifest(RouterName.Client);
 
   const staticHandler = createStaticHandler(routes, {
-    basename: ssrManifest.base,
+    basename: import.meta.env.ROUTER_SSR_BASE_URL,
   });
   // run router loader
   const handlerContext = await staticHandler.query(getWebRequest(event));
@@ -59,7 +59,7 @@ export default defineEventHandler(async event => {
   }[];
 
   const bootstrapScriptContent = `window.__servite__ = ${JSON.stringify({ ssr: true })};
-window.manifest = ${JSON.stringify(clientManifest.json())};`;
+window.manifest = ${JSON.stringify(await clientManifest.json())};`;
   const bootstrapModules = [
     clientManifest.inputs[clientManifest.handler].output.path,
   ];

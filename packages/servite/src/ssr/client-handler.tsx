@@ -7,7 +7,7 @@ import {
 } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { createRoot, hydrateRoot, Root } from 'react-dom/client';
-import { routes } from './routes.js';
+import { getRoutes } from './routes.js';
 
 declare global {
   interface Window {
@@ -35,6 +35,9 @@ declare global {
   }
 
   const rootEl = document.getElementById('root')!;
+  const routes = getRoutes();
+  // eslint-disable-next-line no-console
+  console.debug('[servite] routes', routes[0].children);
 
   window.__servite_react_router__ = createBrowserRouter(routes, {
     basename: import.meta.env.ROUTER_SSR_BASE_URL,

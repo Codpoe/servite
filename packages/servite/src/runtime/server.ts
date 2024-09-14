@@ -4,13 +4,10 @@ import {
   EventHandlerObject,
   EventHandlerRequest,
   EventHandlerResponse,
-  getRequestHeader,
 } from 'vinxi/http';
 import type { FetchOptions } from 'ofetch';
 
 export * from 'vinxi/http';
-
-getRequestHeader('Referer');
 
 export interface EventHandlerForUnifiedInvocation<
   Args extends Record<string, any>,

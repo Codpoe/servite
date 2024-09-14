@@ -126,10 +126,16 @@ const rootRoot: DataRouteObject = {
   errorElement: <RootErrorBoundary />,
 };
 
-const getRoutes = (): DataRouteObject[] => {
+let routes: DataRouteObject[];
+
+export const getRoutes = (): DataRouteObject[] => {
+  if (routes) {
+    return routes;
+  }
+
+  routes = [];
   const clientManifest = getManifest(RouterName.Client);
   const ssrManifest = getManifest(RouterName.SSR);
-  const routes: DataRouteObject[] = [];
   const layoutStack: DataRouteObject[] = [];
 
   for (const fsRoute of fileRoutes as PageFsRouteModule[]) {
@@ -207,10 +213,3 @@ const getRoutes = (): DataRouteObject[] => {
     },
   ];
 };
-
-export const routes = getRoutes();
-
-if (typeof window !== 'undefined') {
-  // eslint-disable-next-line no-console
-  console.debug('[servite] routes', routes[0].children);
-}
