@@ -1,4 +1,4 @@
-import { defineMiddleware } from 'vinxi/http';
+import { defineMiddleware } from 'servite/runtime/server';
 
 export default defineMiddleware({
   onRequest: event => {
