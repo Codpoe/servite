@@ -63,22 +63,29 @@ export class PagesFsRouter extends BaseFileSystemRouter {
       return null;
     }
 
-    const [, exports] = analyzeModule(src);
-
-    if (!exports.some(x => x.n === 'default')) {
-      return null;
-    }
-
     const pageInfo = this.srcToPageInfo[src];
-    const componentPick = ['default', '$css'];
+    const componentPick: string[] = ['default', '$css'];
     const dataPick: string[] = [];
-    let dataFileFile: string | undefined = undefined;
+    const handlePick: string[] = [];
+    let dataFilePath: string | undefined = undefined;
 
-    if (exports.some(x => x.n === 'ErrorBoundary')) {
-      componentPick.push('ErrorBoundary');
-    }
+    if (pageInfo.isMd) {
+      handlePick.push('frontmatter', 'toc');
+    } else {
+      const [, exports] = analyzeModule(src);
 
-    if (!pageInfo.isMd) {
+      if (!exports.some(x => x.n === 'default')) {
+        return null;
+      }
+
+      for (const { n } of exports) {
+        if (n === 'ErrorBoundary') {
+          componentPick.push(n);
+        } else if (n === 'handle') {
+          handlePick.push(n);
+        }
+      }
+
       const dir = path.dirname(src);
 
       for (const ext of this.config.extensions) {
@@ -87,21 +94,21 @@ export class PagesFsRouter extends BaseFileSystemRouter {
           `${pageInfo.isLayout ? 'layout' : 'page'}.data.${ext}`,
         );
         if (existsSync(_dataFilePath)) {
-          dataFileFile = _dataFilePath;
+          dataFilePath = _dataFilePath;
           break;
         }
       }
-    }
 
-    if (dataFileFile) {
-      const [, dataExports] = analyzeModule(dataFileFile);
+      if (dataFilePath) {
+        const [, dataExports] = analyzeModule(dataFilePath);
 
-      if (dataExports.some(x => x.n === 'loader')) {
-        dataPick.push('loader');
-      }
+        if (dataExports.some(x => x.n === 'loader')) {
+          dataPick.push('loader');
+        }
 
-      if (dataExports.some(x => x.n === 'action')) {
-        dataPick.push('action');
+        if (dataExports.some(x => x.n === 'action')) {
+          dataPick.push('action');
+        }
       }
     }
 
@@ -123,8 +130,14 @@ export class PagesFsRouter extends BaseFileSystemRouter {
       },
       ...(dataPick.length > 0 && {
         $data: {
-          src: dataFileFile!,
+          src: dataFilePath!,
           pick: dataPick,
+        },
+      }),
+      ...(handlePick.length > 0 && {
+        $$handle: {
+          src,
+          pick: handlePick,
         },
       }),
     };

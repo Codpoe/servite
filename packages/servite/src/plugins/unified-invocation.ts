@@ -22,10 +22,6 @@ export interface UnifiedInvocationConfig {
   serverRoutesDir: string;
 }
 
-export enum A {}
-
-export const enum B {}
-
 export function unifiedInvocation({
   app,
   srcDir,
@@ -97,7 +93,15 @@ export default function ${apiName}(args, { routerParams = {}, ...opts } = {}) {
   });
 
   const origin = ${options?.ssr ? `getRequestHeader('Referer') || getRequestProtocol() + '://' + getRequestHost({ xForwardedHost: true })` : 'window.location.origin'}
-  const baseURL = new URL(import.meta.env.ROUTER_SERVER_BASE_URL, origin).href;
+  let baseURL = import.meta.env.ROUTER_SERVER_BASE_URL;
+
+  ${
+    options?.ssr
+      ? `if (!getRequestHeader('x-nitro-prerender')) {
+    baseURL = new URL(baseURL, origin).href
+    }`
+      : 'baseURL = new URL(baseURL, origin).href'
+  }
 
   return getFetch()(apiPath, {
     baseURL,

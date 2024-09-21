@@ -8,22 +8,17 @@ import { FsRouteMod, PageFsRouteModule, RouterName } from '../types/index.js';
 
 const dirname = (path: string) => path.replace(/\/[^/]+$/, '') || '/';
 
-const lazyLoaderAction =
-  (
-    routeMod: FsRouteMod,
-    clientManifest: Manifest,
-    ssrManifest: Manifest,
-    exported: 'loader' | 'action',
-  ) =>
-  (...args: any[]) => {
-    if (import.meta.env.DEV) {
-      const manifest = import.meta.env.SSR ? ssrManifest : clientManifest;
-      return manifest.inputs[routeMod.src]
-        .import()
-        .then(mod => mod[exported]?.(...args));
-    }
-    return routeMod.import().then(mod => mod[exported]?.(...args));
-  };
+const lazyMod = (
+  routeMod: FsRouteMod,
+  clientManifest: Manifest,
+  ssrManifest: Manifest,
+) => {
+  if (import.meta.env.DEV) {
+    const manifest = import.meta.env.SSR ? ssrManifest : clientManifest;
+    return manifest.inputs[routeMod.src].import();
+  }
+  return routeMod.import();
+};
 
 const RootErrorBoundary = () => {
   const error: any = useRouteError();
@@ -126,37 +121,43 @@ const rootRoot: DataRouteObject = {
   errorElement: <RootErrorBoundary />,
 };
 
-let routes: DataRouteObject[];
+let _routes: DataRouteObject[];
 
-export const getRoutes = (): DataRouteObject[] => {
-  if (routes) {
-    return routes;
+export function getRoutes(): DataRouteObject[] {
+  if (_routes) {
+    return _routes;
   }
 
-  routes = [];
+  const routes = [];
   const clientManifest = getManifest(RouterName.Client);
   const ssrManifest = getManifest(RouterName.SSR);
   const layoutStack: DataRouteObject[] = [];
 
   for (const fsRoute of fileRoutes as PageFsRouteModule[]) {
+    const handle = fsRoute.$$handle?.require();
+
     const route: DataRouteObject = {
       id: fsRoute.filePath,
       path: fsRoute.isLayout ? undefined : fsRoute.routePath,
       loader: fsRoute.hasLoader
-        ? lazyLoaderAction(
-            fsRoute.$data!,
-            clientManifest,
-            ssrManifest,
-            'loader',
-          )
+        ? async (...args: any[]) => {
+            const mod = await lazyMod(
+              fsRoute.$data!,
+              clientManifest,
+              ssrManifest,
+            );
+            return mod.loader?.(...args);
+          }
         : undefined,
       action: fsRoute.hasAction
-        ? lazyLoaderAction(
-            fsRoute.$data!,
-            clientManifest,
-            ssrManifest,
-            'action',
-          )
+        ? async (...args: any[]) => {
+            const mod = await lazyMod(
+              fsRoute.$data!,
+              clientManifest,
+              ssrManifest,
+            );
+            return mod.action?.(...args);
+          }
         : undefined,
       Component: lazyRoute(
         fsRoute.$component,
@@ -172,6 +173,7 @@ export const getRoutes = (): DataRouteObject[] => {
             'ErrorBoundary',
           )
         : undefined,
+      handle: handle?.handle || handle,
       children: fsRoute.isLayout ? [] : undefined,
     };
 
@@ -206,10 +208,10 @@ export const getRoutes = (): DataRouteObject[] => {
   }
 
   // wrap routes with root route to add default error boundary
-  return [
+  return (_routes = [
     {
       ...rootRoot,
       children: routes,
     },
-  ];
-};
+  ] as DataRouteObject[]);
+}

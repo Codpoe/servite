@@ -15,8 +15,11 @@ import viteReact, { Options as ViteReactOptions } from '@vitejs/plugin-react';
 import viteTsConfigPaths, {
   PluginOptions as ViteTsConfigPathsOptions,
 } from 'vite-tsconfig-paths';
+import { mdxPlus } from 'vite-plugin-mdx-plus';
+import isGlob from 'is-glob';
+import micromatch from 'micromatch';
 import { defaults, toArray } from '../utils/index.js';
-import { RouterName } from '../types/index.js';
+import { PageFsRoute, RouterName } from '../types/index.js';
 import { hmr } from '../plugins/hmr.js';
 import { unifiedInvocation } from '../plugins/unified-invocation.js';
 import { PagesFsRouter, ServerFsRouter } from './fs-router.js';
@@ -104,6 +107,7 @@ export interface ServiteConfig {
 export function defineConfig({
   name = 'servite',
   root = process.cwd(),
+  routers,
   ...userConfig
 }: ServiteConfig = {}): App {
   root = resolve(root);
@@ -140,13 +144,16 @@ export function defineConfig({
     source.serverMiddlewaresDir,
   );
 
+  const clientBase = routers?.[RouterName.Client]?.base || '/_build';
+
+  const getSSRBaseURL = (app: App): string =>
+    join(server.baseURL || '/', app.getRouter(RouterName.SSR).base);
+
   const getDefines = (app: App): Record<string, any> => ({
     'import.meta.env.ROUTER_SERVER_BASE_URL': JSON.stringify(
       join(server.baseURL || '/', app.getRouter(RouterName.Server).base),
     ),
-    'import.meta.env.ROUTER_SSR_BASE_URL': JSON.stringify(
-      join(server.baseURL || '/', app.getRouter(RouterName.SSR).base),
-    ),
+    'import.meta.env.ROUTER_SSR_BASE_URL': JSON.stringify(getSSRBaseURL(app)),
     'import.meta.env.ROUTER_CLIENT_BASE_URL': JSON.stringify(
       join(server.baseURL || '/', app.getRouter(RouterName.Client).base),
     ),
@@ -161,7 +168,7 @@ export function defineConfig({
         name: RouterName.Public,
         type: 'static',
         dir: source.publicDir,
-        ...userConfig.routers?.[RouterName.Public],
+        ...routers?.[RouterName.Public],
       },
       {
         name: RouterName.Server,
@@ -180,7 +187,7 @@ export function defineConfig({
             router,
             app,
           ),
-        ...userConfig.routers?.[RouterName.Server],
+        ...routers?.[RouterName.Server],
       },
       {
         name: RouterName.SSR,
@@ -193,14 +200,15 @@ export function defineConfig({
           new PagesFsRouter(
             {
               dir: resolvedPagesDir,
-              extensions: ['tsx', 'ts', 'jsx', 'js'],
+              extensions: ['tsx', 'ts', 'jsx', 'js', 'mdx', 'md'],
             },
             router,
             app,
           ),
-        ...userConfig.routers?.[RouterName.SSR],
+        ...routers?.[RouterName.SSR],
         plugins: async () => [
           viteTsConfigPaths(userConfig.viteTsConfigPaths),
+          mdxPlus({ providerImportSource: 'servite/runtime/mdx' }),
           viteReact(userConfig.viteReact),
           config('servite-ssr-config', () => ({
             define: getDefines(app),
@@ -210,6 +218,8 @@ export function defineConfig({
               // so nodejs parsing will fail, and we need to handle it through vite
               noExternal: ['react-helmet-async'],
             },
+            // Set `base` here to make the SSR asset url consistent with the client
+            base: clientBase,
           })),
           unifiedInvocation({
             app,
@@ -217,14 +227,14 @@ export function defineConfig({
             serverDir: resolvedServerDir,
             serverRoutesDir: resolvedServerRoutesDir,
           }),
-          ...((await userConfig.routers?.[RouterName.SSR]?.plugins) ?? []),
+          ...((await routers?.[RouterName.SSR]?.plugins) ?? []),
         ],
       },
       {
         name: RouterName.Client,
         type: 'client',
         target: 'browser',
-        base: '/_build',
+        base: clientBase,
         handler: fileURLToPath(
           new URL('../ssr/client-handler.js', import.meta.url),
         ),
@@ -232,16 +242,18 @@ export function defineConfig({
           new PagesFsRouter(
             {
               dir: resolvedPagesDir,
-              extensions: ['tsx', 'ts', 'jsx', 'js'],
+              extensions: ['tsx', 'ts', 'jsx', 'js', 'mdx', 'md'],
             },
             router,
             app,
           ),
-        ...userConfig.routers?.[RouterName.Client],
+        ...routers?.[RouterName.Client],
         plugins: async (): Promise<Plugin[]> => [
           viteTsConfigPaths(userConfig.viteTsConfigPaths),
+          mdxPlus({ providerImportSource: 'servite/runtime/mdx' }),
           viteReact({
             ...userConfig.viteReact,
+            include: /\.([tj]s|md)x?$/,
             exclude: toArray(userConfig.viteReact?.exclude).concat(
               fileURLToPath(new URL('../ssr/routes.js', import.meta.url)),
             ),
@@ -264,16 +276,53 @@ export function defineConfig({
             serverDir: resolvedServerDir,
             serverRoutesDir: resolvedServerRoutesDir,
           }),
-          ...((await userConfig.routers?.[RouterName.Client]?.plugins) ?? []),
+          ...((await routers?.[RouterName.Client]?.plugins) ?? []),
         ],
       },
       {
-        ...serverFunctions.router(
-          userConfig.routers?.[RouterName.ServerFns] as any,
-        ),
+        ...serverFunctions.router(routers?.[RouterName.ServerFns] as any),
         name: RouterName.ServerFns,
       },
     ],
+  });
+
+  const ssrBaseURL = getSSRBaseURL(app);
+
+  app.hooks.hook('app:build:nitro:config', ({ nitro }: any) => {
+    nitro.hooks.hook('prerender:routes', async (routes: Set<string>) => {
+      const _routes = [...routes];
+      const globRoutes: string[] = [];
+      routes.clear();
+
+      for (const route of _routes) {
+        if (isGlob(route)) {
+          globRoutes.push(route);
+        } else {
+          // append ssr baseURL to route
+          routes.add(join(ssrBaseURL, route));
+        }
+      }
+
+      // add routePath if matches glob pattern
+      if (globRoutes.length) {
+        const certainPageFsRoutePaths = (
+          (await app
+            .getRouter(RouterName.SSR)
+            .internals.routes?.getRoutes()) as PageFsRoute[]
+        )
+          .filter(
+            x =>
+              !x.isLayout &&
+              !x.routePath.includes('/*') &&
+              !x.routePath.includes('/:'),
+          )
+          .map(x => x.routePath);
+
+        micromatch(certainPageFsRoutePaths, globRoutes).forEach(x => {
+          routes.add(join(ssrBaseURL, x));
+        });
+      }
+    });
   });
 
   return app;

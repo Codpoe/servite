@@ -33,6 +33,10 @@ export interface PageFsRoute {
     src: string;
     pick: string[];
   };
+  $$handle?: {
+    src: string;
+    pick: string[];
+  };
 }
 
 export interface ServerFsRoute {
