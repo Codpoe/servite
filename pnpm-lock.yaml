@@ -173,8 +173,8 @@ importers:
         specifier: ^0.4.2
         version: 0.4.2(@types/node@22.5.2)(ioredis@5.4.1)(terser@5.31.6)
       vite-plugin-mdx-plus:
-        specifier: ^2.0.3
-        version: 2.0.3(rollup@4.21.2)
+        specifier: ^2.0.4
+        version: 2.0.4(rollup@4.21.2)
       vite-tsconfig-paths:
         specifier: ^5.0.1
         version: 5.0.1(typescript@5.5.4)(vite@5.4.2(@types/node@22.5.2)(terser@5.31.6))
@@ -5142,8 +5142,8 @@ packages:
     resolution: {integrity: sha512-BbvIum9BLUQ22O/lU1RX0+aKNMXXcl58hofNoWFnFcKkm+efgVsHiD2d7HG3w8QLdb2Asdhmz5/ZzI1Y3zTBXw==}
     hasBin: true
 
-  vite-plugin-mdx-plus@2.0.3:
-    resolution: {integrity: sha512-jFkoHAyX1KAkkw2LSlN5Giy6lRrL2ajH5qvz2al4+w2ROturLkm9pEjD/mFfmM9AeWK4FdcDWGgURvh/T8KtyA==}
+  vite-plugin-mdx-plus@2.0.4:
+    resolution: {integrity: sha512-sV5EtXn8iidJH8PBwEfvv+L3PFhjFkmjjsUp/suNlDwYtBIodEdLnFP9URJ+H+HEUTYglgTptdfKt8kLQ5RTRA==}
 
   vite-tsconfig-paths@5.0.1:
     resolution: {integrity: sha512-yqwv+LstU7NwPeNqajZzLEBVpUFU6Dugtb2P84FXuvaoYA+/70l9MHE+GYfYAycVyPSDYZ7mjOFuYBRqlEpTig==}
@@ -11104,7 +11104,7 @@ snapshots:
       - uWebSockets.js
       - xml2js
 
-  vite-plugin-mdx-plus@2.0.3(rollup@4.21.2):
+  vite-plugin-mdx-plus@2.0.4(rollup@4.21.2):
     dependencies:
       '@mdx-js/rollup': 3.0.1(rollup@4.21.2)
       '@rollup/pluginutils': 5.1.0(rollup@4.21.2)

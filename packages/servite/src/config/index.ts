@@ -64,7 +64,10 @@ type ServerConfig = NonNullable<AppOptions['server']>;
 interface RoutersConfig {
   [RouterName.Public]?: Partial<StaticRouterSchema>;
   [RouterName.Server]?: Partial<HTTPRouterSchema>;
-  [RouterName.SSR]?: Partial<HTTPRouterSchema>;
+  [RouterName.SSR]?: Partial<HTTPRouterSchema> & {
+    csr?: boolean | string[];
+    fallbackToCSR?: boolean;
+  };
   [RouterName.ServerFns]?: Partial<HTTPRouterSchema>;
   [RouterName.Client]?: Partial<ClientRouterSchema>;
   [RouterName.SPA]?: Partial<ClientRouterSchema>;
@@ -157,6 +160,12 @@ export function defineConfig({
     'import.meta.env.ROUTER_CLIENT_BASE_URL': JSON.stringify(
       join(server.baseURL || '/', app.getRouter(RouterName.Client).base),
     ),
+    'import.meta.env.CSR': JSON.stringify(
+      routers?.[RouterName.SSR]?.csr ?? false,
+    ),
+    'import.meta.env.FALLBACK_TO_CSR': JSON.stringify(
+      routers?.[RouterName.SSR]?.fallbackToCSR ?? true,
+    ),
   });
 
   const app = createApp({
@@ -211,7 +220,9 @@ export function defineConfig({
           mdxPlus({ providerImportSource: 'servite/runtime/mdx' }),
           viteReact(userConfig.viteReact),
           config('servite-ssr-config', () => ({
-            define: getDefines(app),
+            define: {
+              ...getDefines(app),
+            },
             ssr: {
               // The package.json "type" of react-helmet-async is not "module",
               // but its ES format file extension is not "mjs",

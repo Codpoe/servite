@@ -24,6 +24,8 @@ declare global {
 
   interface ImportMetaEnv {
     ROUTER_SSR_BASE_URL: string;
+    CSR: boolean | string[];
+    FALLBACK_TO_CSR: boolean;
   }
 }
 
