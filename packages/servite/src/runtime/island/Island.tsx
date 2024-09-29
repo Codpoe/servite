@@ -1,5 +1,9 @@
 import { useEffect, useState } from 'react';
-import { canManuallyHydrateIsland, HYDRATE_EVENT_NAME, HydrateOptions } from './shared.js';
+import {
+  canManuallyHydrateIsland,
+  HYDRATE_EVENT_NAME,
+  HydrateOptions,
+} from './shared.js';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -50,18 +54,21 @@ export function Island({ innerRef, hydrate, ...restProps }: IslandProps) {
         break;
       }
       case 'idle': {
-        (window.requestIdleCallback || ((cb: any) => setTimeout(cb, 100)))(doHydrate);
+        (window.requestIdleCallback || ((cb: any) => setTimeout(cb, 100)))(
+          doHydrate,
+        );
         break;
       }
       case 'visible': {
         const islandEl = document.getElementById(hydrate.id);
         if (!islandEl) {
           if (import.meta.env.DEV) {
+            // eslint-disable-next-line no-console
             console.error(`Miss island (id: ${hydrate.id})`);
           }
           break;
         }
-        const observer = new IntersectionObserver((entries) => {
+        const observer = new IntersectionObserver(entries => {
           for (const entry of entries) {
             if (!entry.isIntersecting) {
               continue;
@@ -107,7 +114,10 @@ export function Island({ innerRef, hydrate, ...restProps }: IslandProps) {
           break;
         }
 
-        console.warn(`Unsupported hydrate mode: ${hydrate.on}. Use 'load' | 'idle' | 'visible' | 'manual' | 'media' instead.`);
+        // eslint-disable-next-line no-console
+        console.warn(
+          `Unsupported hydrate mode: ${hydrate.on}. Use 'load' | 'idle' | 'visible' | 'manual' | 'media' instead.`,
+        );
         doHydrate();
       }
     }
@@ -116,6 +126,7 @@ export function Island({ innerRef, hydrate, ...restProps }: IslandProps) {
       const timer = setTimeout(() => doHydrate(), hydrate.timeout);
       return () => clearTimeout(timer);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (islandState.Component) {
