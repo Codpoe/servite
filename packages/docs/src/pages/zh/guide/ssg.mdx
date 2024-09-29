@@ -10,7 +10,21 @@ SSG（Static Site Generation 静态站点生成）是指在构建时生成静态
 
 ## 使用
 
-servite 通过 [ssg](/zh/guide/config#ssg) 配置项支持了全量 SSG 和部分页面 SSG。
+Servite 通过 [server.prerender](/zh/guide/config#server) 配置项支持了页面 SSG，
+使用时可以传入 glob 模式匹配需要 SSG 的页面，例如：
+
+```ts
+import { defineConfig } from 'servite/config';
+
+export default defineConfig({
+  server: {
+    prerender: {
+      routes: ['/*', '/**/*'], // 匹配所有页面 // [!code highlight]
+      failOnError: true,
+    },
+  },
+});
+```
 
 :::warning
 SSG 是在**构建时**生成静态页面的，因此只有在重新构建时才能更新页面。
