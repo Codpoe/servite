@@ -86,14 +86,14 @@ export default function ${apiName}(args, { routerParams = {}, ...opts } = {}) {
   const apiPath = '${route.routePath}'.replace(/\\/:([^/]+)/g, (_, name) => {
     const param = routerParams[name];
 
-    if (param) {
+    if (param != null) {
       return '/' + param;
     }
     throw new Error('Missing router param:' + name);
   });
 
   const origin = ${options?.ssr ? `getRequestHeader('Referer') || getRequestProtocol() + '://' + getRequestHost({ xForwardedHost: true })` : 'window.location.origin'}
-  let baseURL = import.meta.env.ROUTER_SERVER_BASE_URL;
+  let baseURL = import.meta.env.SERVER_BASE;
 
   ${
     options?.ssr

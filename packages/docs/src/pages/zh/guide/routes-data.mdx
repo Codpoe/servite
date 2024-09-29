@@ -1,0 +1,178 @@
+# 路由数据
+
+:::tip
+Servite 的路由数据功能是基于 [React Router](https://reactrouter.com) 进行开发的，一些使用细节可直接参考 React Router 的文档。
+:::
+
+有些数据可能会明显影响到我们的路由组件展示和用户体验，这种跟路由密切关联的数据就叫**路由数据**。例如：
+- 用户中心页面里的头像、昵称等就是路由数据
+- 商品详情页面里的商品头图、名称、价格等也应该是路由数据
+
+在一般的 React 开发中，我们会在组件的 `useEffect` 中发起数据请求，也就是需要等待组件代码加载->组件渲染后才能发起请求。
+这对于路由数据来说时机太晚了，尤其是当遇到多层嵌套路由时，如果每层路由都有自己的数据请求，可能会导致**瀑布流加载**。
+
+假如我们有这样的嵌套路由结构：
+
+![](../../../assets/nested-routes.png)
+
+当进入 `/dashboard/settings` 时，传统 React 应用中会存在这样的瀑布流加载：
+
+- `load App script`
+  - `render App`
+    - `fetch /api/app`
+      - `load Dashboard script`
+        - `render Dashboard`
+          - `fetch /api/dashboard`
+            - `load Settings script`
+              - `render Settings`
+                - `fetch /api/settings`
+
+为了获取更好的用户体验和性能，Servite 借助 [React Router v6](https://reactrouter.com) 的 loader 和 action，
+实现了路由数据的并行加载，以及更简单的数据流：
+
+<img src="../../../assets/loader-action.png" />
+
+## 数据加载
+
+Servite 约定了加 `.data` 后缀的文件为对应路由的**数据文件**，举个例子，
+- 如果布局路由文件是 `src/pages/layout.tsx`，那么它对应的数据文件是 `src/pages/layout.data.ts`
+- 如果页面路由文件是 `src/pages/about/page.tsx`，那么对应的数据文件是 `src/pages/about/page.data.ts`
+
+我们可以在数据文件中导出一个 `loader` 函数用于在组件渲染前进行数据加载：
+
+```ts
+// page.data.ts
+export interface SomeData {}
+
+export async function loader() {
+  return fakeGetSomeData();
+}
+```
+
+接着在对应的路由组件中可以通过 `useLoaderData` 这个 hook 拿到数据用于渲染：
+
+```tsx
+// page.tsx
+import { useLoaderData } from 'servite/runtime/router';
+import type { SomeData } from './page.data';
+
+export default function Page() {
+  const loaderData = useLoaderData() as SomeData;
+  // ...
+}
+```
+
+:::warning
+需要注意的是，如果需要在组件和 `.data` 文件之间共享 TS 类型，最好使用 `import type`，而不是单纯的 `import`，
+这样能让构建工具更好地 Tree Shaking，例如上面代码中的：<br />
+`import type { SomeData } from './page.data'`
+:::
+
+
+### 同构
+
+在 SSR 环境下，首屏的 `loader` 函数会在服务端执行，而后续在浏览器导航时 `loader` 函数则会在浏览器中执行。
+这意味着我们需要在 `.data` 文件中写**同构**的代码，也就是不管在服务端还是浏览器中，都应该能正常执行的代码。
+
+如果希望不管是首屏还是后续的导航，都始终在服务端执行 loader 函数，我们可以给 `loader` 函数加上 `use server` 指令：
+
+```ts
+export async function loader() {
+  'use server'; // [!code highlight]
+  return fakeGetSomeData();
+}
+```
+
+加上这个 `use server` 指令后，我们就可以放心在 `loader` 中使用 Node.js 相关的一些模块了，例如：`fs`，`path` 等。
+
+### loader 参数
+
+`loader` 函数的参数中有两个字段：`params` 和 `request`。
+
+- `params` 根据动态路由解析而来的，例如 `/posts/[id]/page.data.tsx`：
+
+  ```ts
+  // /posts/[id]/page.data.tsx
+  export async function loader({ params }) {
+    return fakeGetPost({ id: params.id });
+  }
+  ```
+
+- `request` 是一个 [Fetch Requst](https://developer.mozilla.org/en-US/docs/Web/API/Request) 实例。这个参数常见的使用场景是，从 `request` 中解析出 url 和查询参数：
+
+  ```ts
+  export async function loader({ request }) {
+    const url = new URL(request.url);
+    const uid = url.searchParams.get('uid');
+    return fakeGetUser({ uid });
+  }
+  ```
+
+### loader 返回
+
+- 返回任意数据
+  ```ts
+  export async function loader() {
+    return {
+      some: 'data'
+    };
+  }
+  ```
+- 返回 Response 实例
+  ```ts
+  export async function loader() {
+    return new Response(JSON.stringify({ some: 'data' }), {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  }
+  ```
+  返回的 JSON 数据的 Response 也可以使用 `json` 这个工具函数来简化代码，所以上面例子可以简化成：
+  ```ts
+  import { json } from 'servite/runtime/router';
+  export async function loader() {
+    return json({ some: 'data' });
+  }
+  ```
+- Throw Response 实例
+  ```ts
+  export async function loader() {
+    throw new Response('没有权限', { status: 403 });
+  }
+  ```
+
+
+## 数据更新
+
+跟上面的 `loader` 类似，我们可以在 `.data` 文件中导出 `action` 函数用于数据变更：
+
+```ts
+// page.data.ts
+export async function loader() {
+  return fakeGetSomeData();
+}
+
+export async function action() {
+  return fakeUpdateData();
+}
+```
+
+然后在组件中可以通过 `useSubmit` 来触发 `action`：
+
+```tsx
+// page.tsx
+export default function Page() {
+  const submit = useSubmit();
+  return (
+    <Form
+      onChange={(event) => {
+        submit(event.currentTarget);
+      }}
+    >
+      <input type="text" name="search" />
+      <button type="submit">Search</button>
+    </Form>
+  );
+}
+```

@@ -1,0 +1,131 @@
+# SSR - 服务端渲染
+
+## 介绍
+
+SSR（Server-Side Rendering 服务端渲染）是一种在请求时在服务器上而不是在浏览器中渲染 Web 页面的技术，
+这允许 Web 页面在服务器上呈现并作为静态 HTML 发送到客户端。SSR 有很多好处：
+
+- 提高性能并提供更好的用户体验。
+- 改进 Web 应用的搜索引擎优化（SEO），因为内容已经在服务器上呈现，并且可以很容易地被搜索引擎索引。
+
+## 使用
+
+servite 已经默认开启了 SSR，无需额外配置。
+
+:::warning
+为了让渲染的内容在服务端和客户端保持一致，需要注意以下几点：
+
+- 在编写 class 组件时，避免在构造函数中执行任何副作用操作（如访问浏览器 API、发送网络请求等）。
+  这些操作只能在生命周期函数或事件回调中执行。
+- 同理，在编写函数组件时，避免在函数体中执行任何副作用操作。这些操作只能在使用 hooks（如 useEffect）时执行。
+- 在使用 hooks 时，需要确保它们在服务端渲染时不执行副作用操作。这通常需要检查组件的挂载状态。
+:::
+
+## 降级
+
+当 SSR 出错，或者因为机器性能瓶颈等原因，我们需要将 SSR 降级为 CSR，以提高页面的可用性。
+
+### 自动降级
+
+当 SSR 出错时，Servite 会主动降级为 CSR，这无需开发者手动操作。
+
+### 主动降级
+
+#### URL
+
+给页面 URL 添加 `ssr_fallback=1` 参数，可以主动降级为 CSR。
+例如，将原始地址 `https://www.xyz.com/pageA` 修改为 `http://www.xyz.com/pageA?ssr_fallback=1`，
+使降级即时生效。
+
+#### Header
+
+给页面添加 `x-ssr-fallback: 1` 请求头，也可以主动降级为 CSR。
+
+#### 中间件
+
+在中间件 onRequest 里可以通过设置 `event.context.ssr = false` 在请求处理过程中主动降级为 CSR。
+
+```ts
+// src/server/middlewares/<name>.ts
+import { defineMiddleware } from 'servite/runtime/server';
+import os from 'os';
+
+export default defineMiddleware({
+  async onRequest(event) {
+    // 如果系统负载过高，则主动降级为 CSR
+    if (event.path === '/pageA' && os.loadavg()[0] > 1.5) {
+      event.context.ssr = false;
+    }
+  }
+})
+```
+
+## 缓存
+
+TODO
+
+## 修改 SSR template
+
+在中间件 onRequest 里可以通过 `event.context.template.inject()` 方法给 SSR template 注入 HTML 标签。
+
+```ts
+// src/server/middlewares/<name>.ts
+import { defineMiddleware } from 'servite/runtime/server';
+
+export default defineMiddleware({
+  async onRequest(event) {
+    if (event.path === '/pageA') {
+      // 在 head 顶部插入 meta 标签
+      event.context.template.inject({
+        tag: 'meta',
+        attrs: {
+          name: 'description',
+          content: 'This is a description'
+        },
+      });
+    }
+  }
+})
+```
+
+## 修改 SSR 返回的 HTML
+
+在中间件 onRequest 里可以通过 `event.context.html.inject()` 方法给 SSR 返回的 HTML 注入标签。
+
+```ts
+// src/server/middlewares/<name>.ts
+import { defineMiddleware } from 'servite/runtime/server';
+
+export default defineMiddleware({
+  async onRequest(event) {
+    if (event.path === '/pageA') {
+      // 给 ssr 返回的 html body 加上额外的 script
+      event.context.html.inject({
+        injectTo: 'body',
+        tag: 'script',
+        attrs: {
+          src: '...'
+        }
+      });
+    }
+  }
+})
+```
+
+也可以通过 `event.context.html.addTransformer()` 方法修改 SSR 返回的 HTML 内容：
+
+```ts
+// src/server/middlewares/<name>.ts
+import { defineMiddleware } from 'servite/runtime/server';
+
+export default defineMiddleware({
+  async onRequest(event) {
+    if (event.path === '/pageA') {
+      // 修改 ssr 返回的 html string
+      event.context.html.addTransformer(html => {
+        return html.replace('<body>', '<body><div>Hello World</div>');
+      });
+    }
+  }
+})
+```

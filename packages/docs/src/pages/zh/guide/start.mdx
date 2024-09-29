@@ -1,0 +1,65 @@
+# 开始上手
+
+:::tip
+其实使用 Servite 来搭建文档站也是完全可以的，但 Servite 没有自带文档主题，所以需要你从零开始写更多的组件、样式等，
+当然，你也可以复制你眼前的这个 [Servite 文档项目](https://github.com/Codpoe/servite/tree/master/packages/docs)，然后在此基础上进行修改。
+:::
+
+## 1. 快速搭建项目
+
+```shell
+# npm 6.x
+npm create servite my-app
+
+# npm 7+, extra double-dash is needed:
+npm create servite -- my-app
+
+# yarn
+yarn create servite my-app
+
+# pnpm（后续操作均以 pnpm 作为示例）
+pnpm create servite my-app
+```
+
+执行上面的命令会在目录 `my-app` 里用 vite 的 `react-ts` 模板来初始化项目。你也可以把上面的 `my-app` 替换成 `.`，这样项目就会在当前目录进行初始化了。
+
+## 2. 启动本地开发服务器
+
+经过第一步后，可以 `cd my-app` 进入项目目录，然后执行下面的命令安装依赖：
+
+```shell
+pnpm i
+```
+
+通过如下命令启动 vite 的 dev server：
+
+```shell
+pnpm dev
+```
+
+这样 vite 将在 http://127.0.0.1:5173/ 启动开发服务。
+
+## 3. 构建生产环境产物
+
+通过以下命令构建生产环境的产物：
+
+```shell
+pnpm build
+```
+
+默认情况下产物会被打包到 `dist` 目录。
+其中的 `dist/.output` 是 nitro 的产物目录，你可以将这个目录直接部署到服务器上运行。
+
+## 4. 本地预览
+
+在上面的生产构建命令运行完成后，控制台最后会输出一句提示：
+
+```shell
+✔ You can preview this build using node dist/.output/server/index.mjs`
+```
+
+所以你可以按照此提示，执行命令进行预览：
+
+```shell
+node dist/.output/server/index.mjs
+```

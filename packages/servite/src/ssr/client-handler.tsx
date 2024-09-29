@@ -2,12 +2,13 @@
 import 'vinxi/client';
 import {
   createBrowserRouter,
+  matchRoutes,
   RouterProvider,
   RouterProviderProps,
 } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { createRoot, hydrateRoot, Root } from 'react-dom/client';
-import { getRoutes } from './routes.js';
+import { getRoutes, HANDLE_INIT_KEY } from './routes.js';
 
 declare global {
   interface Window {
@@ -23,9 +24,9 @@ declare global {
   }
 
   interface ImportMetaEnv {
-    ROUTER_SSR_BASE_URL: string;
-    CSR: boolean | string[];
-    FALLBACK_TO_CSR: boolean;
+    SERVER_BASE: string;
+    ROUTER_SERVER_BASE: string;
+    ROUTER_SSR_BASE: string;
   }
 }
 
@@ -41,8 +42,16 @@ declare global {
   // eslint-disable-next-line no-console
   console.debug('[servite] routes', routes[0].children);
 
+  matchRoutes(routes, window.location, import.meta.env.SERVER_BASE)?.forEach(
+    m => m.route.handle?.[HANDLE_INIT_KEY]?.(),
+  );
+
   window.__servite_react_router__ = createBrowserRouter(routes, {
-    basename: import.meta.env.ROUTER_SSR_BASE_URL,
+    basename: import.meta.env.SERVER_BASE,
+  });
+
+  window.__servite_react_router__.subscribe(state => {
+    state.matches.forEach(m => m.route.handle?.[HANDLE_INIT_KEY]?.());
   });
 
   const app = (

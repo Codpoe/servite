@@ -1,0 +1,131 @@
+# 配置
+
+用户配置的 TS 类型如下:
+
+`ServiteConfig`:
+
+```ts
+interface ServiteConfig {
+  /**
+   * app name
+   * @default 'servite'
+   */
+  name?: string;
+  /**
+   * fs root
+   * @default process.cwd()
+   */
+  root?: string;
+  /**
+   * source config
+   */
+  source?: SourceConfig;
+  /**
+   * routers config
+   */
+  routers?: RoutersConfig;
+  /**
+   * nitro server config
+   */
+  server?: ServerConfig;
+  /**
+   * options of `@vitejs/plugin-react`
+   */
+  viteReact?: ViteReactOptions;
+  /**
+   * options of `vite-tsconfig-paths`
+   */
+  viteTsConfigPaths?: ViteTsConfigPathsOptions;
+}
+```
+
+## source
+
+用于配置源码目录等。
+
+```ts
+interface SourceConfig {
+  /**
+   * source code dir (relative to `root`)
+   * @default './src'
+   */
+  srcDir?: string;
+  /**
+   * react-router pages dir (relative to `srcDir`)
+   * @default './pages'
+   */
+  pagesDir?: string;
+  /**
+   * server code dir (relative to `srcDir`)
+   * @default './server'
+   */
+  serverDir?: string;
+  /**
+   * server routes dir (relative to `serverDir`)
+   * @default './routes'
+   */
+  serverRoutesDir?: string;
+  /**
+   * server middlewares dir (relative to `serverDir`)
+   * @default './middlewares'
+   */
+  serverMiddlewaresDir?: string;
+  /**
+   * public assets dir (relative to `root`)
+   * @default './public'
+   */
+  publicDir?: string;
+}
+```
+
+## routers
+
+路由的配置。
+
+```ts
+interface RoutersConfig {
+  [RouterName.Public]?: Partial<StaticRouterSchema>;
+  [RouterName.Server]?: Partial<HTTPRouterSchema>;
+  [RouterName.SSR]?: Partial<HTTPRouterSchema>;
+  [RouterName.ServerFns]?: Partial<HTTPRouterSchema>;
+  [RouterName.Client]?: Partial<ClientRouterSchema>;
+  [RouterName.SPA]?: Partial<ClientRouterSchema>;
+}
+```
+
+通常用于配置路由前缀，例如：
+
+```ts
+defineConfig({
+  routers: {
+    ssr: {
+      base: '/ssr'
+    },
+  },
+});
+```
+
+## server
+
+nitro server 的配置，具体可以看 [nitro](https://nitro.unjs.io/) 的文档。
+
+使用举例，给路由开启 SSG（静态页面生成）：
+
+```ts
+defineConfig({
+  server: {
+    prerender: {
+      routes: ['/*', '/**/*'], // 给全部路由开启 SSG
+      failOnError: true,
+    },
+  },
+});
+```
+
+## viteReact
+
+配置 [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react)。
+
+## viteTsConfigPaths
+
+配置 [vite-tsconfig-paths](https://github.com/aleclarson/vite-tsconfig-paths)。

@@ -1,0 +1,133 @@
+# islands - 孤岛架构
+
+## 介绍
+
+Islands Architecture（孤岛架构）的概念最初在 2019 年被 [Katie Sylor-Miller](https://twitter.com/ksylor) 提出，
+然后在 2020 年被 Preact 作者 Jason Miller 在[一篇文章](https://jasonformat.com/islands-architecture/)中进行了推广。
+简单来说，孤岛架构将我们的 Web 应用划分为静态和动态部分。其中的**孤岛**可以独立进行水合，以实现它的交互能力。
+
+但是，也正因为孤岛架构的动静划分，使得它更适合于偏展示的应用，例如博客、文档、静态页面等，而不太适合于偏交互的应用，例如电商、社交...
+并且它也提高了应用开发的复杂度和难度。
+
+为了让这项技术更加具有普适性，Servite 做了一些改进，不再要求页面大部分都是静态的，你的页面完全就是可交互的**普通**页面，
+只是可以选择性地让某些组件延迟到特定时机才进行水合，甚至不水合。这样也能延迟部分组件 JS 的执行，甚至不下载这部分组件的 JS。
+
+## 使用
+
+### 1. 配置 alias `island:`
+
+为了让 Servite 知道哪些组件是“孤岛”组件，Servite 约定了使用 `island:` 作为导入组件的路径前缀，
+所以需要在 `tsconfig.json` 中配置相应的 alias：
+
+```json
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "island:*": ["./src/*"] // [!code highlight]
+    }
+  },
+  "include": ["src"]
+}
+```
+
+这样，当我们导入 `island:components/Counter` 时，Servite 会将 `Counter` 组件标记为“孤岛”组件。
+
+### 2. 定义“孤岛”组件
+
+需要**默认导出**“孤岛”组件。我们可以对组件类型修改如下，以获得更好的类型提示：
+
+```tsx
+// ./components/Counter.tsx
+import { IslandProps } from 'servite/runtime/island';
+
+// 集成 IslandProps，以获得更好的类型提示
+export interface CounterProps extends IslandProps { // [!code highlight]
+  initial?: number;
+}
+
+// [!] 注意：必须使用默认导出
+// [!code word:default:1]
+export default function Counter({ initial = 0 }: CounterProps) {
+  const [count, setCount] = useState(initial);
+  return (
+    <button onClick={() => setCount(count + 1)}>
+        count: {count}
+    </button>
+  );
+}
+```
+
+### 3. 导入并使用“孤岛”组件
+
+```tsx
+// ./pages/index.tsx
+// [!code word:island\::1]
+import Counter from 'island:components/Counter';
+
+export default function Index() {
+  return (
+      <Counter
+        // [!code word:hydrate]
+        hydrate={
+          // [!code word:visible]
+          on: 'visible', // 在组件可见时才进行水合
+        }}
+      />
+  );
+}
+```
+
+## 水合配置
+
+上面例子的 `hydrate` 属性，是 Servite 提供的“水合”配置。
+
+### 水合时机
+
+`hydrate.on` 属性支持以下几种配置：
+
+- **load**：在页面加载时立即水合
+- **idle**：在浏览器空闲时水合
+- **visible**：在组件可见时水合
+- **media**：在匹配媒体查询时水合。例如：`on: media (prefers-color-scheme: dark)` 在黑暗模式才进行水合
+- **manual**：代码调用 `hydrateIsland` 方法手动水合，可自行控制水合时机。
+
+:::tip
+当孤岛组件未指定 `hydrate.on` 时，则永远都不会进行水合，也不会下载相应的组件 JS。
+对于不需要交互的静态组件，这种方式能有效减少客户端加载和运行的 JS 体积。
+:::
+
+### 超时
+
+`hydrate.timeout` 属性可以配置水合超时时间，单位为毫秒。当超过这个时间时，组件还未水合，则会自动触发水合。
+
+## 手动水合
+
+`hydrate.on` 配置为 `manual`，可以自动控制水合时机。
+
+当需要手动水合某个组件时，要给抓紧 `hydrate.id` 属性传入 id 值，用于唯一标记该组件，然后在需要时调用 `hydrateIsland(id)` 方法即可：
+
+```tsx
+// ./pages/index.tsx
+import Counter from 'island:components/Counter';
+
+export default function Index() {
+  return (
+      <Counter
+        hydrate={ // [!code focus]
+          // [!code word:manual]
+          on: 'manual', // 在组件可见时才进行水合 // [!code focus]
+          // [!code word:counter]
+          id: 'my-counter', // 组件 id，用于唯一标记该组件 // [!code focus]
+        }} // [!code focus]
+      />
+  );
+}
+```
+
+然后在代码里自行控制调用 `hydrateIsland('my-counter')`。
+
+:::tip
+如果需要水合全部 `manual` 的组件，可以调用 `hydrateIsland(true)`。
+:::

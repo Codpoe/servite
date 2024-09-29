@@ -22,6 +22,7 @@ import { defaults, toArray } from '../utils/index.js';
 import { PageFsRoute, RouterName } from '../types/index.js';
 import { hmr } from '../plugins/hmr.js';
 import { unifiedInvocation } from '../plugins/unified-invocation.js';
+import { islands } from '../plugins/islands.js';
 import { PagesFsRouter, ServerFsRouter } from './fs-router.js';
 
 export { RouterName };
@@ -64,10 +65,7 @@ type ServerConfig = NonNullable<AppOptions['server']>;
 interface RoutersConfig {
   [RouterName.Public]?: Partial<StaticRouterSchema>;
   [RouterName.Server]?: Partial<HTTPRouterSchema>;
-  [RouterName.SSR]?: Partial<HTTPRouterSchema> & {
-    csr?: boolean | string[];
-    fallbackToCSR?: boolean;
-  };
+  [RouterName.SSR]?: Partial<HTTPRouterSchema>;
   [RouterName.ServerFns]?: Partial<HTTPRouterSchema>;
   [RouterName.Client]?: Partial<ClientRouterSchema>;
   [RouterName.SPA]?: Partial<ClientRouterSchema>;
@@ -106,7 +104,6 @@ export interface ServiteConfig {
   viteTsConfigPaths?: ViteTsConfigPathsOptions;
 }
 
-// TODO: spa
 export function defineConfig({
   name = 'servite',
   root = process.cwd(),
@@ -125,6 +122,7 @@ export function defineConfig({
   });
 
   const server = defaults(userConfig.server, {
+    baseURL: '/',
     routeRules: {
       '/_build/assets/**': {
         headers: { 'cache-control': 'public, immutable, max-age=31536000' },
@@ -147,25 +145,14 @@ export function defineConfig({
     source.serverMiddlewaresDir,
   );
 
-  const clientBase = routers?.[RouterName.Client]?.base || '/_build';
+  const routerServerBase = routers?.[RouterName.Server]?.base || '/';
+  const routerSSRBase = routers?.[RouterName.SSR]?.base || '/';
+  const routerClientBase = routers?.[RouterName.Client]?.base || '/_build';
 
-  const getSSRBaseURL = (app: App): string =>
-    join(server.baseURL || '/', app.getRouter(RouterName.SSR).base);
-
-  const getDefines = (app: App): Record<string, any> => ({
-    'import.meta.env.ROUTER_SERVER_BASE_URL': JSON.stringify(
-      join(server.baseURL || '/', app.getRouter(RouterName.Server).base),
-    ),
-    'import.meta.env.ROUTER_SSR_BASE_URL': JSON.stringify(getSSRBaseURL(app)),
-    'import.meta.env.ROUTER_CLIENT_BASE_URL': JSON.stringify(
-      join(server.baseURL || '/', app.getRouter(RouterName.Client).base),
-    ),
-    'import.meta.env.CSR': JSON.stringify(
-      routers?.[RouterName.SSR]?.csr ?? false,
-    ),
-    'import.meta.env.FALLBACK_TO_CSR': JSON.stringify(
-      routers?.[RouterName.SSR]?.fallbackToCSR ?? true,
-    ),
+  const getDefines = (): Record<string, any> => ({
+    'import.meta.env.SERVER_BASE': JSON.stringify(server.baseURL),
+    'import.meta.env.ROUTER_SERVER_BASE': JSON.stringify(routerServerBase),
+    'import.meta.env.ROUTER_SSR_BASE': JSON.stringify(routerSSRBase),
   });
 
   const app = createApp({
@@ -189,6 +176,7 @@ export function defineConfig({
         routes: (router, app) =>
           new ServerFsRouter(
             {
+              base: routerServerBase,
               dir: resolvedServerRoutesDir,
               middlewaresDir: resolvedMiddlewaresDir,
               extensions: ['ts', 'js'],
@@ -197,6 +185,17 @@ export function defineConfig({
             app,
           ),
         ...routers?.[RouterName.Server],
+        // Force the server base to be set to '/',
+        // so that this handler can also match SSR.
+        // It would be useful for modifying the SSR request and response
+        base: '/',
+        plugins: () => [
+          config('servite-server-config', () => ({
+            define: {
+              ...getDefines(),
+            },
+          })),
+        ],
       },
       {
         name: RouterName.SSR,
@@ -208,6 +207,7 @@ export function defineConfig({
         routes: (router, app) =>
           new PagesFsRouter(
             {
+              base: routerSSRBase,
               dir: resolvedPagesDir,
               extensions: ['tsx', 'ts', 'jsx', 'js', 'mdx', 'md'],
             },
@@ -215,13 +215,17 @@ export function defineConfig({
             app,
           ),
         ...routers?.[RouterName.SSR],
+        // Force the ssr base to be set to '/',
+        // so that the server middlewares can also run in SSR.
+        base: '/',
         plugins: async () => [
+          islands(),
           viteTsConfigPaths(userConfig.viteTsConfigPaths),
           mdxPlus({ providerImportSource: 'servite/runtime/mdx' }),
           viteReact(userConfig.viteReact),
           config('servite-ssr-config', () => ({
             define: {
-              ...getDefines(app),
+              ...getDefines(),
             },
             ssr: {
               // The package.json "type" of react-helmet-async is not "module",
@@ -230,7 +234,7 @@ export function defineConfig({
               noExternal: ['react-helmet-async'],
             },
             // Set `base` here to make the SSR asset url consistent with the client
-            base: clientBase,
+            base: routerClientBase,
           })),
           unifiedInvocation({
             app,
@@ -245,13 +249,14 @@ export function defineConfig({
         name: RouterName.Client,
         type: 'client',
         target: 'browser',
-        base: clientBase,
+        base: routerClientBase,
         handler: fileURLToPath(
           new URL('../ssr/client-handler.js', import.meta.url),
         ),
         routes: (router, app) =>
           new PagesFsRouter(
             {
+              base: routerSSRBase,
               dir: resolvedPagesDir,
               extensions: ['tsx', 'ts', 'jsx', 'js', 'mdx', 'md'],
             },
@@ -260,6 +265,7 @@ export function defineConfig({
           ),
         ...routers?.[RouterName.Client],
         plugins: async (): Promise<Plugin[]> => [
+          islands(),
           viteTsConfigPaths(userConfig.viteTsConfigPaths),
           mdxPlus({ providerImportSource: 'servite/runtime/mdx' }),
           viteReact({
@@ -271,7 +277,7 @@ export function defineConfig({
           }),
           serverFunctions.client(),
           config('servite-client-config', () => ({
-            define: getDefines(app),
+            define: getDefines(),
             optimizeDeps: {
               entries: [
                 fileURLToPath(
@@ -297,8 +303,6 @@ export function defineConfig({
     ],
   });
 
-  const ssrBaseURL = getSSRBaseURL(app);
-
   app.hooks.hook('app:build:nitro:config', ({ nitro }: any) => {
     nitro.hooks.hook('prerender:routes', async (routes: Set<string>) => {
       const _routes = [...routes];
@@ -309,8 +313,8 @@ export function defineConfig({
         if (isGlob(route)) {
           globRoutes.push(route);
         } else {
-          // append ssr baseURL to route
-          routes.add(join(ssrBaseURL, route));
+          // prepend ssr baseURL to route
+          routes.add(join(server.baseURL, routerSSRBase, route));
         }
       }
 
@@ -330,7 +334,7 @@ export function defineConfig({
           .map(x => x.routePath);
 
         micromatch(certainPageFsRoutePaths, globRoutes).forEach(x => {
-          routes.add(join(ssrBaseURL, x));
+          routes.add(join(server.baseURL, x));
         });
       }
     });

@@ -1,0 +1,117 @@
+# 一体化 API 调用
+
+Servite 支持一体化的 API 调用，意思就是可以在前端直接 import API 函数，调用时会自动转换成 HTTP 请求。这个方式有以下好处：
+
+- 更简洁、优雅的 API 调用方式，无需手动写接口 URL
+- 更完善的 Typescript 类型提示。在前端侧可以直接感知接口的参数类型和响应类型
+- 更好的开发体验
+
+## 使用
+
+在前面我们已经介绍过如何定义 [API 路由](/zh/guide/routes#api-路由)了，但想要实现**一体化调用**，你需要改为从 `servite/server` 中导出 `apiHandler` 方法来定义接口：
+
+```ts
+// <root>/src/server/api/todo.get.ts
+
+import { apiHandler } from 'servite/server';
+export default apiHandler(async (args, event) => {
+  // ...
+  return {
+    code: 0,
+    msg: 'ok',
+    data: 'This is ok',
+  };
+});
+```
+
+接着就可以在前端代码中直接 import 该文件来进行调用了：
+
+```tsx
+// <root>/src/pages/page.tsx
+
+import { useState, useEffect } from 'react';
+import getTodo from '../server/api/todo.get';
+
+export default function Page() {
+  const [res, setRes] = useState();
+
+  useEffect(() => {
+    (async () => {
+      // 此调用会被自动转换成发起请求：GET /api/todo
+      const res = await getTodo();
+      setRes(res);
+    })();
+  }, []);
+
+  // ...
+}
+```
+
+:::tip
+一体化 API 调用相关的配置项可以看[这里](/zh/guide/config#api)。
+:::
+
+### 结合 Typescript
+
+结合 Typescript，定义好接口的入参类型和返回结果类型，能让一体化调用达到更好的开发体验：
+
+```ts
+// <root>/src/server/api/todo.get.ts
+
+import { apiHandler } from 'servite/server';
+
+export enum Bar {
+  Great,
+  Cool,
+}
+
+// 定义入参类型
+export interface Args {
+  foo: string;
+  bar: Bar;
+}
+
+// 定义响应类型
+export interface Result {
+  code: number;
+  msg: string;
+  data: string;
+}
+
+// 通过泛型来约束函数类型
+export default apiHandler<Args, Result>(async (args: Args, event) => {
+  // ...
+  return {
+    code: 0,
+    msg: 'ok',
+    data: 'This is ok',
+  };
+});
+```
+
+在前端 import 相关的类型：
+
+```tsx
+// <root>/src/pages/page.tsx
+
+import { useState, useEffect } from 'react';
+import getTodo, { Result, Bar } from '../server/api/todo.get';
+
+export default function Page() {
+  // 使用 Result 作为 useState 的泛型
+  const [res, setRes] = useState<Result>();
+
+  useEffect(() => {
+    (async () => {
+      // 此调用会被自动转换成发起请求：GET /api/todo?foo=xxx&bar=0
+      const res = await getTodo({
+        foo: 'xxx',
+        bar: Bar.Great,
+      });
+      setRes(res);
+    })();
+  }, []);
+
+  // ...
+}
+```

@@ -9,6 +9,7 @@ import {
 } from 'vinxi/fs-router';
 import { AppOptions } from 'vinxi';
 import fg from 'fast-glob';
+import { extractFrontmatter } from '../utils/md.js';
 import { PageFsRoute, ServerFsRoute } from '../types/index.js';
 
 interface PageInfo {
@@ -18,9 +19,19 @@ interface PageInfo {
   dataPick?: string[];
 }
 
+interface PageFsRouterConfig extends FileSystemRouterConfig {
+  base: string;
+}
+
 // react-router pages
 export class PagesFsRouter extends BaseFileSystemRouter {
+  config: PageFsRouterConfig;
   srcToPageInfo: Record<string, PageInfo> = {};
+
+  constructor(config: PageFsRouterConfig, router: any, app: AppOptions) {
+    super(config, router, app);
+    this.config = config;
+  }
 
   toPath(src: string): string {
     let routePath = cleanPath(src, this.config);
@@ -53,7 +64,7 @@ export class PagesFsRouter extends BaseFileSystemRouter {
       // '/(admin)/home' -> '/home'
       .replace(/\/\(.*?\)/g, '');
 
-    return routePath || '/';
+    return path.join(this.config.base, routePath);
   }
 
   toRoute(src: string): PageFsRoute | null {
@@ -67,10 +78,11 @@ export class PagesFsRouter extends BaseFileSystemRouter {
     const componentPick: string[] = ['default', '$css'];
     const dataPick: string[] = [];
     const handlePick: string[] = [];
+    let frontmatter: Record<string, any> | undefined = undefined;
     let dataFilePath: string | undefined = undefined;
 
     if (pageInfo.isMd) {
-      handlePick.push('frontmatter', 'toc');
+      frontmatter = extractFrontmatter(src);
     } else {
       const [, exports] = analyzeModule(src);
 
@@ -124,6 +136,9 @@ export class PagesFsRouter extends BaseFileSystemRouter {
       hasErrorBoundary: componentPick.includes('ErrorBoundary'),
       hasLoader: dataPick.includes('loader'),
       hasAction: dataPick.includes('action'),
+      handle: {
+        frontmatter,
+      },
       $component: {
         src,
         pick: componentPick,
@@ -195,6 +210,18 @@ export class PagesFsRouter extends BaseFileSystemRouter {
     }
   }
 
+  reload = (() => {
+    let timer: any;
+
+    return (route: any) => {
+      if (timer) {
+        clearTimeout(timer);
+        timer = null;
+      }
+      timer = setTimeout(() => super.reload(route), 0);
+    };
+  })();
+
   isDataFile(src: string) {
     src = cleanPath(src, this.config);
     return src.endsWith('page.data') || src.endsWith('layout.data');
@@ -205,6 +232,7 @@ const HTTP_METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
 
 interface ServerFsRouterConfig extends FileSystemRouterConfig {
   middlewaresDir?: string;
+  base: string;
 }
 
 // server routes
@@ -285,7 +313,7 @@ export class ServerFsRouter extends BaseFileSystemRouter {
       // '/user/[id]' -> '/user/:id'
       .replace(/\/\[(.+?)\]/g, '/:$1');
 
-    return routePath || '/';
+    return path.join(this.config.base, routePath);
   }
 
   toRoute(src: string): ServerFsRoute | null {

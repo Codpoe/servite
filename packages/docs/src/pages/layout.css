@@ -1,0 +1,11 @@
+@import 'shadcn-react/style.css';
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+html {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+  scroll-padding-top: 80px;
+  scroll-behavior: smooth;
+}

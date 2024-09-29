@@ -25,6 +25,7 @@ export interface PageFsRoute {
   hasLoader?: boolean;
   hasAction?: boolean;
   hasErrorBoundary?: boolean;
+  handle?: Record<string, any>;
   $component: {
     src: string;
     pick: string[];
@@ -33,6 +34,9 @@ export interface PageFsRoute {
     src: string;
     pick: string[];
   };
+  /**
+   * static handle (for js page)
+   */
   $$handle?: {
     src: string;
     pick: string[];
@@ -75,3 +79,10 @@ type FsRouteModule<T extends Record<string, any>> = {
 
 export type PageFsRouteModule = FsRouteModule<PageFsRoute>;
 export type ServerFsRouteModule = FsRouteModule<ServerFsRoute>;
+
+export interface HtmlTag {
+  tag: string;
+  injectTo: 'head' | 'head-prepend' | 'body' | 'body-prepend';
+  attrs?: Record<string, any>;
+  children?: string | HtmlTag[];
+}

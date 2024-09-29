@@ -1,0 +1,141 @@
+# 运行时能力
+
+Servite 封装了一些常用的运行时能力，包括 router、helmet、fetch、server 等等。
+这些运行时能力都会通过 `servite/runtime/*` 来导出，例如使用 react-router 的一些 API 可以通过 `servite/runtime/router` 来导入。
+
+## components
+
+### ClientOnly
+
+有时候我们需要仅在客户端渲染的组件，这就可以使用 `ClientOnly` 组件。
+这个组件在服务端渲染时会直接渲染 `null`，在浏览器端 useEffect 后才会真正地渲染内容。
+
+```tsx
+import { ClientOnly } from 'servite/runtime/components';
+
+export default function Page() {
+  return (
+    <div>
+      <div>这里会 SSR</div>
+      <ClientOnly> // [!code highlight]
+        <div>而这里只会在浏览器中进行渲染</div> // [!code highlight]
+      </ClientOnly> // [!code highlight]
+    </div>
+  )
+}
+```
+
+## fetch
+
+无论是在服务器端还是在浏览器端，使用 fetch 来发起请求都是很常见的场景，
+为此 Servite 基于 [ofetch](https://github.com/unjs/ofetch) 来提供同构的 fetch 能力。
+并且 ofetch 在原生 fetch 的基础上做了一些扩展，例如直接解析 json、自动重试等等。
+
+```tsx
+import { $fetch } from 'servite/runtime/fetch';
+
+export default async function Page() {
+  useEffect(() => {
+    fetch('URL_ADDRESS').then(res => {
+      // ...
+    });
+  }, [])
+}
+```
+
+Servite 提供的 `$fetch` 函数在服务器环境里还会自动带上当前请求的 headers 和 context。
+
+## helmet
+
+Servite 的 helmet 是基于 [react-helmet-async](https://github.com/staylor/react-helmet-async) 实现的。
+
+```tsx
+import { Helmet } from 'servite/runtime/helmet';
+
+export default function Page() {
+  return (
+    <Helmet>
+      <title>Servite</title>
+      <meta name="description" content="A full-stack React framework" />
+    </Helmet>
+  )
+}
+```
+
+## island
+
+导出“孤岛”相关的 API。
+
+继承 IslandProps：
+
+```tsx
+import { IslandProps } from 'servite/runtime/island';
+
+export interface MyComponentProps extends IslandProps {}
+```
+
+手动水合组件：
+
+```tsx
+import { hydrateIsland } from 'servite/runtime/island';
+
+// 水合某个 id 的组件
+hydrateIsland('id');
+
+// 水合全部 manual 的组件
+hydrateIsland(true);
+```
+
+## mdx
+
+导出 `@mdx-js/react` 的 API。
+
+```tsx
+import { MDXProvider } from 'servite/runtime/mdx';
+
+function A({
+  href,
+  ...restProps
+}: React.DetailedHTMLProps<
+  React.AnchorHTMLAttributes<HTMLAnchorElement>,
+  HTMLAnchorElement
+>) {
+  if (href?.startsWith('/')) {
+    return <Link {...restProps} to={href || ''} />;
+  }
+  return <a href={href} target="_blank" rel="noreferrer" {...restProps} />;
+}
+
+export default function Page() {
+  return (
+    <MDXProvider components={{ a: A }}>
+      {/* ... */}
+    </MDXProvider>
+  )
+}
+```
+
+## router
+
+Servite 的 router 是基于 [react-router](https://reactrouter.com/) 实现的，所以你可以使用 react-router 的所有 API。
+
+```tsx
+import { useParams } from 'servite/runtime/router';
+
+export default function Page() {
+  const routeParams = useParams();
+  // ...
+}
+```
+
+## server
+
+Servite 通过 `servite/runtime/server` 来提供一些服务端的运行时能力，具体 API 可以参考 [h3](https://github.com/unjs/h3)。
+
+```ts
+import { defineEventHandler } from 'servite/runtime/server';
+
+export default defineEventHandler(async event => {
+  // ...
+});
+```

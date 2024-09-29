@@ -1,15 +1,26 @@
 import { Transform } from 'stream';
 import { HelmetProvider } from 'react-helmet-async';
+import { H3Event } from 'vinxi/http';
+import { groupHtmlTags, serializeTags } from './html-tags.js';
 
 export type HelmetContext = NonNullable<
   React.ComponentProps<typeof HelmetProvider>['context']
 >;
 
 export interface TransformHtmlParams {
+  event: H3Event;
   helmetContext: HelmetContext;
 }
 
-function doTransformHtml(html: string, { helmetContext }: TransformHtmlParams) {
+const headInjectRE = /\n[ \t]*<\/head>/;
+const headPrependInjectRE = /<head[^>]*>\n/;
+const bodyInjectRE = /\n[ \t]*<\/body>/;
+const bodyPrependInjectRE = /<body[^>]*>\n/i;
+
+async function doTransformHtml(
+  html: string,
+  { event, helmetContext }: TransformHtmlParams,
+) {
   const {
     htmlAttributes,
     bodyAttributes,
@@ -52,6 +63,47 @@ function doTransformHtml(html: string, { helmetContext }: TransformHtmlParams) {
     );
   }
 
+  // User middlewares injected tags.
+  if (event.context.html?._injectTags?.length) {
+    const { headTags, headPrependTags, bodyTags, bodyPrependTags } =
+      groupHtmlTags(event.context.html._injectTags);
+
+    if (headTags) {
+      html = html.replace(
+        headInjectRE,
+        str => `${serializeTags(headTags)}${str}`,
+      );
+    }
+
+    if (headPrependTags) {
+      html = html.replace(
+        headPrependInjectRE,
+        str => `${str}${serializeTags(headPrependTags)}`,
+      );
+    }
+
+    if (bodyTags) {
+      html = html.replace(
+        bodyInjectRE,
+        str => `${serializeTags(bodyTags)}${str}`,
+      );
+    }
+
+    if (bodyPrependTags) {
+      html = html.replace(
+        bodyPrependInjectRE,
+        str => `${str}${serializeTags(bodyPrependTags)}`,
+      );
+    }
+  }
+
+  // User middlewares added html transformers.
+  if (event.context.html?._transformers?.length) {
+    for (const transformer of event.context.html._transformers) {
+      html = await transformer(html);
+    }
+  }
+
   return html;
 }
 
@@ -62,11 +114,11 @@ export function transformHtmlForReadableStream(params: TransformHtmlParams) {
   let isFirstChunk = true;
 
   return new TransformStream({
-    transform(chunk, controller) {
+    async transform(chunk, controller) {
       if (isFirstChunk) {
         isFirstChunk = false;
         chunk = textEncoder.encode(
-          doTransformHtml(textDecoder.decode(chunk), params),
+          await doTransformHtml(textDecoder.decode(chunk), params),
         );
       }
       controller.enqueue(chunk);
@@ -78,11 +130,11 @@ export function transformHtmlForPipeableStream(params: TransformHtmlParams) {
   let isFirstChunk = true;
 
   return new Transform({
-    transform(chunk, _encoding, callback) {
+    async transform(chunk, _encoding, callback) {
       if (isFirstChunk) {
         isFirstChunk = false;
         chunk = Buffer.from(
-          doTransformHtml(chunk.toString('utf-8'), params),
+          await doTransformHtml(chunk.toString('utf-8'), params),
           'utf-8',
         );
       }

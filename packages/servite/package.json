@@ -52,6 +52,10 @@
     },
     "./runtime/mdx.css": {
       "default": "./runtime/mdx.css"
+    },
+    "./runtime/island": {
+      "types": "./dist/runtime/island/index.d.ts",
+      "default": "./dist/runtime/island/index.js"
     }
   },
   "scripts": {
@@ -68,6 +72,7 @@
     "@vitejs/plugin-react": "^4.3.1",
     "defu": "^6.1.4",
     "fast-glob": "^3.3.2",
+    "gray-matter": "^4.0.3",
     "is-glob": "^4.0.3",
     "isbot": "^5.1.17",
     "micromatch": "^4.0.8",
@@ -76,7 +81,8 @@
     "react-helmet-async": "^2.0.5",
     "react-router-dom": "^6.26.1",
     "rou3": "^0.5.1",
-    "vite-plugin-mdx-plus": "^2.0.4",
+    "ufo": "^1.5.4",
+    "vite-plugin-mdx-plus": "^2.1.0",
     "vite-tsconfig-paths": "^5.0.1",
     "zod": "^3.23.8"
   },

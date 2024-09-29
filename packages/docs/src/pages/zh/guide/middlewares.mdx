@@ -1,0 +1,41 @@
+# 服务中间件
+
+Servite 默认会把 `src/server/middlewares/` 下的文件当做中间件。可以通过 `defineMiddleware` 来定义中间件：
+
+```ts
+import { defineMiddleware } from 'servite/runtime/server';
+
+export default defineMiddleware({
+  async onRequest(event) {},
+  async onBeforeResponse(event, response) {},
+})
+```
+
+## 执行顺序
+
+中间件的执行顺序是由文件的顺序决定的，并且有点类似于 Koa 的洋葱模型：
+一个请求到达服务器时，会首先经过从外向内的每一层中间件 `onRequest`，
+之后再由内向外依次返回经过相同的中间件 `onBeforeResponse`。
+
+例如，文件目录结构如下所示：
+
+```shell
+<root>
+└─ src                # 源码目录
+   └─ server          # 服务端源码目录
+      └─ middlewares  # 中间件目录
+         ├─ a.ts
+         ├─ b.ts
+         └─ c.ts
+```
+
+那与之对应的中间件执行顺序是：
+
+```text
+Request → a → b → c → Response
+          a ← b ← c ↩︎
+```
+
+为了使得中间件的执行顺序更为可控，推荐给文件名添加数字前缀，例如：`0.name.ts`，`1.name.ts` 等。
+但如果你有超过 10 个中间件，那么可以使用两位数字前缀，例如：`00.name.ts`，`01.name.ts`，
+这样能容纳 100 个中间件，已经完全足够了。

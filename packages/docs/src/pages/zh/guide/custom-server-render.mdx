@@ -1,0 +1,43 @@
+# 自定义服务端渲染
+
+默认情况下，servite 会直接调用 React 的 `renderToString` 方法来渲染应用，
+这已经能适配很多场景了。然而如果你使用了 `styled-jsx` 或 `styled-components` 之类的
+CSS-in-JS 样式方案，一般这些方案都会提供特定的工具让你在 SSR 时收集样式，然后将这些样式
+转成 HTML 字符串并注入到最终产出的 HTML 中，因此单调地执行 `renderToString` 已经不能满足这个场景了，
+你需要自定义这段服务端渲染的逻辑。
+
+你可以通过在 `src` 目录下新建 `server-render.ts` 文件，在这里面默认导出一个渲染函数。
+以 `styled-jsx` 为例，对应的 SSR 渲染函数如下：
+
+```ts
+// src/server-render.ts
+
+import { ReactElement } from 'react';
+import { renderToStaticMarkup, renderToString } from 'react-dom/server';
+import { createStyleRegistry, StyleRegistry } from 'styled-jsx';
+
+// 创建样式注册表
+const registry = createStyleRegistry();
+
+export default function render(element: ReactElement) {
+  registry.flush();
+
+  // 渲染应用 HTML
+  const appHtml = renderToString(
+    <StyleRegistry registry={registry}>{element}</StyleRegistry>
+  );
+
+  // 渲染收集到的样式
+  const headTags = renderToStaticMarkup(<>{registry.styles()}</>);
+
+  return {
+    appHtml,
+    headTags,
+  };
+}
+```
+
+如上所示，在默认导出的渲染函数的返回值中：
+
+- `appHtml` 是应用的 HTML 字符串。
+- `headTags` 是需要注入到 head 的 HTML 字符串。

@@ -1,0 +1,194 @@
+# 路由
+
+servite 使用约定式路由（文件系统路由），文件路径会被简单地映射为路由路径，这会使整个项目的路由变得非常直观。
+
+由于 servite 同时支持写页面、Markdown 和 API 接口，路由系统也就分成了两个部分：
+
+- 页面路由
+- Markdown 路由
+- API 路由
+
+## 页面路由
+
+servite 会收集 [source.pagesDir](/zh/guide/config#source) 指定目录下的文件作为页面：
+
+- `page.{js,jsx,ts,tsx}` 会作为**页面组件**
+- `layout.{js,jsx,ts,tsx}` 会作为**布局组件**
+
+:::tip
+- 不管是 `.md` 还是 `.mdx`，servite 都会统一使用 MDX 来解析 Markdown 文件内容。
+- 如果是 `.js`、`.jsx`、`.ts`、`.tsx` 页面文件，这些文件模块需要默认导出一个组件。
+:::
+
+### 普通路由
+假设你的项目 src/pages 目录有如下文件结构：
+
+```shell
+src/pages
+  ├─ dashboard
+  │  ├─ analytics
+  │  │  └─ page.tsx
+  │  │
+  │  ├─ settings
+  │  │  └─ page.tsx
+  │  │
+  │  └─ layout.tsx
+  │
+  ├─ layout.tsx
+  └─ page.tsx
+```
+
+实际得到的路由映射是：
+
+| 文件路径                        | 路由路径                 | 是否布局组件 |
+| ------------------------------- | ----------------------- | ------------ |
+| `/layout.tsx`                   | ``                     | 是           |
+| `/page.tsx`                     | `/`                    | 否           |
+| `/dashboard/layout.tsx`         | ``                     | 是           |
+| `/dashboard/analytics/page.tsx` | `/dashboard/analytics` | 否           |
+| `/dashboard/settings/page.tsx`  | `/dashboard/settings`  | 否           |
+
+对应的 React Router 配置对象类似于：
+
+```tsx
+const routes = [
+  {
+    element: <Layout />,
+    children: [
+      {
+        path: '/',
+        element: <Index />,
+      },
+      {
+        element: <DashboardLayout />,
+        children: [
+          {
+            path: '/dashboard/analytics',
+            element: <Analytics />,
+          },
+          {
+            path: '/dashboard/settings',
+            element: <Settings />,
+          },
+        ],
+      },
+    ],
+  },
+];
+```
+
+### 动态参数路由
+像 `/posts/[id]` 这样的路径就是动态参数路由，`[]` 里面的 `id` 是动态参数。当我们跳转到 `/posts/123` 时，
+在页面组件中可以通过 `useParams` 拿到这个值为 `123` 的 `id`：
+
+```tsx
+// posts/[id]/page.tsx
+import { useParams } from 'servite/runtime/router';
+
+// 如果 pathname 是 /posts/123 会渲染成：<p>123</p>
+export default function Post() {
+  const { id } = useParams();
+  return <p>{id}</p>;
+}
+```
+
+### 可选参数路由
+
+像 `/posts/[[id]]` 这样的路径就是可选参数路由，`[[]]` 里面的 `id` 是可选参数。无论我们跳转 `/posts` 还是 `/posts/123`，
+都会走到这个页面组件。
+
+```tsx
+// posts/[[id]]/page.tsx
+import { useParams } from 'servite/runtime/router';
+
+// 如果 pathname 是 /posts 会渲染成：<p></p>
+// 如果 pathname 是 /posts/123 会渲染成：<p>123</p>
+export default function Post() {
+  const { id } = useParams();
+  return <p>{id}</p>;
+}
+```
+
+### 路由分组
+路由分组的概念来源于 Next.js 的 App 路由。在约定式路由中，目录会直白地映射为 URL 路径，
+但有些时候我们的确想让某个目录不被映射为 URL 的一部分，这时就可以使用**路由分组**，这能让我们组织出更有逻辑性的项目目录结构。
+
+举个例子，我们把不同语种翻译的文档按语种划分到不同的目录下，就像 `/zh/about.tsx` 和 `/en/about.tsx`，但可能英文作为站点的默认语言，
+我们不想在 URL 上有 `en` 这个路径，这时只需要给 `en` 加上括号 `(en)` 即可成为路由分组：
+
+```shell
+src/pages
+  ├─ (en)
+  │  └─ about.tsx
+  └─ zh
+     └─ about.tsx
+```
+
+这样我们就可以通过 `/about` 访问到英文文档，通过 `/zh/about` 访问到中文文档。
+
+## Markdown 路由
+
+Markdown 的路由跟页面路由类似，Markdown 路由也有动态参数、可选参数、路由分组等概念，
+只是从实用性出发， Markdown 路由文件名不再需要是 `page.mdx` 或 `layout.mdx`，文件名就直接反映了路由路径。
+并且如果 Markdown 文件名是 `index` 或者 `README`，则这部分文件名会被忽略。
+
+例如下面的目录结构：
+
+```text
+src/pages
+  ├─ guide
+  │  ├─ config.mdx
+  │  └─ index.mdx
+  ├─ api.mdx
+  └─ README.mdx
+```
+
+实际得到的路由映射是：
+
+| 文件路径                  | 路由路径            |
+| ------------------------ | ----------------- |
+| `/guide/config.mdx`      | `/guide/config`   |
+| `/guide/index.mdx`       | `/guide`          |
+| `/api.mdx`               | `/api`            |
+| `/README.mdx`            | `/`               |
+
+:::tip
+Markdown 路由文件名后缀需是 `.mdx` 或 `.md`。
+:::
+
+## API 路由
+
+默认情况下，servite 会将 `src/server/routes` 目录下的 `*.<http-method>.[jt]s` 文件作为 API 接口。
+
+举个例子，文件 `src/server/routes/api/todo.get.ts` 有如下内容：
+
+```ts
+import { eventHandler } from 'servite/runtime/server';
+
+export default eventHandler(async event => {
+  // ...
+  return {
+    code: 0,
+    msg: 'ok',
+    data: 'This is ok',
+  };
+});
+```
+
+由此你就得到了一个 `GET /api/todo` 的 HTTP 接口，这里面有几个点：
+
+- 文件路径会直观地映射为接口请求路径：`/api/todo`。
+- 文件名 `todo.get.ts` 中的 `get` 会被映射为 HTTP GET 方法。同理，你可以这么定义一个 POST 请求：`todo.post.ts`。
+- 需要从 `servite/runtime/server` 导出 `eventHandler` 方法来定义请求处理器。
+
+定义完接口后，在前端就可以通过原生 `fetch` 或 `axios` 等请求库来调用此接口。
+而为了便于快速开发，Servite 内置了 [ofetch](https://github.com/unjs/ofetch) 请求库，你可以通过 `servite/runtime/fetch` 导入 `ofetch` 的相关方法：
+
+```ts
+import { $fetch } from 'servite/runtime/fetch';
+$fetch('/api/todo');
+```
+
+:::tip[进阶]
+Servite 支持[一体化 API 调用](/zh/guide/unified-invocation)，能提供更好的开发体验。
+:::

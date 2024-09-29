@@ -22,26 +22,20 @@ import reactDomServer, {
 } from 'react-dom/server';
 import { HelmetProvider } from 'react-helmet-async';
 import { isbot } from 'isbot';
-import micromatch from 'micromatch';
 import { RouterName } from '../types/index.js';
-import { getRoutes } from './routes.js';
+import { getRoutes, HANDLE_INIT_KEY } from './routes.js';
 import { RouterHydration } from './RouterHydration.js';
 import {
   transformHtmlForReadableStream,
   transformHtmlForPipeableStream,
 } from './transform-html.js';
+import { groupHtmlTags, renderTags } from './html-tags.js';
 
 type HelmetContext = NonNullable<
   React.ComponentProps<typeof HelmetProvider>['context']
 >;
 
-const csrConfig = import.meta.env.CSR;
-
-async function getHtml(
-  event: H3Event,
-  ssr: boolean,
-  helmetContext: HelmetContext,
-) {
+async function getHtml(event: H3Event, helmetContext: HelmetContext) {
   const clientManifest = getManifest(RouterName.Client);
   const assets = (await clientManifest.inputs[
     clientManifest.handler
@@ -51,43 +45,46 @@ async function getHtml(
     children: any;
   }[];
 
-  const app = await getApp(event, ssr, helmetContext);
+  const app = await getApp(event, helmetContext);
 
   if (app instanceof Response) {
     return app;
   }
 
+  const { headTags, headPrependTags, bodyTags, bodyPrependTags } =
+    groupHtmlTags(event.context.template?._injectTags);
+
   return (
     <html>
       <head>
+        {renderTags(headPrependTags)}
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <template id="__HEAD_TAGS__"></template>
         {assets.map(asset => renderAsset(asset))}
+        {renderTags(headTags)}
       </head>
       <body>
+        {renderTags(bodyPrependTags)}
         <noscript>
           We&apos;re sorry but react app doesn&apos;t work properly without
           JavaScript enabled. Please enable it to continue.
         </noscript>
         {app}
+        {renderTags(bodyTags)}
       </body>
     </html>
   );
 }
 
-async function getApp(
-  event: H3Event,
-  ssr: boolean,
-  helmetContext: HelmetContext,
-) {
-  if (!ssr) {
+async function getApp(event: H3Event, helmetContext: HelmetContext) {
+  if (!event.context.ssr) {
     return <div id="root" />;
   }
 
   const routes = getRoutes();
   const staticHandler = createStaticHandler(routes, {
-    basename: import.meta.env.ROUTER_SSR_BASE_URL,
+    basename: import.meta.env.SERVER_BASE,
   });
   // run router loader
   const handlerContext = await staticHandler.query(getWebRequest(event));
@@ -96,36 +93,39 @@ async function getApp(
     return handlerContext;
   }
 
+  // init routes handle
+  await Promise.all(
+    handlerContext.matches.map(m => m.route.handle?.[HANDLE_INIT_KEY]?.()),
+  );
+
   const router = createStaticRouter(routes, handlerContext);
 
   return (
     <>
       <RouterHydration context={handlerContext} />
       <div id="root">
-        {ssr && (
-          <HelmetProvider context={helmetContext}>
-            <StaticRouterProvider
-              router={router}
-              context={handlerContext}
-              hydrate={false}
-            />
-          </HelmetProvider>
-        )}
+        <HelmetProvider context={helmetContext}>
+          <StaticRouterProvider
+            router={router}
+            context={handlerContext}
+            hydrate={false}
+          />
+        </HelmetProvider>
       </div>
     </>
   );
 }
 
-async function render(event: H3Event, ssr: boolean) {
+async function render(event: H3Event) {
   const helmetContext: HelmetContext = {};
-  const html = await getHtml(event, ssr, helmetContext);
+  const html = await getHtml(event, helmetContext);
 
   if (html instanceof Response) {
     return html;
   }
 
   const clientManifest = getManifest(RouterName.Client);
-  const bootstrapScriptContent = `window.__servite__ = ${JSON.stringify({ ssr })};
+  const bootstrapScriptContent = `window.__servite__ = ${JSON.stringify({ ssr: event.context.ssr, ssrFallback: event.context.ssrFallback })};
 window.manifest = ${JSON.stringify(await clientManifest.json())};`;
   const bootstrapModules = [
     clientManifest.inputs[clientManifest.handler].output.path,
@@ -135,9 +135,7 @@ window.manifest = ${JSON.stringify(await clientManifest.json())};`;
   let didError = false;
   const onError = (error: any) => {
     didError = true;
-    // eslint-disable-next-line no-console
-    console.error(error);
-    // TODO: report error
+    event.context.logger.error(error);
   };
 
   // For environments with Web Streams, like Deno and modern edge runtimes
@@ -161,7 +159,7 @@ window.manifest = ${JSON.stringify(await clientManifest.json())};`;
     });
 
     return stream.pipeThrough(
-      transformHtmlForReadableStream({ helmetContext }),
+      transformHtmlForReadableStream({ event, helmetContext }),
     );
   }
 
@@ -197,7 +195,9 @@ window.manifest = ${JSON.stringify(await clientManifest.json())};`;
       'Content-Type': 'text/html',
     });
 
-    return stream.pipe(transformHtmlForPipeableStream({ helmetContext }));
+    return stream.pipe(
+      transformHtmlForPipeableStream({ event, helmetContext }),
+    );
   }
 
   throw new Error(
@@ -214,32 +214,22 @@ function sendRenderError(event: H3Event, error: any) {
 }
 
 export default defineEventHandler(async event => {
-  const ssr =
-    typeof csrConfig === 'boolean'
-      ? !csrConfig
-      : !micromatch.isMatch(event.path, csrConfig);
-
   try {
-    return await render(event, ssr);
+    return await render(event);
   } catch (error: any) {
-    // eslint-disable-next-line no-console
-    console.log('[servite] render error');
-    // eslint-disable-next-line no-console
-    console.error(error);
+    event.context.ssr = false;
+    event.context.logger.error('[servite] render error');
+    event.context.logger.error(error);
 
-    if (import.meta.env.FALLBACK_TO_CSR) {
-      try {
-        // fallback to CSR
-        return await await render(event, false);
-      } catch (fallbackError: any) {
-        // eslint-disable-next-line no-console
-        console.log('[servite] fallback render error');
-        // eslint-disable-next-line no-console
-        console.error(error);
-        return sendRenderError(event, fallbackError);
-      }
+    try {
+      // fallback to CSR
+      event.context.ssrFallback = true;
+      return await await render(event);
+    } catch (fallbackError: any) {
+      event.context.ssrFallback = false;
+      event.context.logger.error('[servite] ssr fallback error');
+      event.context.logger.error(error);
+      return sendRenderError(event, fallbackError);
     }
-
-    return sendRenderError(event, error);
   }
 });

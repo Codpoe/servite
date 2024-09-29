@@ -1,0 +1,40 @@
+# 自定义服务端 logger
+
+默认情况下，Servite 会将一些信息和错误通过 `console` 打印出来，如果需要自定义 logger，可以在中间件覆盖 `event.context.logger`。
+
+:::tip
+为了让整个服务都能使用到自定义的 logger，最好把设置 logger 的这个中间件放到最前面去执行，参考[中间件的执行顺序](/zh/guide/middlewares#执行顺序)。
+:::
+
+```ts
+import { Logger, defineMiddleware } from 'servite/runtime/server';
+
+// 实现自定义 Logger
+class MyLogger implements Logger {
+  debug(...args: any[]) {
+    console.debug(...args);
+  }
+
+  trace(...args: any[]) {
+    console.trace(...args);
+  }
+
+  info(...args: any[]) {
+    console.info(...args);
+  }
+
+  warn(...args: any[]) {
+    console.warn(...args);
+  }
+
+  error(...args: any[]) {
+    console.error(...args);
+  }
+}
+
+export default defineMiddleware({
+  onRequest(event) {
+    event.context.logger = new MyLogger();
+  }
+})
+```

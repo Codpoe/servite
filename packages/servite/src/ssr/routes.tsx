@@ -121,6 +121,8 @@ const rootRoot: DataRouteObject = {
   errorElement: <RootErrorBoundary />,
 };
 
+export const HANDLE_INIT_KEY = '__servite_handle_init__';
+
 let _routes: DataRouteObject[];
 
 export function getRoutes(): DataRouteObject[] {
@@ -134,8 +136,6 @@ export function getRoutes(): DataRouteObject[] {
   const layoutStack: DataRouteObject[] = [];
 
   for (const fsRoute of fileRoutes as PageFsRouteModule[]) {
-    const handle = fsRoute.$$handle?.require();
-
     const route: DataRouteObject = {
       id: fsRoute.filePath,
       path: fsRoute.isLayout ? undefined : fsRoute.routePath,
@@ -173,7 +173,26 @@ export function getRoutes(): DataRouteObject[] {
             'ErrorBoundary',
           )
         : undefined,
-      handle: handle?.handle || handle,
+      handle: {
+        ...fsRoute.handle,
+        ...fsRoute.$$handle?.require()?.handle,
+        async [HANDLE_INIT_KEY]() {
+          if (!fsRoute.isMd) {
+            return;
+          }
+
+          // for markdown page
+          const mod = await lazyMod(
+            fsRoute.$component,
+            clientManifest,
+            ssrManifest,
+          );
+
+          if (this?.[HANDLE_INIT_KEY]) {
+            Object.assign(this, { ...mod, default: undefined });
+          }
+        },
+      },
       children: fsRoute.isLayout ? [] : undefined,
     };
 
