@@ -5,6 +5,7 @@ import {
   matchRoutes,
   RouterProvider,
   RouterProviderProps,
+  To,
 } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { createRoot, hydrateRoot, Root } from 'react-dom/client';
@@ -14,6 +15,7 @@ declare global {
   interface Window {
     __servite_react_root__?: Root;
     __servite_react_router__?: RouterProviderProps['router'];
+    __servite_init_route_handles__?: (location: To) => Promise<void>;
     __vite_plugin_react_preamble_installed__?: boolean;
     __vite_plugin_react_preamble_installed_resolve__?: (
       installed: boolean,
@@ -33,9 +35,15 @@ declare global {
   // eslint-disable-next-line no-console
   console.debug('[servite] routes', routes[0].children);
 
-  matchRoutes(routes, window.location, import.meta.env.SERVER_BASE)?.forEach(
-    m => m.route.handle?.[HANDLE_INIT_KEY]?.(),
-  );
+  window.__servite_init_route_handles__ = async location => {
+    await Promise.all(
+      matchRoutes(routes, location, import.meta.env.SERVER_BASE)?.map(m =>
+        m.route.handle?.[HANDLE_INIT_KEY]?.(),
+      ) || [],
+    );
+  };
+
+  window.__servite_init_route_handles__(window.location);
 
   window.__servite_react_router__ = createBrowserRouter(routes, {
     basename: import.meta.env.SERVER_BASE,

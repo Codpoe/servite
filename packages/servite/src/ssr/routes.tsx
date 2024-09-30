@@ -177,11 +177,6 @@ export function getRoutes(): DataRouteObject[] {
         ...fsRoute.handle,
         ...fsRoute.$$handle?.require()?.handle,
         async [HANDLE_INIT_KEY]() {
-          if (!fsRoute.isMd) {
-            return;
-          }
-
-          // for markdown page
           const mod = await lazyMod(
             fsRoute.$component,
             clientManifest,
@@ -189,7 +184,12 @@ export function getRoutes(): DataRouteObject[] {
           );
 
           if (this?.[HANDLE_INIT_KEY]) {
-            Object.assign(this, { ...mod, default: undefined });
+            Object.assign(this, {
+              ...mod,
+              default: undefined,
+              ErrorBoundary: undefined,
+              handle: undefined,
+            });
           }
         },
       },

@@ -1,5 +1,5 @@
 import React, { startTransition } from 'react';
-import { useHref, useLinkClickHandler, LinkProps } from 'react-router-dom';
+import { useHref, useLinkClickHandler, LinkProps, To } from 'react-router-dom';
 
 // eslint-disable-next-line import-x/export
 export * from 'react-router-dom';
@@ -21,6 +21,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
     ref,
   ) {
     const href = useHref(to, { relative });
+
     const handleClick = useLinkClickHandler(to, {
       target,
       replace,
@@ -33,7 +34,10 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
     return (
       <a
         {...rest}
+        ref={ref}
         href={href}
+        target={target}
+        onMouseEnter={() => prefetchRouteAssets(to)}
         onClick={event => {
           onClick?.(event);
           if (!event.defaultPrevented) {
@@ -42,9 +46,11 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
             });
           }
         }}
-        ref={ref}
-        target={target}
       />
     );
   },
 );
+
+export function prefetchRouteAssets(to: To) {
+  return window.__servite_init_route_handles__?.(to);
+}

@@ -19,7 +19,6 @@ import {
 import { ClientOnly } from 'servite/runtime/components';
 import Toc from 'island:components/Toc';
 import { Mdx } from '@/components/Mdx';
-import { ProgressiveBlur } from '@/components/ProgressiveBlur';
 import { useHandle } from '@/hooks/use-handle';
 import { sidebarItems } from '@/config/sidebar';
 import './layout.css';
@@ -140,19 +139,7 @@ export default function Layout() {
       </Helmet>
       <ScrollRestoration />
       <div>
-        <header className="sticky top-0 left-0 right-0 z-30">
-          <ProgressiveBlur
-            className={cn(
-              'absolute top-0 left-0 right-0',
-              matchedSidebarItems?.length ? 'h-28 sm:h-20' : 'h-20',
-            )}
-          />
-          <div
-            className={cn(
-              'absolute bottom-0 left-0 right-0 h-px bg-border/60 transition-opacity',
-              headerMdTitleVisible && 'opacity-0',
-            )}
-          ></div>
+        <header className="sticky top-0 left-0 right-0 z-30 bg-background/60 border-b border-border backdrop-blur-sm backdrop-saturate-200">
           <div className="max-w-[1380px] h-14 px-5 sm:px-7 mx-auto flex items-center relative">
             <div className="w-64">
               <Link className="inline-block" to="/zh">
@@ -194,7 +181,7 @@ export default function Layout() {
           </div>
           {Boolean(matchedSidebarItems?.length) && (
             <div
-              className="sm:hidden sticky top-14 z-30 h-9 px-5 sm:px-7 flex items-center space-x-2 font-medium cursor-pointer"
+              className="sm:hidden sticky top-14 z-30 h-9 px-5 sm:px-7 flex items-center space-x-2 font-medium cursor-pointer border-t border-border"
               onClick={() => setFixedSidebarVisible(true)}
             >
               <MenuIcon width={12} />

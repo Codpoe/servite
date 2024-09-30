@@ -1,0 +1,9 @@
+.prose {
+  table {
+    margin: 0;
+  }
+
+  thead {
+    white-space: nowrap;
+  }
+}
