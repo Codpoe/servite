@@ -19,7 +19,7 @@ import { defineConfig } from 'servite/config';
 export default defineConfig({
   server: {
     prerender: {
-      routes: ['/*', '/**/*'], // 匹配所有页面 // [!code highlight]
+      routes: ['**/*'], // 匹配所有页面 // [!code highlight]
       failOnError: true,
     },
   },

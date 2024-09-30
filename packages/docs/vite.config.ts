@@ -4,7 +4,7 @@ export default defineConfig({
   server: {
     baseURL: process.env.GH_PAGES ? '/servite' : '/',
     prerender: {
-      routes: ['/*', '/**/*'],
+      routes: ['**/*'],
       failOnError: true,
     },
   },

@@ -115,7 +115,7 @@ nitro server 的配置，具体可以看 [nitro](https://nitro.unjs.io/) 的文�
 defineConfig({
   server: {
     prerender: {
-      routes: ['/*', '/**/*'], // 给全部路由开启 SSG
+      routes: ['**/*'], // 给全部路由开启 SSG
       failOnError: true,
     },
   },
