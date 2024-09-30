@@ -1,5 +1,6 @@
 import { Fragment, startTransition, useEffect, useMemo, useState } from 'react';
 import {
+  Link,
   Outlet,
   ScrollRestoration,
   useLocation,
@@ -27,9 +28,56 @@ import { getScrollTop } from '@/utils/scroll';
 
 const THEME_STORAGE_KEY = 'servite:theme';
 
-export default function Layout() {
+interface DocLayoutProps {
+  fixedSidebarVisible: boolean;
+  setFixedSidebarVisible: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+function DocLayout({
+  fixedSidebarVisible,
+  setFixedSidebarVisible,
+}: DocLayoutProps) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
+
+  return (
+    <>
+      <div
+        className={cn(
+          'fixed inset-0 bg-black/60 z-40 sm:hidden transition-all',
+          fixedSidebarVisible
+            ? 'visible opacity-100'
+            : 'invisible opacity-0 pointer-events-none',
+        )}
+        onClick={() => setFixedSidebarVisible(false)}
+      />
+      <Sidebar
+        className={cn(
+          'flex-shrink-0 fixed top-0 right-full bottom-0 h-screen bg-background z-40 sm:z-auto sm:sticky sm:-mt-14 sm:pt-20 sm:bg-transparent transition-transform overflow-x-auto',
+          fixedSidebarVisible && 'translate-x-full',
+        )}
+        items={sidebarItems}
+        value={pathname}
+        onChange={v => {
+          startTransition(() => navigate(v));
+          setFixedSidebarVisible(false);
+        }}
+      />
+      <div className="px-5 sm:px-7 flex-1 pt-6 pb-14 min-w-0">
+        <Mdx>
+          <Outlet />
+        </Mdx>
+      </div>
+      <Toc
+        hydrate={{ on: 'visible' }}
+        className="sticky top-14 pt-6 flex-shrink-0 hidden lg:block"
+      />
+    </>
+  );
+}
+
+export default function Layout() {
+  const { pathname } = useLocation();
   const { toc } = useHandle();
   const mdTitle = useMemo(() => toc?.find(x => x.depth === 1)?.text, [toc]);
   const [fixedSidebarVisible, setFixedSidebarVisible] = useState(false);
@@ -107,21 +155,25 @@ export default function Layout() {
           ></div>
           <div className="max-w-[1380px] h-14 px-5 sm:px-7 mx-auto flex items-center relative">
             <div className="w-64">
-              <h1 className="text-xl font-semibold">Servite</h1>
+              <Link className="inline-block" to="/zh">
+                <h1 className="text-xl font-semibold">Servite</h1>
+              </Link>
             </div>
-            <div className="relative h-full flex-1 overflow-hidden">
-              <h2
-                className={cn(
-                  'hidden sm:flex text-xl font-medium absolute left-0 h-full items-center cursor-pointer transition-all',
-                  headerMdTitleVisible
-                    ? 'top-0 opacity-100'
-                    : 'top-full opacity-0',
-                )}
-                onClick={() => window.scrollTo({ top: 0 })}
-              >
-                {mdTitle}
-              </h2>
-            </div>
+            {mdTitle && (
+              <div className="relative h-full flex-1 overflow-hidden">
+                <h2
+                  className={cn(
+                    'hidden sm:flex text-xl font-medium absolute left-0 h-full items-center cursor-pointer transition-all',
+                    headerMdTitleVisible
+                      ? 'top-0 opacity-100'
+                      : 'top-full opacity-0',
+                  )}
+                  onClick={() => window.scrollTo({ top: 0 })}
+                >
+                  {mdTitle}
+                </h2>
+              </div>
+            )}
             <div className="ml-auto space-x-1">
               <ClientOnly>
                 <Button
@@ -160,36 +212,14 @@ export default function Layout() {
           )}
         </header>
         <div className="max-w-[1380px] mx-auto flex justify-center items-start">
-          <div
-            className={cn(
-              'fixed inset-0 bg-black/60 z-40 sm:hidden transition-all',
-              fixedSidebarVisible
-                ? 'visible opacity-100'
-                : 'invisible opacity-0 pointer-events-none',
-            )}
-            onClick={() => setFixedSidebarVisible(false)}
-          />
-          <Sidebar
-            className={cn(
-              'flex-shrink-0 fixed top-0 right-full bottom-0 h-screen bg-background z-40 sm:z-auto sm:sticky sm:-mt-14 sm:pt-20 sm:bg-transparent transition-transform overflow-x-auto',
-              fixedSidebarVisible && 'translate-x-full',
-            )}
-            items={sidebarItems}
-            value={pathname}
-            onChange={v => {
-              startTransition(() => navigate(v));
-              setFixedSidebarVisible(false);
-            }}
-          />
-          <div className="px-5 sm:px-7 flex-1 pt-6 pb-14 min-w-0">
-            <Mdx>
-              <Outlet />
-            </Mdx>
-          </div>
-          <Toc
-            hydrate={{ on: 'visible' }}
-            className="sticky top-14 pt-6 flex-shrink-0 hidden lg:block"
-          />
+          {matchedSidebarItems?.length ? (
+            <DocLayout
+              fixedSidebarVisible={fixedSidebarVisible}
+              setFixedSidebarVisible={setFixedSidebarVisible}
+            />
+          ) : (
+            <Outlet />
+          )}
         </div>
       </div>
     </>

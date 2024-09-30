@@ -8,7 +8,7 @@
     "build": "tsc -b && vinxi build",
     "lint": "eslint .",
     "preview": "node .output/server/index.mjs",
-    "deploy:gh-pages": "GH_PAGES=1 pnpm build && gh-pages -d .output/public",
+    "deploy:gh-pages": "GH_PAGES=1 pnpm build && gh-pages -d .output/public --nojekyll",
     "deploy:vercel": "SERVER_PRESET=vercel pnpm build"
   },
   "dependencies": {
