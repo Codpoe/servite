@@ -19,14 +19,7 @@ const viteConfigContent = `\
 import { defineConfig } from 'servite/config';
 
 // https://servite.vercel.app/zh/guide/config
-export default defineConfig({
-  server: {
-    prerender: {
-      routes: ['/*', '/**/*'],
-      failOnError: true,
-    },
-  },
-});
+export default defineConfig({});
 `;
 
 const demoPageContent = `export default function Page() {
