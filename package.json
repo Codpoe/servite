@@ -41,7 +41,8 @@
     "dev:docs": "pnpm --filter docs dev",
     "build": "pnpm --filter servite build",
     "build-docs": "pnpm build && pnpm --filter docs build",
-    "ci:docs": "pnpm build && pnpm --filter docs run deploy",
+    "deploy:gh-pages": "pnpm build && pnpm --filter docs run deploy:gh-pages",
+    "deploy:vercel": "pnpm build && pnpm --filter docs run deploy:vercel",
     "bump": "pnpm changeset && pnpm changeset version",
     "release": "pnpm -r publish"
   },
