@@ -92,14 +92,20 @@ export default function Layout() {
       </Helmet>
       <ScrollRestoration />
       <div>
-        <header className="sticky top-0 left-0 right-0 h-14 z-30">
+        <header className="sticky top-0 left-0 right-0 z-30">
           <ProgressiveBlur
             className={cn(
               'absolute top-0 left-0 right-0',
               matchedSidebarItems?.length ? 'h-28 sm:h-20' : 'h-20',
             )}
           />
-          <div className="max-w-[1380px] h-full px-5 sm:px-7 mx-auto flex items-center relative">
+          <div
+            className={cn(
+              'absolute bottom-0 left-0 right-0 h-px bg-border/60 transition-opacity',
+              headerMdTitleVisible && 'opacity-0',
+            )}
+          ></div>
+          <div className="max-w-[1380px] h-14 px-5 sm:px-7 mx-auto flex items-center relative">
             <div className="w-64">
               <h1 className="text-xl font-semibold">Servite</h1>
             </div>
@@ -134,25 +140,25 @@ export default function Layout() {
               </a>
             </div>
           </div>
+          {Boolean(matchedSidebarItems?.length) && (
+            <div
+              className="sm:hidden sticky top-14 z-30 h-9 px-5 sm:px-7 flex items-center space-x-2 font-medium cursor-pointer"
+              onClick={() => setFixedSidebarVisible(true)}
+            >
+              <MenuIcon width={12} />
+              {matchedSidebarItems?.map((x, index) => (
+                <Fragment key={index}>
+                  <span key={index} className="text-xs">
+                    {x.title}
+                  </span>
+                  {index < matchedSidebarItems.length - 1 && (
+                    <ChevronRightIcon width={12} />
+                  )}
+                </Fragment>
+              ))}
+            </div>
+          )}
         </header>
-        {Boolean(matchedSidebarItems?.length) && (
-          <div
-            className="sm:hidden sticky top-14 z-30 h-9 px-5 sm:px-7 flex items-center space-x-2 font-medium cursor-pointer"
-            onClick={() => setFixedSidebarVisible(true)}
-          >
-            <MenuIcon width={12} />
-            {matchedSidebarItems?.map((x, index) => (
-              <Fragment key={index}>
-                <span key={index} className="text-xs">
-                  {x.title}
-                </span>
-                {index < matchedSidebarItems.length - 1 && (
-                  <ChevronRightIcon width={12} />
-                )}
-              </Fragment>
-            ))}
-          </div>
-        )}
         <div className="max-w-[1380px] mx-auto flex justify-center items-start">
           <div
             className={cn(
