@@ -154,9 +154,10 @@ window.manifest = ${JSON.stringify(await clientManifest.json())};`;
       setResponseStatus(event, 500);
     }
 
+    // FIXME: ts type error
     setResponseHeaders(event, {
       'Content-Type': 'text/html',
-    });
+    } as any);
 
     return stream.pipeThrough(
       transformHtmlForReadableStream({ event, helmetContext }),
@@ -191,9 +192,10 @@ window.manifest = ${JSON.stringify(await clientManifest.json())};`;
       setResponseStatus(event, 500);
     }
 
+    // FIXME: ts type error
     setResponseHeaders(event, {
       'Content-Type': 'text/html',
-    });
+    } as any);
 
     return stream.pipe(
       transformHtmlForPipeableStream({ event, helmetContext }),
