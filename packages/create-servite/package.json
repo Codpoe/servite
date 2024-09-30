@@ -1,0 +1,42 @@
+{
+  "name": "create-servite",
+  "version": "2.0.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Codpoe/servite.git",
+    "directory": "packages/create-servite"
+  },
+  "author": "Codpoe <codpoe.me@gmail.com>",
+  "engines": {
+    "node": "^18.0.0 || >=20.0.0"
+  },
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/Codpoe/servite/issues"
+  },
+  "homepage": "https://github.com/Codpoe/servite/tree/master/packages/create-servite#readme",
+  "files": [
+    "dist",
+    "index.js"
+  ],
+  "main": "index.js",
+  "bin": {
+    "create-servite": "index.js"
+  },
+  "scripts": {
+    "dev": "tsc -w",
+    "build": "rimraf dist && tsc",
+    "release": "pnpm run build && changeset publish"
+  },
+  "dependencies": {
+    "execa": "^9.4.0",
+    "minimist": "^1.2.8",
+    "picocolors": "^1.1.0",
+    "prompts": "^2.4.2"
+  },
+  "devDependencies": {
+    "@types/minimist": "^1.2.5",
+    "@types/prompts": "^2.4.9"
+  }
+}

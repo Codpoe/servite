@@ -19,12 +19,16 @@
   "files": [
     "dist",
     "config.d.ts",
+    "env.d.ts",
     "runtime"
   ],
   "exports": {
     "./config": {
       "types": "./dist/config/index.d.ts",
       "default": "./dist/config/index.js"
+    },
+    "./env": {
+      "types": "./env.d.ts"
     },
     "./runtime/server": {
       "types": "./dist/runtime/server.d.ts",

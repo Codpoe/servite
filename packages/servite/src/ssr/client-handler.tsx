@@ -12,21 +12,12 @@ import { getRoutes, HANDLE_INIT_KEY } from './routes.js';
 
 declare global {
   interface Window {
-    __servite__?: {
-      ssr: boolean;
-    };
     __servite_react_root__?: Root;
     __servite_react_router__?: RouterProviderProps['router'];
     __vite_plugin_react_preamble_installed__?: boolean;
     __vite_plugin_react_preamble_installed_resolve__?: (
       installed: boolean,
     ) => void;
-  }
-
-  interface ImportMetaEnv {
-    SERVER_BASE: string;
-    ROUTER_SERVER_BASE: string;
-    ROUTER_SSR_BASE: string;
   }
 }
 
