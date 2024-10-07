@@ -35,16 +35,20 @@ export function Island({ innerRef, hydrate, ...restProps }: IslandProps) {
 
   useEffect(() => {
     if (!hydrate.on) {
+      // eslint-disable-next-line no-console
+      console.debug('[servite] skip hydrate island:', hydrate.id);
       return;
     }
 
     const doHydrate = async () => {
-      if (cache[hydrate.id]?.Component) {
-        return;
+      if (!cache[hydrate.id]?.Component) {
+        // eslint-disable-next-line no-console
+        console.debug('[servite] start hydrate island:', hydrate.id);
+        const { default: Component } = await hydrate.load();
+        cache[hydrate.id] = { Component };
       }
 
-      const { default: Component } = await hydrate.load();
-      cache[hydrate.id] = { Component };
+      const { Component } = cache[hydrate.id];
       setIslandState(prev => ({ ...prev, Component }));
     };
 

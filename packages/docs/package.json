@@ -17,7 +17,7 @@
     "react-dom": "^18.3.1",
     "servite": "workspace:*",
     "shadcn-react": "^0.0.22",
-    "vinxi": "^0.4.2"
+    "vinxi": "^0.4.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",

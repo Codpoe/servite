@@ -37,9 +37,9 @@ declare global {
 
   window.__servite_init_route_handles__ = async location => {
     await Promise.all(
-      matchRoutes(routes, location, import.meta.env.SERVER_BASE)?.map(m =>
-        m.route.handle?.[HANDLE_INIT_KEY]?.(),
-      ) || [],
+      matchRoutes(routes, location, import.meta.env.SERVER_BASE)?.map(m => {
+        return m.route.handle?.[HANDLE_INIT_KEY]?.();
+      }) || [],
     );
   };
 

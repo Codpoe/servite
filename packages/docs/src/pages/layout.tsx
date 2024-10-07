@@ -67,7 +67,7 @@ function DocLayout({
         </Mdx>
       </div>
       <Toc
-        hydrate={{ on: 'visible' }}
+        hydrate={{ on: 'media (min-width: 1024px)' }}
         className="sticky top-14 pt-6 flex-shrink-0 hidden lg:block"
       />
     </>
