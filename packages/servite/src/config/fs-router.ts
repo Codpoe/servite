@@ -197,7 +197,7 @@ export class PagesFsRouter extends BaseFileSystemRouter {
           // if the exports of route file is changed, reload the route.
           // otherwise, just let react-refresh to handle hmr.
           if (
-            originalPageInfo.componentPick?.toString() !==
+            originalPageInfo?.componentPick?.toString() !==
             this.srcToPageInfo[src].componentPick?.toString()
           ) {
             this.reload(route as any);

@@ -70,8 +70,8 @@ importers:
         specifier: workspace:*
         version: link:../servite
       shadcn-react:
-        specifier: ^0.0.19
-        version: 0.0.19(@types/react-dom@18.3.0)(@types/react@18.3.5)(next@14.2.12(@babel/core@7.25.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: ^0.0.22
+        version: 0.0.22(@types/react-dom@18.3.0)(@types/react@18.3.5)(next@14.2.12(@babel/core@7.25.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       vinxi:
         specifier: ^0.4.2
         version: 0.4.2(@types/node@22.5.2)(ioredis@5.4.1)(terser@5.31.6)
@@ -4812,8 +4812,8 @@ packages:
   setprototypeof@1.2.0:
     resolution: {integrity: sha512-E5LDX7Wrp85Kil5bhZv46j8jOeboKq5JMmYM3gVGdGH8xFpPWXUMsNrlODCrkoxMEeNi/XZIwuRvY4XNwYMJpw==}
 
-  shadcn-react@0.0.19:
-    resolution: {integrity: sha512-ZvtNGGCV1UubfmTGxnzv+lKBgKib6ZLzap0+cXF5Zt/XRAdZCVp6UzfGNsDZNT4RAcKG/AKUIN+h6igrM+dudA==}
+  shadcn-react@0.0.22:
+    resolution: {integrity: sha512-vGJPpBDWlKIwfbhbcsMQkGAuIIjYtqYbKGMPi/Jj1obStp/wbhqPVQH+KqQJxqyt+LJ0zm7I6gfq/ktaZQMd1g==}
     engines: {node: '>=18.18.0', pnpm: '>=9'}
     peerDependencies:
       react: '>=17.0.0'
@@ -10782,7 +10782,7 @@ snapshots:
 
   setprototypeof@1.2.0: {}
 
-  shadcn-react@0.0.19(@types/react-dom@18.3.0)(@types/react@18.3.5)(next@14.2.12(@babel/core@7.25.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  shadcn-react@0.0.22(@types/react-dom@18.3.0)(@types/react@18.3.5)(next@14.2.12(@babel/core@7.25.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       '@hookform/resolvers': 3.9.0(react-hook-form@7.53.0(react@18.3.1))
       '@radix-ui/react-accordion': 1.2.0(@types/react-dom@18.3.0)(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

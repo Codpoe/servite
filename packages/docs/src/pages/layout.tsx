@@ -1,10 +1,9 @@
-import { Fragment, startTransition, useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import {
   Link,
   Outlet,
   ScrollRestoration,
   useLocation,
-  useNavigate,
 } from 'servite/runtime/router';
 import { Helmet } from 'servite/runtime/helmet';
 import { Button, Sidebar } from 'shadcn-react';
@@ -21,9 +20,10 @@ import Toc from 'island:components/Toc';
 import { Mdx } from '@/components/Mdx';
 import { useHandle } from '@/hooks/use-handle';
 import { sidebarItems } from '@/config/sidebar';
-import './layout.css';
 import { throttle } from '@/utils/throttle';
 import { getScrollTop } from '@/utils/scroll';
+import { SidebarLink } from '@/components/SidebarLink';
+import './layout.css';
 
 const THEME_STORAGE_KEY = 'servite:theme';
 
@@ -37,7 +37,6 @@ function DocLayout({
   setFixedSidebarVisible,
 }: DocLayoutProps) {
   const { pathname } = useLocation();
-  const navigate = useNavigate();
 
   return (
     <>
@@ -56,9 +55,9 @@ function DocLayout({
           fixedSidebarVisible && 'translate-x-full',
         )}
         items={sidebarItems}
+        itemWrapper={SidebarLink}
         value={pathname}
-        onChange={v => {
-          startTransition(() => navigate(v));
+        onChange={() => {
           setFixedSidebarVisible(false);
         }}
       />
