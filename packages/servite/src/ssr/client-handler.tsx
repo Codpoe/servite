@@ -55,7 +55,10 @@ declare global {
 
   const app = (
     <HelmetProvider>
-      <RouterProvider router={window.__servite_react_router__} />
+      <RouterProvider
+        router={window.__servite_react_router__}
+        future={{ v7_startTransition: true }}
+      />
     </HelmetProvider>
   );
 

@@ -66,10 +66,6 @@ function DocLayout({
           <Outlet />
         </Mdx>
       </div>
-      <Toc
-        hydrate={{ on: 'media (min-width: 1024px)' }}
-        className="sticky top-14 pt-6 flex-shrink-0 hidden lg:block"
-      />
     </>
   );
 }
@@ -206,6 +202,13 @@ export default function Layout() {
           ) : (
             <Outlet />
           )}
+          <Toc
+            hydrate={{ on: 'media (min-width: 1024px)' }}
+            className={cn(
+              'sticky top-14 pt-6 flex-shrink-0 hidden',
+              matchedSidebarItems?.length && 'lg:block',
+            )}
+          />
         </div>
       </div>
     </>

@@ -100,6 +100,28 @@ const RootErrorBoundary = () => {
         color: #9ca3af;
       }
     }
+
+    html.dark {
+      .servite-error-boundary {
+        background: #1b1b1f;
+      }
+    
+      .servite-error-title {
+        color: #e5e7eb;
+      }
+    
+      .servite-error-desc {
+        color: #e5e7eb;
+      }
+    
+      .servite-error-divider {
+        background-color: #6b7280;
+      }
+    
+      .servite-error-msg {
+        color: #9ca3af;
+      }
+    }
           `}</style>
       <div className="servite-error-boundary">
         <h1 className="servite-error-title">{error?.status || 'Oops!'}</h1>

@@ -1,4 +1,4 @@
-import React, { startTransition } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useHref, useLinkClickHandler, LinkProps, To } from 'react-router-dom';
 
 // eslint-disable-next-line import-x/export
@@ -20,6 +20,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
     },
     ref,
   ) {
+    const elRef = useRef<HTMLAnchorElement | null>();
     const href = useHref(to, { relative });
 
     const handleClick = useLinkClickHandler(to, {
@@ -31,19 +32,52 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
       unstable_viewTransition,
     });
 
+    useEffect(() => {
+      if (!elRef.current || window.matchMedia('(min-width: 640px)').matches) {
+        return;
+      }
+
+      const observer = new IntersectionObserver(entries => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) {
+            continue;
+          }
+
+          observer.disconnect();
+          (window.requestIdleCallback || ((cb: any) => setTimeout(cb, 100)))(
+            () => {
+              prefetchRouteAssets(to);
+            },
+          );
+        }
+      });
+
+      observer.observe(elRef.current);
+
+      return () => {
+        observer.disconnect();
+      };
+    }, [to]);
+
     return (
       <a
         {...rest}
-        ref={ref}
+        ref={instance => {
+          elRef.current = instance;
+
+          if (typeof ref === 'function') {
+            ref(instance);
+          } else if (ref) {
+            ref.current = instance;
+          }
+        }}
         href={href}
         target={target}
         onMouseEnter={() => prefetchRouteAssets(to)}
         onClick={event => {
           onClick?.(event);
           if (!event.defaultPrevented) {
-            startTransition(() => {
-              handleClick(event);
-            });
+            handleClick(event);
           }
         }}
       />
