@@ -1,4 +1,4 @@
-import{j as e}from"./jsx-runtime-OjB1YB6s.js";import{u as l}from"./index-Crl2ozBJ.js";const d={commitTime:1728267679},h=[{id:"ssg---静态站点生成",text:"SSG - 静态站点生成",depth:1},{id:"介绍",text:"介绍",depth:2},{id:"使用",text:"使用",depth:2}];function r(i){const s={a:"a",code:"code",h1:"h1",h2:"h2",p:"p",pre:"pre",span:"span",strong:"strong",...l(),...i.components},{Callout:n}=s;return n||o("Callout"),e.jsxs(e.Fragment,{children:[e.jsx(s.h1,{id:"ssg---静态站点生成",children:"SSG - 静态站点生成"}),`
+import{j as e}from"./jsx-runtime-OjB1YB6s.js";import{u as l}from"./index-Crl2ozBJ.js";const d={commitTime:1728294575},h=[{id:"ssg---静态站点生成",text:"SSG - 静态站点生成",depth:1},{id:"介绍",text:"介绍",depth:2},{id:"使用",text:"使用",depth:2}];function r(i){const s={a:"a",code:"code",h1:"h1",h2:"h2",p:"p",pre:"pre",span:"span",strong:"strong",...l(),...i.components},{Callout:n}=s;return n||o("Callout"),e.jsxs(e.Fragment,{children:[e.jsx(s.h1,{id:"ssg---静态站点生成",children:"SSG - 静态站点生成"}),`
 `,e.jsx(s.h2,{id:"介绍",children:"介绍"}),`
 `,e.jsx(s.p,{children:`SSG（Static Site Generation 静态站点生成）是指在构建时生成静态页面，并在运行时直接展示这些静态页面。
 这与 SSR（服务器端渲染）的主要区别在于，SSG 在运行时不需要调用服务器来渲染页面，而是直接展示预先生成的静态页面。`}),`
