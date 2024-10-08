@@ -50,6 +50,7 @@
     "*.{js,jsx,ts,tsx}": "eslint --fix"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.27.9",
     "@codpoe/eslint-config": "^1.0.3",
     "@types/node": "^22.5.2",
     "eslint": "^9.9.1",
