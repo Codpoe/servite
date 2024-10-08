@@ -6,11 +6,10 @@ import {
   EventHandlerResponse,
 } from 'vinxi/http';
 import type { FetchOptions } from 'ofetch';
-import type { findRoute } from 'rou3';
-import type { FsRouteMod, HtmlTag } from '../types/index.js';
+import type { HtmlTag, HtmlTransformer, Middleware } from '../types/index.js';
 
 export * from 'vinxi/http';
-export type { HtmlTag };
+export type { Middleware, HtmlTag, HtmlTransformer };
 
 export interface Logger {
   debug(...args: any[]): void;
@@ -20,16 +19,8 @@ export interface Logger {
   error(...args: any[]): void;
 }
 
-export interface HtmlTransformer {
-  (html: string): string | Promise<string>;
-}
-
 declare module 'vinxi/http' {
   export interface H3EventContext {
-    /**
-     * Internal used to store the matched server fs route.
-     */
-    _matchedServerFsRoute?: ReturnType<typeof findRoute<FsRouteMod>>;
     /**
      * Logger utils. Can be overridden to implement custom logger
      *
@@ -40,25 +31,13 @@ declare module 'vinxi/http' {
      * Utils for modifying the template of SSR.
      */
     template?: {
-      /**
-       * Internal used to store the tags for template injection.
-       */
-      _injectTags?: HtmlTag[];
       inject(tags: HtmlTag | HtmlTag[]): void;
     };
     /**
      * Utils for modifying the result html of SSR.
      */
     html?: {
-      /**
-       * Internal used to store the tags for html injection.
-       */
-      _injectTags?: HtmlTag[];
       inject(tags: HtmlTag | HtmlTag[]): void;
-      /**
-       * Internal used to store the transformers for html.
-       */
-      _transformers?: HtmlTransformer[];
       addTransformer(fn: HtmlTransformer): void;
     };
     /**
@@ -69,6 +48,10 @@ declare module 'vinxi/http' {
      * Whether the ssr fallback was successful
      */
     ssrFallback?: boolean;
+    /**
+     * Response for middlewares
+     */
+    response?: any;
   }
 }
 
@@ -108,3 +91,7 @@ export function defineEventHandler<
 }
 
 export const eventHandler = defineEventHandler;
+
+export function defineMiddleware(middleware: Middleware): Middleware {
+  return middleware;
+}

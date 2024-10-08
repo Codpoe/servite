@@ -1,3 +1,5 @@
+import type { H3Event } from 'vinxi/http';
+
 export enum RouterName {
   Public = 'public',
   SPA = 'spa',
@@ -80,9 +82,17 @@ type FsRouteModule<T extends Record<string, any>> = {
 export type PageFsRouteModule = FsRouteModule<PageFsRoute>;
 export type ServerFsRouteModule = FsRouteModule<ServerFsRoute>;
 
+export interface Middleware {
+  (event: H3Event, next: () => Promise<void>): void | Promise<void>;
+}
+
 export interface HtmlTag {
   tag: string;
   injectTo: 'head' | 'head-prepend' | 'body' | 'body-prepend';
   attrs?: Record<string, any>;
   children?: string | HtmlTag[];
+}
+
+export interface HtmlTransformer {
+  (html: string): string | Promise<string>;
 }

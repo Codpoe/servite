@@ -1,72 +1,110 @@
 /// <reference types="vinxi/types/server" />
 import {
   defineEventHandler,
-  defineMiddleware,
   getQuery,
   getRequestHeader,
+  H3Event,
 } from 'vinxi/http';
 import fileRoutes from 'vinxi/routes';
 import { addRoute, createRouter, findRoute } from 'rou3';
-import { FsRouteMod, ServerFsRouteModule } from '../types/index.js';
+import {
+  FsRouteMod,
+  HtmlTag,
+  HtmlTransformer,
+  Middleware,
+  ServerFsRouteModule,
+} from '../types/index.js';
+import { onBeforeResponse } from './on-before-response.js';
 
-type Middleware = ReturnType<typeof defineMiddleware>;
+declare module 'vinxi/http' {
+  export interface H3EventContext {
+    /**
+     * Internal used to restore the middlewares.
+     */
+    _resolveMiddlewaresRestore?: () => void;
+    /**
+     * Internal used
+     */
+    _resolveMiddlewaresDone?: () => void;
+    /**
+     * Internal used
+     */
+    _rejectMiddlewaresDone?: () => void;
+    /**
+     * Internal used to store the matched server fs route.
+     */
+    _matchedServerFsRoute?: ReturnType<typeof findRoute<FsRouteMod>>;
+    /**
+     * Internal used to store the tags for template injection.
+     */
+    _templateInjectedTags?: HtmlTag[];
+    /**
+     * Internal used to store the tags for html injection.
+     */
+    _htmlInjectedTags?: HtmlTag[];
+    /**
+     * Internal used to store the transformers for html.
+     */
+    _htmlTransformers?: HtmlTransformer[];
+  }
+}
 
 const router = createRouter<FsRouteMod>();
 
 // Root middleware.
 // Add useful utils to the event context.
-const rootMiddleware = defineMiddleware({
-  onRequest: event => {
-    // Add default logger
-    event.context.logger = console;
+const rootMiddleware: Middleware = (event, next) => {
+  // Add default logger
+  event.context.logger = console;
 
-    // Add matched server fs route.
-    event.context._matchedServerFsRoute = findRoute(
-      router,
-      event.method,
-      event.path,
-    );
+  // Add matched server fs route.
+  event.context._matchedServerFsRoute = findRoute(
+    router,
+    event.method,
+    event.path,
+  );
 
-    // if (event.context._matchedServerFsRoute) {
-    //   event._path = withoutBase(event.path, import.meta.env.ROUTER_SERVER_BASE);
-    //   return;
-    // }
+  // if (event.context._matchedServerFsRoute) {
+  //   event._path = withoutBase(event.path, import.meta.env.ROUTER_SERVER_BASE);
+  //   return;
+  // }
 
-    // event._path = withoutBase(event.path, import.meta.env.ROUTER_SSR_BASE);
+  // event._path = withoutBase(event.path, import.meta.env.ROUTER_SSR_BASE);
 
-    // Add utils for ssr.
-    event.context.template = {
-      inject(tags) {
-        event.context.template!._injectTags ||= [];
-        event.context.template!._injectTags.push(
-          ...(Array.isArray(tags) ? tags : [tags]),
-        );
-      },
-    };
+  // Add utils for ssr.
+  event.context.template = {
+    inject(tags) {
+      event.context._templateInjectedTags ||= [];
+      event.context._templateInjectedTags.push(
+        ...(Array.isArray(tags) ? tags : [tags]),
+      );
+    },
+  };
 
-    event.context.html = {
-      inject(tags) {
-        event.context.template!._injectTags ||= [];
-        event.context.template!._injectTags.push(
-          ...(Array.isArray(tags) ? tags : [tags]),
-        );
-      },
-      addTransformer(transformer) {
-        event.context.html!._transformers ||= [];
-        event.context.html!._transformers.push(transformer);
-      },
-    };
+  event.context.html = {
+    inject(tags) {
+      event.context._htmlInjectedTags ||= [];
+      event.context._htmlInjectedTags.push(
+        ...(Array.isArray(tags) ? tags : [tags]),
+      );
+    },
+    addTransformer(transformer) {
+      event.context._htmlTransformers ||= [];
+      event.context._htmlTransformers.push(transformer);
+    },
+  };
 
-    event.context.ssr = true;
+  event.context.ssr = true;
 
-    if (
-      getQuery(event)?.ssr_fallback === '1' ||
-      getRequestHeader(event, 'x-ssr-fallback') === '1'
-    ) {
-      event.context.ssr = false;
-    }
-  },
-});
+  if (
+    getQuery(event)?.ssr_fallback === '1' ||
+    getRequestHeader(event, 'x-ssr-fallback') === '1'
+  ) {
+    event.context.ssr = false;
+  }
+
+  return next();
+};
 
 const middlewares: Middleware[] = [rootMiddleware];
 
@@ -81,17 +119,71 @@ const middlewares: Middleware[] = [rootMiddleware];
   addRoute(router, route.method, route.routePath, route.$handler);
 });
 
-const mapMiddlewareHooks = <T extends keyof Middleware, K = Middleware[T]>(
-  hook: T,
+// const mapMiddlewareHooks = <T extends keyof Middleware, K = Middleware[T]>(
+//   hook: T,
+// ) => {
+//   return middlewares
+//     .flatMap(m => m[hook] || [])
+//     .filter(x => Boolean(x)) as K extends any[] ? K : never;
+// };
+
+interface ComposeCallbacks {
+  onSuspend: () => Promise<void>;
+  onDone: () => void;
+  onError: (err: any) => void;
+}
+
+const compose = (
+  middlewares: Middleware[],
+  { onSuspend, onDone, onError }: ComposeCallbacks,
 ) => {
-  return middlewares
-    .flatMap(m => m[hook] || [])
-    .filter(x => Boolean(x)) as K extends any[] ? K : never;
+  return (event: H3Event) => {
+    let index = -1;
+
+    const dispatch = async (i: number): Promise<void> => {
+      if (i <= index) {
+        throw new Error('next() called multiple times');
+      }
+
+      index = i;
+      let m = middlewares[i];
+
+      if (i === middlewares.length) {
+        m = () => onSuspend();
+      }
+
+      await m(event, dispatch.bind(null, i + 1));
+    };
+
+    dispatch(0).then(onDone, onError);
+  };
 };
 
 export default defineEventHandler({
-  onRequest: mapMiddlewareHooks('onRequest'),
-  onBeforeResponse: mapMiddlewareHooks('onBeforeResponse').reverse(),
+  onRequest: async event => {
+    await new Promise<void>((resolve, reject) => {
+      compose(middlewares, {
+        onSuspend() {
+          resolve();
+          return new Promise<void>(resolve => {
+            event.context._resolveMiddlewaresRestore = resolve;
+          });
+        },
+        onDone() {
+          event.context._resolveMiddlewaresDone?.();
+        },
+        onError(err) {
+          reject(err);
+          event.context._rejectMiddlewaresDone?.();
+        },
+      })(event);
+    });
+  },
+  onBeforeResponse: (event, response) => {
+    if (response?.body !== undefined) {
+      return onBeforeResponse(event, response);
+    }
+  },
   handler: async event => {
     const matchedRoute = event.context._matchedServerFsRoute;
 

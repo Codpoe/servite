@@ -64,9 +64,9 @@ async function doTransformHtml(
   }
 
   // User middlewares injected tags.
-  if (event.context.html?._injectTags?.length) {
+  if (event.context._htmlInjectedTags?.length) {
     const { headTags, headPrependTags, bodyTags, bodyPrependTags } =
-      groupHtmlTags(event.context.html._injectTags);
+      groupHtmlTags(event.context._htmlInjectedTags);
 
     if (headTags) {
       html = html.replace(
@@ -98,8 +98,8 @@ async function doTransformHtml(
   }
 
   // User middlewares added html transformers.
-  if (event.context.html?._transformers?.length) {
-    for (const transformer of event.context.html._transformers) {
+  if (event.context._htmlTransformers?.length) {
+    for (const transformer of event.context._htmlTransformers) {
       html = await transformer(html);
     }
   }

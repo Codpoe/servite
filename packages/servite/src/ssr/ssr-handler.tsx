@@ -23,6 +23,7 @@ import reactDomServer, {
 import { HelmetProvider } from 'react-helmet-async';
 import { isbot } from 'isbot';
 import { RouterName } from '../types/index.js';
+import { onBeforeResponse } from '../server/on-before-response.js';
 import { getRoutes, HANDLE_INIT_KEY } from './routes.js';
 import { RouterHydration } from './RouterHydration.js';
 import {
@@ -52,7 +53,7 @@ async function getHtml(event: H3Event, helmetContext: HelmetContext) {
   }
 
   const { headTags, headPrependTags, bodyTags, bodyPrependTags } =
-    groupHtmlTags(event.context.template?._injectTags);
+    groupHtmlTags(event.context._templateInjectedTags);
 
   return (
     <html>
@@ -213,23 +214,26 @@ function sendRenderError(event: H3Event, error: any) {
   return sendError(event, h3Error, import.meta.env.DEV);
 }
 
-export default defineEventHandler(async event => {
-  try {
-    return await render(event);
-  } catch (error: any) {
-    event.context.ssr = false;
-    event.context.logger.error('[servite] render error');
-    event.context.logger.error(error);
-
+export default defineEventHandler({
+  onBeforeResponse,
+  handler: async event => {
     try {
-      // fallback to CSR
-      event.context.ssrFallback = true;
-      return await await render(event);
-    } catch (fallbackError: any) {
-      event.context.ssrFallback = false;
-      event.context.logger.error('[servite] ssr fallback error');
+      return await render(event);
+    } catch (error: any) {
+      event.context.ssr = false;
+      event.context.logger.error('[servite] render error');
       event.context.logger.error(error);
-      return sendRenderError(event, fallbackError);
+
+      try {
+        // fallback to CSR
+        event.context.ssrFallback = true;
+        return await await render(event);
+      } catch (fallbackError: any) {
+        event.context.ssrFallback = false;
+        event.context.logger.error('[servite] ssr fallback error');
+        event.context.logger.error(error);
+        return sendRenderError(event, fallbackError);
+      }
     }
-  }
+  },
 });

@@ -5,7 +5,6 @@ export default defineEventHandler(async event => {
   return {
     method: event.method,
     path: event.path,
-    context: event.context,
     username: 'asdf',
     age: 18,
     fullPath: event.web?.url,
