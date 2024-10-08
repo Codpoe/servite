@@ -14,6 +14,7 @@ const cwd = process.cwd();
 
 const defaultTargetDir = 'servite-app';
 const serviteVersion = '^2.0.0';
+const vinxiVersion = '^0.4.3';
 
 const viteConfigContent = `\
 import { defineConfig } from 'servite/config';
@@ -150,6 +151,7 @@ async function init() {
   delete pkgJson.devDependencies['@vitejs/plugin-react'];
   // Add deps: servite
   pkgJson.dependencies.servite = serviteVersion;
+  pkgJson.dependencies.vinxi = vinxiVersion;
   // Modify scripts
   pkgJson.scripts.dev = 'vinxi dev';
   pkgJson.scripts.build = 'tsc -b && vinxi build';
