@@ -1,5 +1,6 @@
 {
   "name": "servite-monorepo",
+  "private": true,
   "version": "1.0.0",
   "description": "A full stack React framework",
   "keywords": [
@@ -51,7 +52,7 @@
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.9",
-    "@codpoe/eslint-config": "^1.0.3",
+    "@codpoe/eslint-config": "^1.0.4",
     "@types/node": "^22.5.2",
     "eslint": "^9.9.1",
     "husky": "^9.1.5",

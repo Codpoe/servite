@@ -12,8 +12,8 @@ importers:
         specifier: ^2.27.9
         version: 2.27.9
       '@codpoe/eslint-config':
-        specifier: ^1.0.3
-        version: 1.0.3(eslint@9.9.1(jiti@1.21.6))(prettier@3.3.3)(typescript@5.5.4)
+        specifier: ^1.0.4
+        version: 1.0.4(eslint@9.9.1(jiti@1.21.6))(prettier@3.3.3)(typescript@5.5.4)
       '@types/node':
         specifier: ^22.5.2
         version: 22.5.2
@@ -401,8 +401,8 @@ packages:
     resolution: {integrity: sha512-YLPHc8yASwjNkmcDMQMY35yiWjoKAKnhUbPRszBRS0YgH+IXtsMp61j+yTcnCE3oO2DgP0U3iejLC8FTtKDC8Q==}
     engines: {node: '>=16.13'}
 
-  '@codpoe/eslint-config@1.0.3':
-    resolution: {integrity: sha512-EvE63Tm0muiMymTrC2Xb1lQ3v/x4+Gd0UtMrF5zi3CtoqEFPggmMMa1lWNltVjeYubsYYBOKqtZIUbBw+1JG9g==}
+  '@codpoe/eslint-config@1.0.4':
+    resolution: {integrity: sha512-CHenQ97ktrfBIbqVU3mbDbC+bg4EyvE3INh21P8fD4ZwYBjZuVKHj4v9om7g6LnM4POCGXgu7CofQRv3gfQhUg==}
     engines: {node: '>=18.18.0'}
     peerDependencies:
       eslint: '>=9'
@@ -6020,7 +6020,7 @@ snapshots:
     dependencies:
       mime: 3.0.0
 
-  '@codpoe/eslint-config@1.0.3(eslint@9.9.1(jiti@1.21.6))(prettier@3.3.3)(typescript@5.5.4)':
+  '@codpoe/eslint-config@1.0.4(eslint@9.9.1(jiti@1.21.6))(prettier@3.3.3)(typescript@5.5.4)':
     dependencies:
       '@eslint/js': 9.9.1
       eslint: 9.9.1(jiti@1.21.6)
