@@ -32,9 +32,8 @@ class MyLogger implements Logger {
   }
 }
 
-export default defineMiddleware({
-  onRequest(event) {
-    event.context.logger = new MyLogger();
-  }
+export default defineMiddleware((_event, next) => {
+  event.context.logger = new MyLogger();
+  return next();
 })
 ```

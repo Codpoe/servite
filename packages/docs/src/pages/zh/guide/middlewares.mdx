@@ -5,17 +5,17 @@ Servite 默认会把 `src/server/middlewares/` 下的文件当做中间件。可
 ```ts
 import { defineMiddleware } from 'servite/runtime/server';
 
-export default defineMiddleware({
-  async onRequest(event) {},
-  async onBeforeResponse(event, response) {},
-})
+export default defineMiddleware(async (event, next) => {
+   // ... do something on request
+   await next(); // call next middleware
+   // ... do something before response
+});
 ```
 
 ## 执行顺序
 
 中间件的执行顺序是由文件的顺序决定的，并且有点类似于 Koa 的洋葱模型：
-一个请求到达服务器时，会首先经过从外向内的每一层中间件 `onRequest`，
-之后再由内向外依次返回经过相同的中间件 `onBeforeResponse`。
+一个请求到达服务器时，会首先从外向内经过每一层中间件，到达核心处理器后，再由内向外依次经过相同的中间件。
 
 例如，文件目录结构如下所示：
 
@@ -39,3 +39,20 @@ Request → a → b → c → Response
 为了使得中间件的执行顺序更为可控，推荐给文件名添加数字前缀，例如：`0.name.ts`，`1.name.ts` 等。
 但如果你有超过 10 个中间件，那么可以使用两位数字前缀，例如：`00.name.ts`，`01.name.ts`，
 这样能容纳 100 个中间件，已经完全足够了。
+
+## 提前响应
+
+如果想在中间件中提前响应请求，那么应该使用 `send()`、`event.node.res.end()` 等方法来提前发送响应，这时候也可以去掉 `await next()` 的调用了。
+
+```ts
+import { defineMiddleware } from 'servite/runtime/server';
+
+export default defineMiddleware(async (event, _next) => {
+   // 提前在中间件里发送响应
+   await send(event, 'some data');
+});
+```
+
+:::warning
+在中间件中，如果没有调用 `await next()` 来执行下一个中间件，并且请求还没有被响应，那么请求将会一直处于 pending 的状态，这通常是代码逻辑错误导致的。
+:::

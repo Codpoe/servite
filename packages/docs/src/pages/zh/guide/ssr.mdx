@@ -50,14 +50,13 @@ servite 已经默认开启了 SSR，无需额外配置。
 import { defineMiddleware } from 'servite/runtime/server';
 import os from 'os';
 
-export default defineMiddleware({
-  async onRequest(event) {
-    // 如果系统负载过高，则主动降级为 CSR
-    if (event.path === '/pageA' && os.loadavg()[0] > 1.5) {
-      event.context.ssr = false;
-    }
+export default defineMiddleware(async (event, next) => {
+  // 如果系统负载过高，则主动降级为 CSR
+  if (event.path === '/pageA' && os.loadavg()[0] > 1.5) {
+    event.context.ssr = false;
   }
-})
+  return next();
+});
 ```
 
 ## 缓存
@@ -72,20 +71,20 @@ TODO
 // src/server/middlewares/<name>.ts
 import { defineMiddleware } from 'servite/runtime/server';
 
-export default defineMiddleware({
-  async onRequest(event) {
-    if (event.path === '/pageA') {
-      // 在 head 顶部插入 meta 标签
-      event.context.template.inject({
-        tag: 'meta',
-        attrs: {
-          name: 'description',
-          content: 'This is a description'
-        },
-      });
-    }
+export default defineMiddleware(async (event, next) => {
+  if (event.path === '/pageA') {
+    // 在 head 顶部插入 meta 标签
+    event.context.template.inject({
+      tag: 'meta',
+      attrs: {
+        name: 'description',
+        content: 'This is a description'
+      },
+    });
   }
-})
+
+  return next();
+});
 ```
 
 ## 修改 SSR 返回的 HTML
@@ -96,20 +95,20 @@ export default defineMiddleware({
 // src/server/middlewares/<name>.ts
 import { defineMiddleware } from 'servite/runtime/server';
 
-export default defineMiddleware({
-  async onRequest(event) {
-    if (event.path === '/pageA') {
-      // 给 ssr 返回的 html body 加上额外的 script
-      event.context.html.inject({
-        injectTo: 'body',
-        tag: 'script',
-        attrs: {
-          src: '...'
-        }
-      });
-    }
+export default defineMiddleware(async (event, next) => {
+  if (event.path === '/pageA') {
+    // 给 ssr 返回的 html body 加上额外的 script
+    event.context.html.inject({
+      injectTo: 'body',
+      tag: 'script',
+      attrs: {
+        src: '...'
+      }
+    });
   }
-})
+
+  return next();
+});
 ```
 
 也可以通过 `event.context.html.addTransformer()` 方法修改 SSR 返回的 HTML 内容：
@@ -118,14 +117,14 @@ export default defineMiddleware({
 // src/server/middlewares/<name>.ts
 import { defineMiddleware } from 'servite/runtime/server';
 
-export default defineMiddleware({
-  async onRequest(event) {
-    if (event.path === '/pageA') {
-      // 修改 ssr 返回的 html string
-      event.context.html.addTransformer(html => {
-        return html.replace('<body>', '<body><div>Hello World</div>');
-      });
-    }
+export default defineMiddleware(async (event, next) => {
+  if (event.path === '/pageA') {
+    // 修改 ssr 返回的 html string
+    event.context.html.addTransformer(html => {
+      return html.replace('<body>', '<body><div>Hello World</div>');
+    });
   }
-})
+
+  return next();
+});
 ```
