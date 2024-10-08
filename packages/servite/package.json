@@ -9,10 +9,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Codpoe/servite-new.git"
+    "url": "git+https://github.com/Codpoe/servite.git"
   },
   "bugs": {
-    "url": "https://github.com/Codpoe/servite-new/issues"
+    "url": "https://github.com/Codpoe/servite/issues"
   },
   "author": "Codpoe <codpoe.me@gmail.com> (https://github.com/codpoe)",
   "type": "module",
