@@ -45,7 +45,7 @@ Request → a → b → c → Response
 如果想在中间件中提前响应请求，那么应该使用 `send()`、`event.node.res.end()` 等方法来提前发送响应，这时候也可以去掉 `await next()` 的调用了。
 
 ```ts
-import { defineMiddleware } from 'servite/runtime/server';
+import { defineMiddleware, send } from 'servite/runtime/server';
 
 export default defineMiddleware(async (event, _next) => {
    // 提前在中间件里发送响应
