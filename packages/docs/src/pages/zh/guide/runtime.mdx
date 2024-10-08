@@ -128,6 +128,11 @@ export default function Page() {
 }
 ```
 
+另外，Servite 对 react-router 的 Link 组件做了一些增强：
+
+- 在支持 hover 的设备上（`@media (hover: hover)`），鼠标 hover 到 Link 上时，会自动预取相应的路由组件 JS，这样可以减少路由跳转的等待时间。
+- 在**不**支持 hover 的设备上，当 Link 在视口内可见时，也会触发预取路由组件的 JS。
+
 ## server
 
 Servite 通过 `servite/runtime/server` 来提供一些服务端的运行时能力，具体 API 可以参考 [h3](https://github.com/unjs/h3)。

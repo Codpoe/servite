@@ -33,7 +33,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
     });
 
     useEffect(() => {
-      if (!elRef.current || window.matchMedia('(min-width: 640px)').matches) {
+      if (!elRef.current || window.matchMedia('(hover: hover)').matches) {
         return;
       }
 
