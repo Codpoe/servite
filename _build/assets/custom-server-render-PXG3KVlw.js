@@ -1,4 +1,4 @@
-import{j as s}from"./jsx-runtime-OjB1YB6s.js";import{u as e}from"./index-Crl2ozBJ.js";const c={commitTime:1728317250},d=[{id:"自定义服务端渲染",text:"自定义服务端渲染",depth:1}];function r(l){const i={code:"code",h1:"h1",li:"li",p:"p",pre:"pre",span:"span",ul:"ul",...e(),...l.components};return s.jsxs(s.Fragment,{children:[s.jsx(i.h1,{id:"自定义服务端渲染",children:"自定义服务端渲染"}),`
+import{j as s}from"./jsx-runtime-OjB1YB6s.js";import{u as e}from"./index-Crl2ozBJ.js";const c={commitTime:1728379536},d=[{id:"自定义服务端渲染",text:"自定义服务端渲染",depth:1}];function r(l){const i={code:"code",h1:"h1",li:"li",p:"p",pre:"pre",span:"span",ul:"ul",...e(),...l.components};return s.jsxs(s.Fragment,{children:[s.jsx(i.h1,{id:"自定义服务端渲染",children:"自定义服务端渲染"}),`
 `,s.jsxs(i.p,{children:["默认情况下，servite 会直接调用 React 的 ",s.jsx(i.code,{children:"renderToString"}),` 方法来渲染应用，
 这已经能适配很多场景了。然而如果你使用了 `,s.jsx(i.code,{children:"styled-jsx"})," 或 ",s.jsx(i.code,{children:"styled-components"}),` 之类的
 CSS-in-JS 样式方案，一般这些方案都会提供特定的工具让你在 SSR 时收集样式，然后将这些样式
