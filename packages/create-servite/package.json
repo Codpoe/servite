@@ -27,7 +27,7 @@
   "scripts": {
     "dev": "tsc -w",
     "build": "rimraf dist && tsc",
-    "release": "pnpm run build && changeset publish"
+    "prepublishOnly": "pnpm build"
   },
   "dependencies": {
     "execa": "^9.4.0",

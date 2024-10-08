@@ -64,7 +64,8 @@
   },
   "scripts": {
     "dev": "tsc -w",
-    "build": "rimraf dist && tsc"
+    "build": "rimraf dist && tsc",
+    "prepublishOnly": "pnpm build"
   },
   "peerDependencies": {
     "vinxi": "^0.4.3"
