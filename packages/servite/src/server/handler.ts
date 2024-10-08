@@ -170,6 +170,9 @@ export default defineEventHandler({
           });
         },
         onDone() {
+          if (event.handled) {
+            resolve();
+          }
           event.context._resolveMiddlewaresDone?.();
         },
         onError(err) {
