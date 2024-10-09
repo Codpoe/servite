@@ -215,7 +215,13 @@ function sendRenderError(event: H3Event, error: any) {
 }
 
 export default defineEventHandler({
-  onBeforeResponse,
+  onBeforeResponse: (event, response) => {
+    setResponseHeaders(event, {
+      'x-servite-ssr': Number(Boolean(event.context.ssr)),
+      'x-servite-ssr-fallback': Number(Boolean(event.context.ssrFallback)),
+    });
+    return onBeforeResponse(event, response);
+  },
   handler: async event => {
     try {
       return await render(event);

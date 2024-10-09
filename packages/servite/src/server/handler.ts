@@ -4,6 +4,7 @@ import {
   getQuery,
   getRequestHeader,
   H3Event,
+  setResponseHeaders,
 } from 'vinxi/http';
 import fileRoutes from 'vinxi/routes';
 import { addRoute, createRouter, findRoute } from 'rou3';
@@ -102,6 +103,10 @@ const rootMiddleware: Middleware = (event, next) => {
   ) {
     event.context.ssr = false;
   }
+
+  setResponseHeaders(event, {
+    'x-powered-by': 'Servite',
+  });
 
   return next();
 };
