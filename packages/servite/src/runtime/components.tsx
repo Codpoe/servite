@@ -2,11 +2,15 @@ import { useEffect, useState } from 'react';
 
 export interface ClientOnlyProps {
   children?: React.ReactNode;
+  fallback?: React.ReactNode;
 }
 
 let _isMounted = false;
 
-export const ClientOnly: React.FC<ClientOnlyProps> = ({ children }) => {
+export const ClientOnly: React.FC<ClientOnlyProps> = ({
+  fallback,
+  children,
+}) => {
   const [isMounted, setIsMounted] = useState(_isMounted);
 
   useEffect(() => {
@@ -15,7 +19,7 @@ export const ClientOnly: React.FC<ClientOnlyProps> = ({ children }) => {
   }, []);
 
   if (!isMounted) {
-    return null;
+    return fallback;
   }
 
   return <>{children}</>;

@@ -17,6 +17,7 @@ import {
 } from 'shadcn-react/icons';
 import { ClientOnly } from 'servite/runtime/components';
 import Toc from 'island:components/Toc';
+import Search from 'island:components/Search';
 import { Mdx } from '@/components/Mdx';
 import { useHandle } from '@/hooks/use-handle';
 import { sidebarItems } from '@/config/sidebar';
@@ -26,6 +27,18 @@ import { SidebarLink } from '@/components/SidebarLink';
 import './layout.css';
 
 const THEME_STORAGE_KEY = 'servite:theme';
+
+const supportedLangs = ['en', 'zh'];
+
+function getLangFromPathname(pathname: string) {
+  const lang = pathname.split('/')[1];
+
+  if (!lang) {
+    return supportedLangs[0];
+  }
+
+  return supportedLangs.includes(lang) ? lang : supportedLangs[0];
+}
 
 interface DocLayoutProps {
   fixedSidebarVisible: boolean;
@@ -61,7 +74,10 @@ function DocLayout({
           setFixedSidebarVisible(false);
         }}
       />
-      <div className="px-5 sm:px-7 flex-1 pt-6 pb-14 min-w-0">
+      <div
+        className="px-5 sm:px-7 flex-1 pt-6 pb-14 min-w-0"
+        data-pagefind-body
+      >
         <Mdx>
           <Outlet />
         </Mdx>
@@ -124,8 +140,12 @@ export default function Layout() {
 
   return (
     <>
-      <Helmet titleTemplate={`%s | Servite`} defaultTitle="Servite">
-        <title>{mdTitle}</title>
+      <Helmet
+        titleTemplate={`%s | Servite`}
+        defaultTitle="Servite"
+        htmlAttributes={{ lang: getLangFromPathname(pathname) }}
+      >
+        <title data-pagefind-meta={`title:${mdTitle}`}>{mdTitle}</title>
         <meta name="description" content="A full-stack React framework" />
         <script>{`const __theme = typeof document !== 'undefined' && window.localStorage.getItem('${THEME_STORAGE_KEY}') || 'light';
             if (__theme === 'dark') {
@@ -156,8 +176,12 @@ export default function Layout() {
                 </h2>
               </div>
             )}
-            <div className="ml-auto space-x-1">
-              <ClientOnly>
+            <div className="ml-auto space-x-1 flex items-start">
+              <Search
+                className="hidden md:block mr-2"
+                hydrate={{ on: 'media (min-width: 768px)' }}
+              />
+              <ClientOnly fallback={<button className="w-9" />}>
                 <Button
                   variant="ghost"
                   size="icon"
