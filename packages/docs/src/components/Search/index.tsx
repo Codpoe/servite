@@ -101,7 +101,7 @@ export function Search({ className }: SearchProps) {
         autoComplete="off"
         spellCheck="false"
         placeholder="Search"
-        defaultValue={inputValue}
+        value={inputValue}
         onChange={ev => {
           setInputValue(ev.target.value);
         }}
