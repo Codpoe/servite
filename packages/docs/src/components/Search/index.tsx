@@ -64,7 +64,8 @@ export function Search({ className }: SearchProps) {
         const pagefind: Pagefind = await import(
           /* @vite-ignore*/
           // @ts-ignore
-          '/pagefind/pagefind.js'
+          withoutTrailingSlash(import.meta.env.SERVER_BASE) +
+            '/pagefind/pagefind.js'
         );
 
         const search = await pagefind.search(input);
