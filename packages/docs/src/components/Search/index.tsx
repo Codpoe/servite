@@ -46,6 +46,26 @@ interface PagefindData {
   }[];
 }
 
+let pagefindPromise: Promise<Pagefind | undefined>;
+
+async function initPagefind(): Promise<Pagefind | undefined> {
+  return (pagefindPromise ||= (async () => {
+    if (import.meta.env.DEV) {
+      return;
+    }
+
+    const pagefind: Pagefind = await import(
+      /* @vite-ignore*/
+      // @ts-ignore
+      withoutTrailingSlash(import.meta.env.SERVER_BASE) +
+        '/pagefind/pagefind.js'
+    );
+
+    await pagefind.init();
+    return pagefind;
+  })());
+}
+
 export interface SearchProps extends IslandProps {
   className?: string;
 }
@@ -57,16 +77,11 @@ export function Search({ className }: SearchProps) {
   const search = useMemo(
     () =>
       debounce(async (input: string) => {
-        if (import.meta.env.DEV) {
+        const pagefind = await initPagefind();
+
+        if (!pagefind) {
           return;
         }
-
-        const pagefind: Pagefind = await import(
-          /* @vite-ignore*/
-          // @ts-ignore
-          withoutTrailingSlash(import.meta.env.SERVER_BASE) +
-            '/pagefind/pagefind.js'
-        );
 
         const search = await pagefind.search(input);
 
@@ -96,15 +111,13 @@ export function Search({ className }: SearchProps) {
     <div className={cn('relative group', className)}>
       <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 -mt-2 w-4 h-4 text-muted-foreground" />
       <Input
-        className="pl-8 pr-10 group-hover:border-foreground/50 group-focus-within:border-foreground/50 transition-colors"
+        className="pl-8 pr-10 w-52 group-hover:border-foreground/50 group-focus-within:border-foreground/50 dark:bg-secondary dark:border-foreground/5 transition-colors"
         aria-label="Search"
         autoComplete="off"
         spellCheck="false"
         placeholder="Search"
         value={inputValue}
-        onChange={ev => {
-          setInputValue(ev.target.value);
-        }}
+        onChange={ev => setInputValue(ev.target.value)}
         onKeyDown={() => {
           // prevent page scroll while typing
           const scrollTop = getScrollTop();
@@ -112,6 +125,7 @@ export function Search({ className }: SearchProps) {
             window.scrollTo({ top: scrollTop });
           });
         }}
+        onMouseEnter={() => initPagefind()}
       />
       <kbd className="pointer-events-none absolute top-1/2 right-1.5 -translate-y-1/2 h-5 select-none flex items-center gap-1 rounded border bg-secondary px-1.5 font-mono text-[10px] font-medium opacity-70 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
         <span className="">⌘</span>K

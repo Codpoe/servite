@@ -94,6 +94,10 @@ async function getApp(event: H3Event, helmetContext: HelmetContext) {
     return handlerContext;
   }
 
+  // set response status
+  // For example, if no route is matched, the statusCode here will be 404.
+  setResponseStatus(event, handlerContext.statusCode);
+
   // init routes handle
   await Promise.all(
     handlerContext.matches.map(m => m.route.handle?.[HANDLE_INIT_KEY]?.()),
