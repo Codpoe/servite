@@ -184,7 +184,19 @@ async function init() {
     );
   }
 
-  // 6. Add demo page
+  // 6. Modify .gitignore
+  // =====================================
+  const gitignorePath = path.resolve(root, '.gitignore');
+
+  if (fs.existsSync(gitignorePath)) {
+    fs.appendFileSync(
+      gitignorePath,
+      '\n# Servite\n.vinxi\n.output\n.vercel\n',
+      'utf-8',
+    );
+  }
+
+  // 7. Add demo page
   // =====================================
   const pagesPath = path.resolve(src, 'pages');
   fs.mkdirSync(pagesPath);
