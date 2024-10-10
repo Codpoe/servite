@@ -1,5 +1,11 @@
 # servite
 
+## 2.0.3
+
+### Patch Changes
+
+- feat: add special response headers for node server
+
 ## 2.0.2
 
 ### Patch Changes

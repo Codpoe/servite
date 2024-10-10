@@ -1,5 +1,11 @@
 # create-servite
 
+## 2.0.2
+
+### Patch Changes
+
+- fix: modify .gitignore
+
 ## 2.0.1
 
 ### Patch Changes
