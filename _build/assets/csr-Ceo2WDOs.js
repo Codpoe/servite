@@ -1,4 +1,4 @@
-import{j as n}from"./jsx-runtime-OjB1YB6s.js";import{u as r}from"./index-Crl2ozBJ.js";const d={commitTime:1728711056},h=[{id:"csr---客户端渲染",text:"CSR - 客户端渲染",depth:1},{id:"介绍",text:"介绍",depth:2},{id:"使用",text:"使用",depth:2}];function i(t){const e={a:"a",h1:"h1",h2:"h2",li:"li",p:"p",ul:"ul",...r(),...t.components};return n.jsxs(n.Fragment,{children:[n.jsx(e.h1,{id:"csr---客户端渲染",children:"CSR - 客户端渲染"}),`
+import{j as n}from"./jsx-runtime-OjB1YB6s.js";import{u as r}from"./index-Crl2ozBJ.js";const d={commitTime:1728711465},h=[{id:"csr---客户端渲染",text:"CSR - 客户端渲染",depth:1},{id:"介绍",text:"介绍",depth:2},{id:"使用",text:"使用",depth:2}];function i(t){const e={a:"a",h1:"h1",h2:"h2",li:"li",p:"p",ul:"ul",...r(),...t.components};return n.jsxs(n.Fragment,{children:[n.jsx(e.h1,{id:"csr---客户端渲染",children:"CSR - 客户端渲染"}),`
 `,n.jsx(e.h2,{id:"介绍",children:"介绍"}),`
 `,n.jsx(e.p,{children:`CSR（Client-Side Rendering 客户端渲染）是指在浏览器中渲染 Web 应用。
 与 SSR / SSG 相比，CSR 会有一些缺点：`}),`

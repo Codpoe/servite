@@ -1,4 +1,4 @@
-import{j as t}from"./jsx-runtime-OjB1YB6s.js";import{u as o}from"./index-Crl2ozBJ.js";const x={commitTime:1728711056},d=[{id:"介绍",text:"介绍",depth:1},{id:"项目初衷",text:"项目初衷",depth:2},{id:"为什么基于-vinxi",text:"为什么基于 vinxi",depth:2}];function r(e){const n={a:"a",code:"code",h1:"h1",h2:"h2",p:"p",...o(),...e.components},{Callout:i}=n;return i||s("Callout"),t.jsxs(t.Fragment,{children:[t.jsx(n.h1,{id:"介绍",children:"介绍"}),`
+import{j as t}from"./jsx-runtime-OjB1YB6s.js";import{u as o}from"./index-Crl2ozBJ.js";const x={commitTime:1728711465},d=[{id:"介绍",text:"介绍",depth:1},{id:"项目初衷",text:"项目初衷",depth:2},{id:"为什么基于-vinxi",text:"为什么基于 vinxi",depth:2}];function r(e){const n={a:"a",code:"code",h1:"h1",h2:"h2",p:"p",...o(),...e.components},{Callout:i}=n;return i||s("Callout"),t.jsxs(t.Fragment,{children:[t.jsx(n.h1,{id:"介绍",children:"介绍"}),`
 `,t.jsx(i,{type:"warning",children:t.jsxs(n.p,{children:[`这个项目主要是为了实践自己对一个全栈 React 开发框架的一些想法，以及满足我个人的需求，
 没有做太多封装、边界处理等，项目很多地方是考虑不周的，并且功能还在逐渐完善的过程当中，所以本项目不适合作为一个生产环境的项目。
 如果你需要一个完整的 React 开发框架，可以考虑使用 `,t.jsx(n.a,{href:"https://nextjs.org/",children:"Next.js"}),"、",t.jsx(n.a,{href:"https://remix.run/",children:"Remix"}),"..."]})}),`
