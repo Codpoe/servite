@@ -1,10 +1,13 @@
+import { forwardRef, lazy, useEffect, useLayoutEffect, useRef } from 'react';
 import { DataRouteObject, Outlet, useRouteError } from 'react-router-dom';
 import fileRoutes from 'vinxi/routes';
-import { lazyRoute } from '@vinxi/react';
 import { getManifest } from 'vinxi/manifest';
 import { Manifest } from 'vinxi/dist/types/types/manifest';
-import { useEffect } from 'react';
+import { cleanupStyles, preloadStyles, updateStyles } from 'vinxi/css';
+import { renderAsset } from '@vinxi/react';
 import { FsRouteMod, PageFsRouteModule, RouterName } from '../types/index.js';
+
+const isBrowser = typeof document !== 'undefined';
 
 const dirname = (path: string) => path.replace(/\/[^/]+$/, '') || '/';
 
@@ -18,6 +21,103 @@ const lazyMod = (
     return manifest.inputs[routeMod.src].import();
   }
   return routeMod.import();
+};
+
+type EnhancedComponent = React.ComponentType<any> & {
+  /**
+   * Preload the route component required for the current page
+   */
+  preload: () => Promise<React.ComponentType<any>>;
+  /**
+   * Prefetch route component that may be needed in the future or next page
+   */
+  prefetch: () => Promise<{ mod: any; assets: any[] }>;
+};
+
+const lazyRoute = (
+  routeMod: FsRouteMod,
+  clientManifest: Manifest,
+  ssrManifest: Manifest,
+  exported: 'default' | 'ErrorBoundary',
+): EnhancedComponent => {
+  let fetchAssetsPromise: Promise<any[]>;
+
+  const fetchAssets = async () => {
+    return (fetchAssetsPromise ||=
+      clientManifest.inputs?.[routeMod.src].assets());
+  };
+
+  const fetchModAndAssets = async () => {
+    const [mod, assets] = await Promise.all([
+      lazyMod(routeMod, clientManifest, ssrManifest),
+      fetchAssets(),
+    ]);
+    return { mod, assets };
+  };
+
+  const factory = async () => {
+    const { mod, assets } = await fetchModAndAssets();
+    const Component = mod[exported];
+    let devStyles: any[] | undefined;
+
+    if (import.meta.env.DEV) {
+      if (import.meta.hot && isBrowser) {
+        devStyles = assets.filter(asset => asset?.tag === 'style');
+        import.meta.hot.on('css-update', data => {
+          updateStyles(devStyles!, data);
+        });
+      }
+    } else if (isBrowser) {
+      const styles = assets.filter(asset => asset?.attrs.rel === 'stylesheet');
+      preloadStyles(styles);
+    }
+
+    // eslint-disable-next-line react/display-name
+    const Wrapped = forwardRef((props, ref) => {
+      if (isBrowser && devStyles) {
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        useLayoutEffect(() => {
+          return () => {
+            // remove style tags added by vite when a CSS file is imported
+            cleanupStyles(devStyles);
+          };
+        }, []);
+      }
+
+      return (
+        <>
+          {assets.map(asset => renderAsset(asset))}
+          <Component {...props} ref={ref} />
+        </>
+      );
+    });
+
+    return { default: Wrapped };
+  };
+
+  const Lazy = lazy(factory);
+  let Preloaded: React.ComponentType<any>;
+  let preloadPromise: Promise<React.ComponentType<any>>;
+
+  const Component = forwardRef(function LazyWithPreload(props, ref) {
+    const componentRef = useRef(Preloaded ?? Lazy);
+    return <componentRef.current {...props} ref={ref} />;
+  });
+
+  const Enhanced: EnhancedComponent = Component as any;
+
+  Enhanced.preload = () => {
+    return (preloadPromise ||= factory().then(mod => {
+      Preloaded = mod.default;
+      return Preloaded;
+    }));
+  };
+
+  Enhanced.prefetch = () => {
+    return fetchModAndAssets();
+  };
+
+  return Enhanced;
 };
 
 const RootErrorBoundary = () => {
@@ -158,8 +258,15 @@ export function getRoutes(): DataRouteObject[] {
   const layoutStack: DataRouteObject[] = [];
 
   for (const fsRoute of fileRoutes as PageFsRouteModule[]) {
+    const Component = lazyRoute(
+      fsRoute.$component,
+      clientManifest,
+      ssrManifest,
+      'default',
+    );
+
     const route: DataRouteObject = {
-      id: fsRoute.filePath,
+      id: fsRoute.$component.src || fsRoute.filePath,
       path: fsRoute.isLayout ? undefined : fsRoute.routePath,
       loader: fsRoute.hasLoader
         ? async (...args: any[]) => {
@@ -181,12 +288,7 @@ export function getRoutes(): DataRouteObject[] {
             return mod.action?.(...args);
           }
         : undefined,
-      Component: lazyRoute(
-        fsRoute.$component,
-        clientManifest,
-        ssrManifest,
-        'default',
-      ),
+      Component,
       ErrorBoundary: fsRoute.hasErrorBoundary
         ? lazyRoute(
             fsRoute.$component,
@@ -199,11 +301,7 @@ export function getRoutes(): DataRouteObject[] {
         ...fsRoute.handle,
         ...fsRoute.$$handle?.require()?.handle,
         async [HANDLE_INIT_KEY]() {
-          const mod = await lazyMod(
-            fsRoute.$component,
-            clientManifest,
-            ssrManifest,
-          );
+          const { mod } = await Component.prefetch();
 
           if (this?.[HANDLE_INIT_KEY]) {
             Object.assign(this, {

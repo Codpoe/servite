@@ -43,7 +43,20 @@ declare global {
     );
   };
 
-  window.__servite_init_route_handles__(window.location);
+  const matches = matchRoutes(
+    routes,
+    window.location,
+    import.meta.env.SERVER_BASE,
+  );
+
+  // preload the routes before creating router
+  // so we can hydrate the SSR-rendered content synchronously
+  if (matches?.length) {
+    await Promise.all([
+      ...matches.map(m => (m.route.Component as any)?.preload?.()),
+      window.__servite_init_route_handles__(window.location),
+    ]);
+  }
 
   window.__servite_react_router__ = createBrowserRouter(routes, {
     basename: import.meta.env.SERVER_BASE,

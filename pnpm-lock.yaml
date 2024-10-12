@@ -93,7 +93,7 @@ importers:
         version: 18.3.0
       '@vitejs/plugin-react':
         specifier: ^4.3.1
-        version: 4.3.1(vite@5.4.2(@types/node@22.5.2)(terser@5.31.6))
+        version: 4.3.1(vite@5.4.8(@types/node@22.5.2)(terser@5.31.6))
       autoprefixer:
         specifier: ^10.4.20
         version: 10.4.20(postcss@8.4.44)
@@ -128,8 +128,8 @@ importers:
         specifier: ^8.0.1
         version: 8.4.0(eslint@9.9.1(jiti@1.21.6))(typescript@5.5.4)
       vite:
-        specifier: ^5.4.1
-        version: 5.4.2(@types/node@22.5.2)(terser@5.31.6)
+        specifier: ^5.4.8
+        version: 5.4.8(@types/node@22.5.2)(terser@5.31.6)
 
   packages/examples/basic:
     dependencies:
@@ -162,14 +162,14 @@ importers:
         specifier: ^3.0.1
         version: 3.0.1(@types/react@18.3.5)(react@18.3.1)
       '@vinxi/react':
-        specifier: ^0.2.4
-        version: 0.2.4
+        specifier: ^0.2.5
+        version: 0.2.5
       '@vinxi/server-functions':
-        specifier: ^0.4.2
-        version: 0.4.2(vinxi@0.4.3(@types/node@22.5.2)(ioredis@5.4.1)(terser@5.31.6))
+        specifier: ^0.4.3
+        version: 0.4.3(vinxi@0.4.3(@types/node@22.5.2)(ioredis@5.4.1)(terser@5.31.6))
       '@vitejs/plugin-react':
         specifier: ^4.3.1
-        version: 4.3.1(vite@5.4.2(@types/node@22.5.2)(terser@5.31.6))
+        version: 4.3.1(vite@5.4.8(@types/node@22.5.2)(terser@5.31.6))
       defu:
         specifier: ^6.1.4
         version: 6.1.4
@@ -214,7 +214,7 @@ importers:
         version: 2.1.0(rollup@4.21.2)
       vite-tsconfig-paths:
         specifier: ^5.0.1
-        version: 5.0.1(typescript@5.5.4)(vite@5.4.2(@types/node@22.5.2)(terser@5.31.6))
+        version: 5.0.1(typescript@5.5.4)(vite@5.4.8(@types/node@22.5.2)(terser@5.31.6))
       zod:
         specifier: ^3.23.8
         version: 3.23.8
@@ -2173,18 +2173,18 @@ packages:
     resolution: {integrity: sha512-WSN1z931BtasZJlgPp704zJFnQFRg7yzSjkm3MzAWQYe4uXFXlFr1hc5Ac2zae5/HDOz5x1/zDM5Cb54vTCnWw==}
     hasBin: true
 
-  '@vinxi/plugin-directives@0.4.2':
-    resolution: {integrity: sha512-lQuKA6Bc6z3tGmqDTSyR2CC0aSOMc0nBlHmk+5HoROSJ9Lp24xVSJjqEyaBNEnUMaq4itw+4w2IGUX7+qoMhJQ==}
+  '@vinxi/plugin-directives@0.4.3':
+    resolution: {integrity: sha512-Ey+TRIwyk8871PKhQel8NyZ9B6N0Tvhjo1QIttTyrV0d7BfUpri5GyGygmBY7fHClSE/vqaNCCZIKpTL3NJAEg==}
     peerDependencies:
-      vinxi: ^0.4.2
+      vinxi: ^0.4.3
 
-  '@vinxi/react@0.2.4':
-    resolution: {integrity: sha512-FYmmAWEzInpx5OAFGFSGlVauTdzDhVg8vVhqoc3DlhZAvsux3WyY/I3qp1IkCXI+mIrDFetFOZCahi3FkpSEWA==}
+  '@vinxi/react@0.2.5':
+    resolution: {integrity: sha512-Ubjv/JfYWTxFbuaHxKOeq6hQMuSuIH6eZXRf27wb82YWM82z3VY1nwZzTHgyveHg/EPSOK0p8LUmbw9758xTlw==}
 
-  '@vinxi/server-functions@0.4.2':
-    resolution: {integrity: sha512-hI6MstgFx5LqR0ZFI2NU7WVBfSuurjD/NmQBE38FC1TY9gOwXCqVXi8aQ/DEUnO5mOGNBE0iPohIUxmsbHfnUQ==}
+  '@vinxi/server-functions@0.4.3':
+    resolution: {integrity: sha512-kVYrOrCMHwGvHRwpaeW2/PE7URcGtz4Rk/hIHa2xjt5PGopzzB/Y5GC8YgZjtqSRqo0ElAKsEik7UE6CXH3HXA==}
     peerDependencies:
-      vinxi: ^0.4.2
+      vinxi: ^0.4.3
 
   '@vitejs/plugin-react@4.3.1':
     resolution: {integrity: sha512-m/V2syj5CuVnaxcUJOQRel/Wr31FFXRFlnOoq1TVtkCxsY5veGMTEmpWHndrhB2U8ScHtCQB1e+4hWYExQc6Lg==}
@@ -5609,8 +5609,8 @@ packages:
       vite:
         optional: true
 
-  vite@5.4.2:
-    resolution: {integrity: sha512-dDrQTRHp5C1fTFzcSaMxjk6vdpKvT+2/mIdE07Gw2ykehT49O0z/VHS3zZ8iV/Gh8BJJKHWOe5RjaNrW5xf/GA==}
+  vite@5.4.8:
+    resolution: {integrity: sha512-FqrItQ4DT1NC4zCUqMB4c4AZORMKIa0m8/URVCZ77OZ/QSNeJ54bU1vrFADbDsuwfIPcgknRkmqakQcgnL4GiQ==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
@@ -7765,7 +7765,7 @@ snapshots:
     transitivePeerDependencies:
       - uWebSockets.js
 
-  '@vinxi/plugin-directives@0.4.2(vinxi@0.4.3(@types/node@22.5.2)(ioredis@5.4.1)(terser@5.31.6))':
+  '@vinxi/plugin-directives@0.4.3(vinxi@0.4.3(@types/node@22.5.2)(ioredis@5.4.1)(terser@5.31.6))':
     dependencies:
       '@babel/parser': 7.25.6
       acorn: 8.12.1
@@ -7778,11 +7778,11 @@ snapshots:
       tslib: 2.7.0
       vinxi: 0.4.3(@types/node@22.5.2)(ioredis@5.4.1)(terser@5.31.6)
 
-  '@vinxi/react@0.2.4': {}
+  '@vinxi/react@0.2.5': {}
 
-  '@vinxi/server-functions@0.4.2(vinxi@0.4.3(@types/node@22.5.2)(ioredis@5.4.1)(terser@5.31.6))':
+  '@vinxi/server-functions@0.4.3(vinxi@0.4.3(@types/node@22.5.2)(ioredis@5.4.1)(terser@5.31.6))':
     dependencies:
-      '@vinxi/plugin-directives': 0.4.2(vinxi@0.4.3(@types/node@22.5.2)(ioredis@5.4.1)(terser@5.31.6))
+      '@vinxi/plugin-directives': 0.4.3(vinxi@0.4.3(@types/node@22.5.2)(ioredis@5.4.1)(terser@5.31.6))
       acorn: 8.12.1
       acorn-loose: 8.4.0
       acorn-typescript: 1.4.13(acorn@8.12.1)
@@ -7791,14 +7791,14 @@ snapshots:
       recast: 0.23.9
       vinxi: 0.4.3(@types/node@22.5.2)(ioredis@5.4.1)(terser@5.31.6)
 
-  '@vitejs/plugin-react@4.3.1(vite@5.4.2(@types/node@22.5.2)(terser@5.31.6))':
+  '@vitejs/plugin-react@4.3.1(vite@5.4.8(@types/node@22.5.2)(terser@5.31.6))':
     dependencies:
       '@babel/core': 7.25.2
       '@babel/plugin-transform-react-jsx-self': 7.24.7(@babel/core@7.25.2)
       '@babel/plugin-transform-react-jsx-source': 7.24.7(@babel/core@7.25.2)
       '@types/babel__core': 7.20.5
       react-refresh: 0.14.2
-      vite: 5.4.2(@types/node@22.5.2)(terser@5.31.6)
+      vite: 5.4.8(@types/node@22.5.2)(terser@5.31.6)
     transitivePeerDependencies:
       - supports-color
 
@@ -12030,7 +12030,7 @@ snapshots:
       unctx: 2.3.1
       unenv: 1.10.0
       unstorage: 1.10.2(ioredis@5.4.1)
-      vite: 5.4.2(@types/node@22.5.2)(terser@5.31.6)
+      vite: 5.4.8(@types/node@22.5.2)(terser@5.31.6)
       zod: 3.23.8
     transitivePeerDependencies:
       - '@azure/app-configuration'
@@ -12094,18 +12094,18 @@ snapshots:
       - rollup
       - supports-color
 
-  vite-tsconfig-paths@5.0.1(typescript@5.5.4)(vite@5.4.2(@types/node@22.5.2)(terser@5.31.6)):
+  vite-tsconfig-paths@5.0.1(typescript@5.5.4)(vite@5.4.8(@types/node@22.5.2)(terser@5.31.6)):
     dependencies:
       debug: 4.3.6
       globrex: 0.1.2
       tsconfck: 3.1.3(typescript@5.5.4)
     optionalDependencies:
-      vite: 5.4.2(@types/node@22.5.2)(terser@5.31.6)
+      vite: 5.4.8(@types/node@22.5.2)(terser@5.31.6)
     transitivePeerDependencies:
       - supports-color
       - typescript
 
-  vite@5.4.2(@types/node@22.5.2)(terser@5.31.6):
+  vite@5.4.8(@types/node@22.5.2)(terser@5.31.6):
     dependencies:
       esbuild: 0.21.5
       postcss: 8.4.44

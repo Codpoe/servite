@@ -127,7 +127,7 @@ export default function Layout() {
       } else {
         setHeaderMdTitleVisible(false);
       }
-    }, 50);
+    }, 100);
 
     handleScroll();
 
