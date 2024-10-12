@@ -1,5 +1,11 @@
 # servite
 
+## 2.0.4
+
+### Patch Changes
+
+- fix: fix hydrate error
+
 ## 2.0.3
 
 ### Patch Changes
