@@ -41,6 +41,14 @@ declare module 'vinxi/http' {
       addTransformer(fn: HtmlTransformer): void;
     };
     /**
+     * Whether the request is a server endpoint request.
+     */
+    isServerRequest?: boolean;
+    /**
+     * Whether the request is a page request.
+     */
+    isPageRequest?: boolean;
+    /**
      * Whether to use SSR
      */
     ssr?: boolean;

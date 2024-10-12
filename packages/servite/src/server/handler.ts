@@ -65,12 +65,8 @@ const rootMiddleware: Middleware = (event, next) => {
     event.path,
   );
 
-  // if (event.context._matchedServerFsRoute) {
-  //   event._path = withoutBase(event.path, import.meta.env.ROUTER_SERVER_BASE);
-  //   return;
-  // }
-
-  // event._path = withoutBase(event.path, import.meta.env.ROUTER_SSR_BASE);
+  event.context.isServerRequest = Boolean(event.context._matchedServerFsRoute);
+  event.context.isPageRequest = !event.context.isServerRequest;
 
   // Add utils for ssr.
   event.context.template = {
