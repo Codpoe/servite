@@ -1,5 +1,11 @@
 # servite
 
+## 2.0.5
+
+### Patch Changes
+
+- fix: add new field in context to flag the request type
+
 ## 2.0.4
 
 ### Patch Changes
