@@ -1,0 +1,1 @@
+import{r as t,j as r}from"./jsx-runtime-OjB1YB6s.js";import{L as e}from"./router-DOCjaTsd.js";import{d as i}from"./index-DsYWWv1e.js";function c(){const s=i(),a=t.useId();return r.jsxs("div",{id:a,children:[r.jsx("div",{children:"B Page"}),r.jsx("div",{children:JSON.stringify(s)}),r.jsx(e,{to:"/a",children:"To A Page"})]})}export{c as default};
