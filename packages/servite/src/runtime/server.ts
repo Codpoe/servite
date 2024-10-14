@@ -74,6 +74,12 @@ export interface EventHandlerForUnifiedInvocation<
       ? FetchOptions & { routerParams: RouterParams }
       : FetchOptions,
   ): Promise<Result>;
+  raw: (
+    args: Args,
+    opts?: RouterParams extends NonNullable<RouterParams>
+      ? FetchOptions & { routerParams: RouterParams }
+      : FetchOptions,
+  ) => Promise<Response>;
 }
 
 type GetRequestArgs<T extends EventHandlerRequest> =
@@ -91,7 +97,9 @@ export function defineEventHandler<
     | EventHandler<Request, Response>
     | EventHandlerObject<Request, Response>,
 ) {
-  return _defineEventHandler(handler) as EventHandlerForUnifiedInvocation<
+  return _defineEventHandler(
+    handler,
+  ) as any as EventHandlerForUnifiedInvocation<
     GetRequestArgs<Request>,
     Request['routerParams'],
     Awaited<Response>

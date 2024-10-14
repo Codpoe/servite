@@ -110,6 +110,10 @@ export default function ${apiName}(args, { routerParams = {}, ...opts } = {}) {
     ...opts,
   });
 }
+
+${apiName}.raw = (args, opts) => {
+  return ${apiName}(args, { ...opts, _raw: true });
+};
 `;
       }
     },

@@ -1,4 +1,4 @@
-import { forwardRef, lazy, useEffect, useLayoutEffect, useRef } from 'react';
+import { lazy, useEffect, useLayoutEffect, useRef } from 'react';
 import { DataRouteObject, Outlet, useRouteError } from 'react-router-dom';
 import fileRoutes from 'vinxi/routes';
 import { getManifest } from 'vinxi/manifest';
@@ -72,8 +72,7 @@ const lazyRoute = (
       preloadStyles(styles);
     }
 
-    // eslint-disable-next-line react/display-name
-    const Wrapped = forwardRef((props, ref) => {
+    const Wrapped = (props: any) => {
       if (isBrowser && devStyles) {
         // eslint-disable-next-line react-hooks/rules-of-hooks
         useLayoutEffect(() => {
@@ -87,10 +86,10 @@ const lazyRoute = (
       return (
         <>
           {assets.map(asset => renderAsset(asset))}
-          <Component {...props} ref={ref} />
+          <Component {...props} />
         </>
       );
-    });
+    };
 
     return { default: Wrapped };
   };
@@ -99,10 +98,10 @@ const lazyRoute = (
   let Preloaded: React.ComponentType<any>;
   let preloadPromise: Promise<React.ComponentType<any>>;
 
-  const Component = forwardRef(function LazyWithPreload(props, ref) {
+  const Component = (props: any) => {
     const componentRef = useRef(Preloaded ?? Lazy);
-    return <componentRef.current {...props} ref={ref} />;
-  });
+    return <componentRef.current {...props} />;
+  };
 
   const Enhanced: EnhancedComponent = Component as any;
 

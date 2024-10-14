@@ -8,14 +8,16 @@ export default function Home() {
   const loaderData = useLoaderData() as LoaderData;
   const [count, setCount] = useState(0);
 
-  const [user, setUse] = useState<Awaited<LoaderData['getUserPromise']>>();
+  const [user, setUser] = useState<Awaited<LoaderData['getUserPromise']>>();
+  const [rawUserResponse, setRawUserReponse] = useState<Response | undefined>();
   const [serverFn_1_res, setServerFn_1_res] =
     useState<Awaited<ReturnType<typeof serverFn_1>>>();
   const [serverFn_2_res, setServerFn_2_res] =
     useState<Awaited<ReturnType<typeof serverFn_2>>>();
 
   useEffect(() => {
-    getUser({}).then(setUse);
+    getUser({}).then(setUser);
+    getUser.raw({}).then(setRawUserReponse);
     serverFn_1().then(setServerFn_1_res);
     serverFn_2().then(setServerFn_2_res);
   }, []);
@@ -41,6 +43,15 @@ export default function Home() {
       </Suspense>
       <div className="text-red-500">
         client user: {JSON.stringify(user || null)}
+      </div>
+      <div className="text-red-500">
+        client raw user response:{' '}
+        {JSON.stringify({
+          ok: rawUserResponse?.ok,
+          status: rawUserResponse?.status,
+          statusText: rawUserResponse?.statusText,
+          'content-type': rawUserResponse?.headers.get('content-type'),
+        })}
       </div>
       <div>serverFn_1: {JSON.stringify(serverFn_1_res || null)}</div>
       <div>serverFn_2: {JSON.stringify(serverFn_2_res || null)}</div>
