@@ -10,6 +10,7 @@ import {
 import { HelmetProvider } from 'react-helmet-async';
 import { createRoot, hydrateRoot, Root } from 'react-dom/client';
 import { getRoutes, HANDLE_INIT_KEY } from './routes.js';
+import { RouterHydration } from './RouterHydration.js';
 
 declare global {
   interface Window {
@@ -67,12 +68,15 @@ declare global {
   });
 
   const app = (
-    <HelmetProvider>
-      <RouterProvider
-        router={window.__servite_react_router__}
-        future={{ v7_startTransition: true }}
-      />
-    </HelmetProvider>
+    <>
+      <HelmetProvider>
+        <RouterProvider
+          router={window.__servite_react_router__}
+          future={{ v7_startTransition: true }}
+        />
+      </HelmetProvider>
+      <RouterHydration />
+    </>
   );
 
   if (window.__servite__?.ssr) {

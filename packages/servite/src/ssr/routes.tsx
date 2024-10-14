@@ -7,8 +7,6 @@ import { cleanupStyles, preloadStyles, updateStyles } from 'vinxi/css';
 import { renderAsset } from '@vinxi/react';
 import { FsRouteMod, PageFsRouteModule, RouterName } from '../types/index.js';
 
-const isBrowser = typeof document !== 'undefined';
-
 const dirname = (path: string) => path.replace(/\/[^/]+$/, '') || '/';
 
 const lazyMod = (
@@ -61,19 +59,19 @@ const lazyRoute = (
     let devStyles: any[] | undefined;
 
     if (import.meta.env.DEV) {
-      if (import.meta.hot && isBrowser) {
+      if (import.meta.hot && !import.meta.env.SSR) {
         devStyles = assets.filter(asset => asset?.tag === 'style');
         import.meta.hot.on('css-update', data => {
           updateStyles(devStyles!, data);
         });
       }
-    } else if (isBrowser) {
+    } else if (!import.meta.env.SSR) {
       const styles = assets.filter(asset => asset?.attrs.rel === 'stylesheet');
       preloadStyles(styles);
     }
 
     const Wrapped = (props: any) => {
-      if (isBrowser && devStyles) {
+      if (!import.meta.env.SSR && devStyles) {
         // eslint-disable-next-line react-hooks/rules-of-hooks
         useLayoutEffect(() => {
           return () => {
@@ -85,7 +83,14 @@ const lazyRoute = (
 
       return (
         <>
-          {assets.map(asset => renderAsset(asset))}
+          {assets.map(asset => {
+            const attrs = { ...asset.attrs };
+            if (attrs.fetchPriority) {
+              attrs.fetchpriority = attrs.fetchPriority;
+              delete attrs.fetchPriority;
+            }
+            return renderAsset({ ...asset, attrs });
+          })}
           <Component {...props} />
         </>
       );

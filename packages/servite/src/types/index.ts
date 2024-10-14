@@ -93,6 +93,8 @@ export interface HtmlTag {
   children?: string | HtmlTag[];
 }
 
+export type HtmlTagWithoutInjectTo = Omit<HtmlTag, 'injectTo'>;
+
 export interface HtmlTransformer {
   (html: string): string | Promise<string>;
 }

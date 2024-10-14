@@ -63,30 +63,6 @@ export default defineMiddleware(async (event, next) => {
 
 TODO
 
-## 修改 SSR template
-
-在中间件 onRequest 里可以通过 `event.context.template.inject()` 方法给 SSR template 注入 HTML 标签。
-
-```ts
-// src/server/middlewares/<name>.ts
-import { defineMiddleware } from 'servite/runtime/server';
-
-export default defineMiddleware(async (event, next) => {
-  if (event.path === '/pageA') {
-    // 在 head 顶部插入 meta 标签
-    event.context.template.inject({
-      tag: 'meta',
-      attrs: {
-        name: 'description',
-        content: 'This is a description'
-      },
-    });
-  }
-
-  return next();
-});
-```
-
 ## 修改 SSR 返回的 HTML
 
 在中间件 onRequest 里可以通过 `event.context.html.inject()` 方法给 SSR 返回的 HTML 注入标签。
@@ -128,3 +104,8 @@ export default defineMiddleware(async (event, next) => {
   return next();
 });
 ```
+
+:::warning
+需要注意的是，Servite 使用的是 Streaming SSR，所以上述 html transformer 会被多次调用，即每个 html 分块都会被调用一次 transform，
+所以在 transform 函数中修改 html 内容时需要注意避免重复修改。
+:::

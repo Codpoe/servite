@@ -1,54 +1,25 @@
 import { Suspense } from 'react';
 import { Await, useAsyncError, useAsyncValue } from 'react-router-dom';
-import { StaticHandlerContext } from 'react-router-dom/server';
+import type { StaticHandlerContext } from 'react-router-dom/server';
 
 export interface RouterHydrationProps {
-  context: StaticHandlerContext;
+  context?: StaticHandlerContext;
 }
 
 export function RouterHydration({ context }: RouterHydrationProps) {
-  const { loaderData, actionData, errors } = context;
+  // client
+  if (!import.meta.env.SSR) {
+    return null;
+  }
 
-  const json = htmlEscape(
-    JSON.stringify(
-      JSON.stringify({
-        loaderData,
-        actionData,
-        errors: serializeErrors(errors),
-      }),
-    ),
-  );
-
-  const deferPromises = getDeferPromises(context);
+  // server
+  const deferPromises = getDeferPromises(context!);
 
   return (
     <>
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `window.__staticRouterHydrationData = JSON.parse(${json});
-window.__staticRouterHydrationDataPromises = {};
-${deferPromises
-  .map(
-    ({
-      loaderKey,
-      dataKey,
-    }) => `window.__staticRouterHydrationData.loaderData['${loaderKey}']['${dataKey}'] = new Promise(
-  (resolve, reject) => {
-    window.__staticRouterHydrationDataPromises['${loaderKey}'] = window.__staticRouterHydrationDataPromises['${loaderKey}'] || {};
-    window.__staticRouterHydrationDataPromises['${loaderKey}']['${dataKey}'] = {
-      'resolve': resolve,
-      'reject': reject
-    };
-  }
-);`,
-  )
-  .join('\n')}
-`,
-        }}
-      />
       {deferPromises.map(({ loaderKey, dataKey, promise }) => (
         <DeferPromise
-          key={`${loaderData}-${dataKey}`}
+          key={`${loaderKey}-${dataKey}`}
           loaderKey={loaderKey}
           dataKey={dataKey}
           promise={promise}
@@ -113,15 +84,52 @@ const DeferPromiseReject = ({
   );
 };
 
-function getDeferPromises({
-  loaderData,
-}: StaticHandlerContext): DeferPromiseProps[] {
-  const loaderKeys = Object.keys(loaderData);
+export function getRouterHydrationScript(context?: StaticHandlerContext) {
+  if (!context) {
+    return '';
+  }
+
+  const { loaderData, actionData, errors } = context;
+
+  const json = htmlEscape(
+    JSON.stringify(
+      JSON.stringify({
+        loaderData,
+        actionData,
+        errors: serializeErrors(errors),
+      }),
+    ),
+  );
+
+  const deferPromises = getDeferPromises(context);
+
+  return `window.__staticRouterHydrationData = JSON.parse(${json});
+window.__staticRouterHydrationDataPromises = {};
+${deferPromises
+  .map(
+    ({
+      loaderKey,
+      dataKey,
+    }) => `window.__staticRouterHydrationData.loaderData['${loaderKey}']['${dataKey}'] = new Promise(
+  (resolve, reject) => {
+    window.__staticRouterHydrationDataPromises['${loaderKey}'] = window.__staticRouterHydrationDataPromises['${loaderKey}'] || {};
+    window.__staticRouterHydrationDataPromises['${loaderKey}']['${dataKey}'] = {
+      'resolve': resolve,
+      'reject': reject
+    };
+  }
+);`,
+  )
+  .join('\n')}`;
+}
+
+function getDeferPromises(context: StaticHandlerContext): DeferPromiseProps[] {
+  const loaderKeys = Object.keys(context.loaderData);
 
   const deferPromises: DeferPromiseProps[] = [];
 
   loaderKeys.forEach(loaderKey => {
-    const data = loaderData[loaderKey];
+    const data = context.loaderData[loaderKey];
 
     if (typeof data === 'object' && data) {
       const dataKeys = Object.keys(data);

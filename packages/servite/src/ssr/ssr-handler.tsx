@@ -10,10 +10,10 @@ import {
   setResponseStatus,
 } from 'vinxi/http';
 import { getManifest } from 'vinxi/manifest';
-import { renderAsset } from '@vinxi/react';
 import {
   createStaticHandler,
   createStaticRouter,
+  StaticHandlerContext,
   StaticRouterProvider,
 } from 'react-router-dom/server';
 import reactDomServer, {
@@ -25,62 +25,25 @@ import { isbot } from 'isbot';
 import { RouterName } from '../types/index.js';
 import { onBeforeResponse } from '../server/on-before-response.js';
 import { getRoutes, HANDLE_INIT_KEY } from './routes.js';
-import { RouterHydration } from './RouterHydration.js';
+import {
+  getRouterHydrationScript,
+  RouterHydration,
+} from './RouterHydration.js';
 import {
   transformHtmlForReadableStream,
   transformHtmlForPipeableStream,
+  HelmetContext,
 } from './transform-html.js';
-import { groupHtmlTags, renderTags } from './html-tags.js';
 
-type HelmetContext = NonNullable<
-  React.ComponentProps<typeof HelmetProvider>['context']
->;
-
-async function getHtml(event: H3Event, helmetContext: HelmetContext) {
-  const clientManifest = getManifest(RouterName.Client);
-  const assets = (await clientManifest.inputs[
-    clientManifest.handler
-  ].assets()) as any as {
-    tag: string;
-    attrs: Record<string, string>;
-    children: any;
-  }[];
-
-  const app = await getApp(event, helmetContext);
-
-  if (app instanceof Response) {
-    return app;
-  }
-
-  const { headTags, headPrependTags, bodyTags, bodyPrependTags } =
-    groupHtmlTags(event.context._templateInjectedTags);
-
-  return (
-    <html>
-      <head>
-        {renderTags(headPrependTags)}
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <template id="__HEAD_TAGS__"></template>
-        {assets.map(asset => renderAsset(asset))}
-        {renderTags(headTags)}
-      </head>
-      <body>
-        {renderTags(bodyPrependTags)}
-        <noscript>
-          We&apos;re sorry but react app doesn&apos;t work properly without
-          JavaScript enabled. Please enable it to continue.
-        </noscript>
-        {app}
-        {renderTags(bodyTags)}
-      </body>
-    </html>
-  );
-}
-
-async function getApp(event: H3Event, helmetContext: HelmetContext) {
+async function getApp(
+  event: H3Event,
+  helmetContext: HelmetContext,
+): Promise<{
+  app?: React.ReactNode;
+  handlerContext?: Response | StaticHandlerContext;
+}> {
   if (!event.context.ssr) {
-    return <div id="root" />;
+    return {};
   }
 
   const routes = getRoutes();
@@ -91,7 +54,7 @@ async function getApp(event: H3Event, helmetContext: HelmetContext) {
   const handlerContext = await staticHandler.query(getWebRequest(event));
 
   if (handlerContext instanceof Response) {
-    return handlerContext;
+    return { handlerContext };
   }
 
   // set response status
@@ -105,33 +68,37 @@ async function getApp(event: H3Event, helmetContext: HelmetContext) {
 
   const router = createStaticRouter(routes, handlerContext);
 
-  return (
+  const app = (
     <>
+      <HelmetProvider context={helmetContext}>
+        <StaticRouterProvider
+          router={router}
+          context={handlerContext}
+          hydrate={false}
+        />
+      </HelmetProvider>
       <RouterHydration context={handlerContext} />
-      <div id="root">
-        <HelmetProvider context={helmetContext}>
-          <StaticRouterProvider
-            router={router}
-            context={handlerContext}
-            hydrate={false}
-          />
-        </HelmetProvider>
-      </div>
     </>
   );
+
+  return {
+    app,
+    handlerContext,
+  };
 }
 
 async function render(event: H3Event) {
   const helmetContext: HelmetContext = {};
-  const html = await getHtml(event, helmetContext);
+  const { app, handlerContext } = await getApp(event, helmetContext);
 
-  if (html instanceof Response) {
-    return html;
+  if (handlerContext instanceof Response) {
+    return handlerContext;
   }
 
   const clientManifest = getManifest(RouterName.Client);
   const bootstrapScriptContent = `window.__servite__ = ${JSON.stringify({ ssr: event.context.ssr, ssrFallback: event.context.ssrFallback })};
-window.manifest = ${JSON.stringify(await clientManifest.json())};`;
+window.manifest = ${JSON.stringify(await clientManifest.json())};
+${getRouterHydrationScript(handlerContext)}`;
   const bootstrapModules = [
     clientManifest.inputs[clientManifest.handler].output.path,
   ];
@@ -145,7 +112,7 @@ window.manifest = ${JSON.stringify(await clientManifest.json())};`;
 
   // For environments with Web Streams, like Deno and modern edge runtimes
   if (typeof reactDomServer.renderToReadableStream === 'function') {
-    const stream = await reactDomServer.renderToReadableStream(html, {
+    const stream = await reactDomServer.renderToReadableStream(app, {
       bootstrapScriptContent,
       bootstrapModules,
       onError,
@@ -171,7 +138,7 @@ window.manifest = ${JSON.stringify(await clientManifest.json())};`;
   // For Node.js
   if (typeof reactDomServer.renderToPipeableStream === 'function') {
     const stream = await new Promise<PipeableStream>((resolve, reject) => {
-      const stream = renderToPipeableStream(html, {
+      const stream = renderToPipeableStream(app, {
         bootstrapScriptContent,
         bootstrapModules,
         onShellReady() {

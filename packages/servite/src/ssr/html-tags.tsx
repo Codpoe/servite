@@ -1,9 +1,15 @@
-import React from 'react';
-import { HtmlTag } from '../types/index.js';
+import { HtmlTag, HtmlTagWithoutInjectTo } from '../types/index.js';
 
 const selfCloseTags = new Set(['link', 'meta', 'base']);
 
-export function groupHtmlTags(tags: HtmlTag[] = []) {
+export interface InjectedTags {
+  headTags?: HtmlTag[];
+  headPrependTags?: HtmlTag[];
+  bodyTags?: HtmlTag[];
+  bodyPrependTags?: HtmlTag[];
+}
+
+export function groupHtmlTags(tags: HtmlTag[] = []): InjectedTags {
   let headTags: HtmlTag[] | undefined;
   let headPrependTags: HtmlTag[] | undefined;
   let bodyTags: HtmlTag[] | undefined;
@@ -34,16 +40,23 @@ export function groupHtmlTags(tags: HtmlTag[] = []) {
   };
 }
 
-export function serializeTags(tags?: HtmlTag[] | string): string {
+export function serializeTags(
+  tags?: HtmlTagWithoutInjectTo[] | string,
+  indent = '',
+): string {
   if (typeof tags === 'string') {
     return tags;
   } else if (tags?.length) {
-    return tags.map(tag => serializeTag(tag)).join('\n');
+    return tags.map(tag => serializeTag(tag)).join(`\n${indent}`);
   }
   return '';
 }
 
-function serializeTag({ tag, attrs, children }: HtmlTag): string {
+function serializeTag({
+  tag,
+  attrs,
+  children,
+}: HtmlTagWithoutInjectTo): string {
   if (selfCloseTags.has(tag)) {
     return `<${tag}${serializeAttrs(attrs)}>`;
   }
@@ -56,25 +69,11 @@ function serializeAttrs(attrs?: Record<string, any>): string {
   if (attrs) {
     for (const key in attrs) {
       if (typeof attrs[key] === 'boolean') {
-        res += attrs[key] ? ` ${key}` : ``;
+        res += attrs[key] ? ` ${key.toLowerCase()}` : ``;
       } else {
-        res += ` ${key}=${JSON.stringify(attrs[key])}`;
+        res += ` ${key.toLowerCase()}=${JSON.stringify(attrs[key])}`;
       }
     }
   }
   return res;
-}
-
-export function renderTags(tags?: HtmlTag[] | string): React.ReactNode {
-  if (typeof tags === 'string') {
-    return tags;
-  } else if (tags?.length) {
-    return tags.map(tag => renderTag(tag));
-  }
-  return null;
-}
-
-function renderTag({ tag, attrs, children }: HtmlTag): React.ReactNode {
-  const Tag: any = tag;
-  return <Tag {...attrs}>{renderTags(children)}</Tag>;
 }

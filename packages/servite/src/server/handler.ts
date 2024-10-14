@@ -36,10 +36,6 @@ declare module 'vinxi/http' {
      */
     _matchedServerFsRoute?: ReturnType<typeof findRoute<FsRouteMod>>;
     /**
-     * Internal used to store the tags for template injection.
-     */
-    _templateInjectedTags?: HtmlTag[];
-    /**
      * Internal used to store the tags for html injection.
      */
     _htmlInjectedTags?: HtmlTag[];
@@ -67,16 +63,6 @@ const rootMiddleware: Middleware = (event, next) => {
 
   event.context.isServerRequest = Boolean(event.context._matchedServerFsRoute);
   event.context.isPageRequest = !event.context.isServerRequest;
-
-  // Add utils for ssr.
-  event.context.template = {
-    inject(tags) {
-      event.context._templateInjectedTags ||= [];
-      event.context._templateInjectedTags.push(
-        ...(Array.isArray(tags) ? tags : [tags]),
-      );
-    },
-  };
 
   event.context.html = {
     inject(tags) {

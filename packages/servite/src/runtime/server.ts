@@ -28,12 +28,6 @@ declare module 'vinxi/http' {
      */
     logger: Logger;
     /**
-     * Utils for modifying the template of SSR.
-     */
-    template?: {
-      inject(tags: HtmlTag | HtmlTag[]): void;
-    };
-    /**
      * Utils for modifying the result html of SSR.
      */
     html?: {
