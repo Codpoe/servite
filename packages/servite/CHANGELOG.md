@@ -1,5 +1,11 @@
 # servite
 
+## 2.0.6
+
+### Patch Changes
+
+- fix: refactor ssr rendering logic to fix useId() mismatch error
+
 ## 2.0.5
 
 ### Patch Changes
