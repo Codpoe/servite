@@ -114,6 +114,8 @@ export default function ${apiName}(args, { routerParams = {}, ...opts } = {}) {
 ${apiName}.raw = (args, opts) => {
   return ${apiName}(args, { ...opts, _raw: true });
 };
+
+${apiName}.routePath = '${route.routePath}';
 `;
       }
     },

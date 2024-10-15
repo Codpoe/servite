@@ -74,6 +74,12 @@ export interface EventHandlerForUnifiedInvocation<
       ? FetchOptions & { routerParams: RouterParams }
       : FetchOptions,
   ) => Promise<Response>;
+  /**
+   * The routePath of the handler.
+   *
+   * Convenient integration with request libraries such as swr and react-query
+   */
+  routePath: string;
 }
 
 type GetRequestArgs<T extends EventHandlerRequest> =
@@ -85,11 +91,11 @@ type GetRequestArgs<T extends EventHandlerRequest> =
 
 export function defineEventHandler<
   Request extends EventHandlerRequest = EventHandlerRequest,
-  Response = EventHandlerResponse,
+  Response = any,
 >(
   handler:
-    | EventHandler<Request, Response>
-    | EventHandlerObject<Request, Response>,
+    | EventHandler<Request, EventHandlerResponse<Response>>
+    | EventHandlerObject<Request, EventHandlerResponse<Response>>,
 ) {
   return _defineEventHandler(
     handler,
