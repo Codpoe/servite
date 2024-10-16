@@ -51,7 +51,9 @@ async function getApp(
     basename: import.meta.env.SERVER_BASE,
   });
   // run router loader
-  const handlerContext = await staticHandler.query(getWebRequest(event));
+  const handlerContext = await staticHandler.query(getWebRequest(event), {
+    requestContext: event.context,
+  });
 
   if (handlerContext instanceof Response) {
     return { handlerContext };

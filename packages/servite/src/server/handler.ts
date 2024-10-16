@@ -13,6 +13,7 @@ import {
   HtmlTag,
   HtmlTransformer,
   Middleware,
+  RouterName,
   ServerFsRouteModule,
 } from '../types/index.js';
 import { onBeforeResponse } from './on-before-response.js';
@@ -61,8 +62,13 @@ const rootMiddleware: Middleware = (event, next) => {
     event.path,
   );
 
-  event.context.isServerRequest = Boolean(event.context._matchedServerFsRoute);
-  event.context.isPageRequest = !event.context.isServerRequest;
+  if (event.context._matchedServerFsRoute) {
+    event.context.routerName = RouterName.Server;
+  } else if (event.path === '/_server') {
+    event.context.routerName = RouterName.ServerFns;
+  } else {
+    event.context.routerName = RouterName.SSR;
+  }
 
   event.context.html = {
     inject(tags) {
@@ -88,6 +94,7 @@ const rootMiddleware: Middleware = (event, next) => {
 
   setResponseHeaders(event, {
     'x-powered-by': 'Servite',
+    'x-servite-router': event.context.routerName || 'unknown',
   });
 
   return next();

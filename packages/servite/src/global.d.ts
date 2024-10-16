@@ -12,3 +12,7 @@ declare module '@vinxi/server-functions/plugin' {
     ) => HandlerRouterInput;
   };
 }
+
+declare module '@vinxi/server-functions/server-handler' {
+  export const handleServerAction: (event: any) => Promise<string | Response>;
+}

@@ -1,10 +1,9 @@
 import { defineMiddleware } from 'servite/runtime/server';
 
 export default defineMiddleware(async (event, next) => {
-  // eslint-disable-next-line no-console
-  console.log('[middleware:ctx] extend ctx', event.path);
+  // console.log('[middleware:ctx] extend ctx', event.path);
   event.context.hello = 'world';
   await next();
-  // eslint-disable-next-line no-console
-  console.log('[middleware:ctx] before response', event.path);
+
+  // console.log('[middleware:ctx] before response', event.path);
 });

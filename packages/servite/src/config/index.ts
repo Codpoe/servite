@@ -198,6 +198,16 @@ export function defineConfig({
         ],
       },
       {
+        ...serverFunctions.router(routers?.[RouterName.ServerFns] as any),
+        name: RouterName.ServerFns,
+        // Force the ssr base to be set to '/',
+        // so that the server middlewares can also run in server-fns.
+        base: '/',
+        handler: fileURLToPath(
+          new URL('../server-fns/handler.js', import.meta.url),
+        ),
+      },
+      {
         name: RouterName.SSR,
         type: 'http',
         target: 'server',
@@ -295,10 +305,6 @@ export function defineConfig({
           }),
           ...((await routers?.[RouterName.Client]?.plugins) ?? []),
         ],
-      },
-      {
-        ...serverFunctions.router(routers?.[RouterName.ServerFns] as any),
-        name: RouterName.ServerFns,
       },
     ],
   });

@@ -6,7 +6,12 @@ import {
   EventHandlerResponse,
 } from 'vinxi/http';
 import type { FetchOptions } from 'ofetch';
-import type { HtmlTag, HtmlTransformer, Middleware } from '../types/index.js';
+import type {
+  HtmlTag,
+  HtmlTransformer,
+  Middleware,
+  RouterName,
+} from '../types/index.js';
 
 export * from 'vinxi/http';
 export type { Middleware, HtmlTag, HtmlTransformer };
@@ -35,13 +40,9 @@ declare module 'vinxi/http' {
       addTransformer(fn: HtmlTransformer): void;
     };
     /**
-     * Whether the request is a server endpoint request.
+     * Indicates the name of request router.
      */
-    isServerRequest?: boolean;
-    /**
-     * Whether the request is a page request.
-     */
-    isPageRequest?: boolean;
+    routerName?: RouterName;
     /**
      * Whether to use SSR
      */
