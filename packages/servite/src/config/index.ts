@@ -167,6 +167,57 @@ export function defineConfig({
         ...routers?.[RouterName.Public],
       },
       {
+        name: RouterName.Client,
+        type: 'client',
+        target: 'browser',
+        base: routerClientBase,
+        handler: fileURLToPath(
+          new URL('../ssr/client-handler.js', import.meta.url),
+        ),
+        routes: (router, app) =>
+          new PagesFsRouter(
+            {
+              base: routerSSRBase,
+              dir: resolvedPagesDir,
+              extensions: ['tsx', 'ts', 'jsx', 'js', 'mdx', 'md'],
+            },
+            router,
+            app,
+          ),
+        ...routers?.[RouterName.Client],
+        plugins: async (): Promise<Plugin[]> => [
+          islands(),
+          viteTsConfigPaths(userConfig.viteTsConfigPaths),
+          mdxPlus({ providerImportSource: 'servite/runtime/mdx' }),
+          viteReact({
+            ...userConfig.viteReact,
+            include: /\.([tj]s|md)x?$/,
+            exclude: toArray(userConfig.viteReact?.exclude).concat(
+              fileURLToPath(new URL('../ssr/routes.js', import.meta.url)),
+            ),
+          }),
+          serverFunctions.client(),
+          config('servite-client-config', () => ({
+            define: getDefines(),
+            optimizeDeps: {
+              entries: [
+                fileURLToPath(
+                  new URL('../ssr/client-handler.js', import.meta.url),
+                ),
+              ],
+            },
+          })),
+          hmr({ app }),
+          unifiedInvocation({
+            app,
+            srcDir: resolvedSrcDir,
+            serverDir: resolvedServerDir,
+            serverRoutesDir: resolvedServerRoutesDir,
+          }),
+          ...((await routers?.[RouterName.Client]?.plugins) ?? []),
+        ],
+      },
+      {
         name: RouterName.Server,
         type: 'http',
         target: 'server',
@@ -253,57 +304,6 @@ export function defineConfig({
             serverRoutesDir: resolvedServerRoutesDir,
           }),
           ...((await routers?.[RouterName.SSR]?.plugins) ?? []),
-        ],
-      },
-      {
-        name: RouterName.Client,
-        type: 'client',
-        target: 'browser',
-        base: routerClientBase,
-        handler: fileURLToPath(
-          new URL('../ssr/client-handler.js', import.meta.url),
-        ),
-        routes: (router, app) =>
-          new PagesFsRouter(
-            {
-              base: routerSSRBase,
-              dir: resolvedPagesDir,
-              extensions: ['tsx', 'ts', 'jsx', 'js', 'mdx', 'md'],
-            },
-            router,
-            app,
-          ),
-        ...routers?.[RouterName.Client],
-        plugins: async (): Promise<Plugin[]> => [
-          islands(),
-          viteTsConfigPaths(userConfig.viteTsConfigPaths),
-          mdxPlus({ providerImportSource: 'servite/runtime/mdx' }),
-          viteReact({
-            ...userConfig.viteReact,
-            include: /\.([tj]s|md)x?$/,
-            exclude: toArray(userConfig.viteReact?.exclude).concat(
-              fileURLToPath(new URL('../ssr/routes.js', import.meta.url)),
-            ),
-          }),
-          serverFunctions.client(),
-          config('servite-client-config', () => ({
-            define: getDefines(),
-            optimizeDeps: {
-              entries: [
-                fileURLToPath(
-                  new URL('../ssr/client-handler.js', import.meta.url),
-                ),
-              ],
-            },
-          })),
-          hmr({ app }),
-          unifiedInvocation({
-            app,
-            srcDir: resolvedSrcDir,
-            serverDir: resolvedServerDir,
-            serverRoutesDir: resolvedServerRoutesDir,
-          }),
-          ...((await routers?.[RouterName.Client]?.plugins) ?? []),
         ],
       },
     ],
