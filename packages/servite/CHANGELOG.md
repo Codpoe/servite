@@ -1,5 +1,11 @@
 # servite
 
+## 2.0.11
+
+### Patch Changes
+
+- fix: add import.meta.env.SERVER_BASE_URL
+
 ## 2.0.10
 
 ### Patch Changes
