@@ -149,10 +149,11 @@ export function defineConfig({
   const routerSSRBase = routers?.[RouterName.SSR]?.base || '/';
   const routerClientBase = routers?.[RouterName.Client]?.base || '/_build';
 
-  const getDefines = (): Record<string, any> => ({
+  const getDefines = (routerName: RouterName): Record<string, any> => ({
     'import.meta.env.SERVER_BASE': JSON.stringify(server.baseURL),
     'import.meta.env.ROUTER_SERVER_BASE': JSON.stringify(routerServerBase),
     'import.meta.env.ROUTER_SSR_BASE': JSON.stringify(routerSSRBase),
+    'import.meta.env.ROUTER_NAME': JSON.stringify(routerName),
   });
 
   const app = createApp({
@@ -198,7 +199,7 @@ export function defineConfig({
           }),
           serverFunctions.client(),
           config('servite-client-config', () => ({
-            define: getDefines(),
+            define: getDefines(RouterName.Client),
             optimizeDeps: {
               entries: [
                 fileURLToPath(
@@ -243,13 +244,13 @@ export function defineConfig({
         plugins: () => [
           config('servite-server-config', () => ({
             define: {
-              ...getDefines(),
+              ...getDefines(RouterName.Server),
             },
           })),
         ],
       },
-      {
-        ...serverFunctions.router(routers?.[RouterName.ServerFns] as any),
+      serverFunctions.router({
+        ...(routers?.[RouterName.ServerFns] as any),
         name: RouterName.ServerFns,
         // Force the ssr base to be set to '/',
         // so that the server middlewares can also run in server-fns.
@@ -257,7 +258,14 @@ export function defineConfig({
         handler: fileURLToPath(
           new URL('../server-fns/handler.js', import.meta.url),
         ),
-      },
+        plugins: () => [
+          config('servite-server-fns-config', () => ({
+            define: {
+              ...getDefines(RouterName.ServerFns),
+            },
+          })),
+        ],
+      }),
       {
         name: RouterName.SSR,
         type: 'http',
@@ -286,7 +294,7 @@ export function defineConfig({
           viteReact(userConfig.viteReact),
           config('servite-ssr-config', () => ({
             define: {
-              ...getDefines(),
+              ...getDefines(RouterName.SSR),
             },
             ssr: {
               // The package.json "type" of react-helmet-async is not "module",

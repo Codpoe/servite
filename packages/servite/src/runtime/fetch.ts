@@ -16,7 +16,7 @@ export interface ServiteFetch {
 
 // eslint-disable-next-line import-x/export
 export const $fetch: ServiteFetch = (url, options) => {
-  if (import.meta.env.SSR) {
+  if (import.meta.env.ROUTER_NAME !== 'client') {
     return import('vinxi/http').then(({ getEvent, fetchWithEvent }) => {
       const event = getEvent();
       let fetch: any = globalThis.$fetch || _$fetch;
