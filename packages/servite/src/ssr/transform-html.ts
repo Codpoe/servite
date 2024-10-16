@@ -1,7 +1,7 @@
 import { Transform } from 'stream';
-import { HelmetProvider } from 'react-helmet-async';
 import { H3Event } from 'vinxi/http';
 import { getManifest } from 'vinxi/manifest';
+import { HelmetProvider } from '../libs/react-helmet-async/index.js';
 import { HtmlTagWithoutInjectTo, RouterName } from '../types/index.js';
 import { groupHtmlTags, InjectedTags, serializeTags } from './html-tags.js';
 

@@ -215,7 +215,7 @@ export function defineConfig({
             serverDir: resolvedServerDir,
             serverRoutesDir: resolvedServerRoutesDir,
           }),
-          ...((await routers?.[RouterName.Client]?.plugins) ?? []),
+          ...((await routers?.[RouterName.Client]?.plugins?.()) ?? []),
         ],
       },
       {
@@ -242,6 +242,7 @@ export function defineConfig({
         // It would be useful for modifying the SSR request and response
         base: '/',
         plugins: () => [
+          viteTsConfigPaths(userConfig.viteTsConfigPaths),
           config('servite-server-config', () => ({
             define: {
               ...getDefines(RouterName.Server),
@@ -259,6 +260,7 @@ export function defineConfig({
           new URL('../server-fns/handler.js', import.meta.url),
         ),
         plugins: () => [
+          viteTsConfigPaths(userConfig.viteTsConfigPaths),
           config('servite-server-fns-config', () => ({
             define: {
               ...getDefines(RouterName.ServerFns),
@@ -296,12 +298,12 @@ export function defineConfig({
             define: {
               ...getDefines(RouterName.SSR),
             },
-            ssr: {
-              // The package.json "type" of react-helmet-async is not "module",
-              // but its ES format file extension is not "mjs",
-              // so nodejs parsing will fail, and we need to handle it through vite
-              noExternal: ['react-helmet-async'],
-            },
+            // ssr: {
+            //   // The package.json "type" of react-helmet-async is not "module",
+            //   // but its ES format file extension is not "mjs",
+            //   // so nodejs parsing will fail, and we need to handle it through vite
+            //   noExternal: ['react-helmet-async'],
+            // },
             // Set `base` here to make the SSR asset url consistent with the client
             base: routerClientBase,
           })),
@@ -311,7 +313,7 @@ export function defineConfig({
             serverDir: resolvedServerDir,
             serverRoutesDir: resolvedServerRoutesDir,
           }),
-          ...((await routers?.[RouterName.SSR]?.plugins) ?? []),
+          ...((await routers?.[RouterName.SSR]?.plugins?.()) ?? []),
         ],
       },
     ],

@@ -20,8 +20,8 @@ import reactDomServer, {
   PipeableStream,
   renderToPipeableStream,
 } from 'react-dom/server';
-import { HelmetProvider } from 'react-helmet-async';
 import { isbot } from 'isbot';
+import { HelmetProvider } from '../libs/react-helmet-async/index.js';
 import { RouterName } from '../types/index.js';
 import { onBeforeResponse } from '../server/on-before-response.js';
 import { getRoutes, HANDLE_INIT_KEY } from './routes.js';

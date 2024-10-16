@@ -7,8 +7,8 @@ import {
   RouterProviderProps,
   To,
 } from 'react-router-dom';
-import { HelmetProvider } from 'react-helmet-async';
 import { createRoot, hydrateRoot, Root } from 'react-dom/client';
+import { HelmetProvider } from '../libs/react-helmet-async/index.js';
 import { getRoutes, HANDLE_INIT_KEY } from './routes.js';
 import { RouterHydration } from './RouterHydration.js';
 
