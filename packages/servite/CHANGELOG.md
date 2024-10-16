@@ -1,5 +1,11 @@
 # servite
 
+## 2.0.10
+
+### Patch Changes
+
+- fix: prebundle react-helmet-async to fix cjs error
+
 ## 2.0.9
 
 ### Patch Changes
