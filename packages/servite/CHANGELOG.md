@@ -1,5 +1,11 @@
 # servite
 
+## 2.0.9
+
+### Patch Changes
+
+- fix: fix treeshaking issue with runtime fetch
+
 ## 2.0.8
 
 ### Patch Changes
