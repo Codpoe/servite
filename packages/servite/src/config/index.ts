@@ -150,6 +150,9 @@ export function defineConfig({
   const routerClientBase = routers?.[RouterName.Client]?.base || '/_build';
 
   const getDefines = (routerName: RouterName): Record<string, any> => ({
+    'import.meta.env.SERVER_BASE_URL': JSON.stringify(
+      server.baseURL.replace(/\/$/, ''),
+    ),
     'import.meta.env.SERVER_BASE': JSON.stringify(server.baseURL),
     'import.meta.env.ROUTER_SERVER_BASE': JSON.stringify(routerServerBase),
     'import.meta.env.ROUTER_SSR_BASE': JSON.stringify(routerSSRBase),
