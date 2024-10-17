@@ -80,6 +80,8 @@ export function unifiedInvocation({
         return `import { getFetch } from 'servite/runtime/fetch';
 ${options?.ssr ? `import { getRequestHeader, getRequestProtocol, getRequestHost } from 'servite/runtime/server';` : ''}
 
+globalThis.__META_ENV_SSR__ ??= __META_ENV_SSR__;
+
 ${enumCode}
 
 export default function ${apiName}(args, { routerParams = {}, ...opts } = {}) {

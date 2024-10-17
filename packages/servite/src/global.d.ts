@@ -1,6 +1,8 @@
 // eslint-disable-next-line @typescript-eslint/triple-slash-reference
 /// <reference path="../env.d.ts" />
 
+declare const __META_ENV_SSR__: boolean;
+
 declare module '@vinxi/server-functions/plugin' {
   import { HandlerRouterInput } from 'vinxi';
 

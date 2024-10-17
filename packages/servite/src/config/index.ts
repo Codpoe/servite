@@ -202,7 +202,10 @@ export function defineConfig({
           }),
           serverFunctions.client(),
           config('servite-client-config', () => ({
-            define: getDefines(RouterName.Client),
+            define: {
+              ...getDefines(RouterName.Client),
+              __META_ENV_SSR__: JSON.stringify(false),
+            },
             optimizeDeps: {
               entries: [
                 fileURLToPath(
@@ -300,6 +303,7 @@ export function defineConfig({
           config('servite-ssr-config', () => ({
             define: {
               ...getDefines(RouterName.SSR),
+              __META_ENV_SSR__: JSON.stringify(true),
             },
             // ssr: {
             //   // The package.json "type" of react-helmet-async is not "module",
